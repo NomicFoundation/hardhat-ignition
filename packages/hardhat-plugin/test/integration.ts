@@ -86,6 +86,40 @@ describe("integration tests", function () {
     });
   });
 
+  it("should deploy a contract with a library", async function () {
+    // given
+    const withLibModule = buildModule("LibModule", (m) => {
+      const rubbishMath = m.contract("RubbishMath");
+
+      const dependsOnLib = m.contract("DependsOnLib", {
+        libraries: {
+          RubbishMath: rubbishMath,
+        },
+      });
+
+      return { dependsOnLib };
+    });
+
+    // when
+    const deploymentResult = await deployModules(
+      this.hre,
+      [withLibModule],
+      [1, 1]
+    );
+
+    // then
+    await assertDeploymentState(this.hre, deploymentResult, {
+      LibModule: {
+        RubbishMath: resultAssertions.contract(async (rubbishMath) => {
+          assert.equal(await rubbishMath.add(1, 2), 3);
+        }),
+        DependsOnLib: resultAssertions.contract(async (dependsOnLib) => {
+          assert.equal(await dependsOnLib.addThreeNumbers(1, 2, 3), 6);
+        }),
+      },
+    });
+  });
+
   it("should call a function in a contract", async function () {
     // given
     const userModule = buildModule("MyModule", (m) => {
