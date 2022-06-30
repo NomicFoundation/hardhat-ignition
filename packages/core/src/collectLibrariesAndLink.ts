@@ -1,4 +1,3 @@
-import type { ethers } from "ethers";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
@@ -20,7 +19,7 @@ export async function collectLibrariesAndLink(
   artifact: Artifact,
   libraries: Libraries
 ) {
-  const { utils } = require("ethers") as typeof ethers;
+  const { utils } = await import("ethers");
 
   const neededLibraries: Array<{
     sourceName: string;
