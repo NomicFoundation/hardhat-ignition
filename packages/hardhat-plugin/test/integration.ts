@@ -31,6 +31,27 @@ describe("integration tests", function () {
     });
   });
 
+  it("should deploy a contract with an abi/bytecode", async function () {
+    const artifact = await this.hre.artifacts.readArtifact("Foo");
+
+    // given
+    const userModule = buildModule("MyModule", (m) => {
+      m.contract("Foo", artifact);
+    });
+
+    // when
+    const deploymentResult = await deployModules(this.hre, [userModule], [1]);
+
+    // then
+    await assertDeploymentState(this.hre, deploymentResult, {
+      MyModule: {
+        Foo: resultAssertions.contract(async (foo) => {
+          assert.isTrue(await foo.isFoo());
+        }),
+      },
+    });
+  });
+
   it("should deploy two contracts in parallel", async function () {
     // given
     const userModule = buildModule("MyModule", (m) => {
