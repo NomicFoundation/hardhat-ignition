@@ -121,10 +121,106 @@ describe("contract deploys", () => {
         },
       });
     });
+
+    describe("libraries", () => {
+      it("should deploy a contract with a library", async function () {
+        // given
+        const withLibModule = buildModule("LibModule", (m) => {
+          const rubbishMath = m.contract("RubbishMath");
+
+          const dependsOnLib = m.contract("DependsOnLib", {
+            libraries: {
+              RubbishMath: rubbishMath,
+            },
+          });
+
+          return { dependsOnLib };
+        });
+
+        // when
+        const deploymentResult = await deployModules(
+          this.hre,
+          [withLibModule],
+          [1, 1]
+        );
+
+        // then
+        await assertDeploymentState(this.hre, deploymentResult, {
+          LibModule: {
+            RubbishMath: resultAssertions.contract(async (rubbishMath) => {
+              assert.equal(await rubbishMath.add(1, 2), 3);
+            }),
+            DependsOnLib: resultAssertions.contract(async (dependsOnLib) => {
+              assert.equal(await dependsOnLib.addThreeNumbers(1, 2, 3), 6);
+            }),
+          },
+        });
+      });
+
+      it("should deploy a contract with an existing library", async function () {
+        // given
+        const rubbishMathLibModule = buildModule(
+          "RubbishMathLibModule",
+          (m) => {
+            const rubbishMath = m.contract("RubbishMath");
+
+            return { rubbishMath };
+          }
+        );
+
+        const rubbishMathDeploymentResult = await deployModules(
+          this.hre,
+          [rubbishMathLibModule],
+          [1]
+        );
+
+        if (
+          !isContract(
+            rubbishMathDeploymentResult.RubbishMathLibModule.RubbishMath.value
+          )
+        ) {
+          assert.fail("Expected library deployed");
+        }
+
+        const { address, abi } =
+          rubbishMathDeploymentResult.RubbishMathLibModule.RubbishMath.value;
+
+        const withLibModule = buildModule("LibModule", (m) => {
+          const rubbishMath = m.contractAt("RubbishMath", address, abi);
+
+          const dependsOnLib = m.contract("DependsOnLib", {
+            libraries: {
+              RubbishMath: rubbishMath,
+            },
+          });
+
+          return { dependsOnLib };
+        });
+
+        // when
+        const deploymentResult = await deployModules(
+          this.hre,
+          [withLibModule],
+          [1]
+        );
+
+        // then
+        await assertDeploymentState(this.hre, deploymentResult, {
+          LibModule: {
+            RubbishMath: resultAssertions.contract(async (rubbishMath) => {
+              assert.equal(await rubbishMath.add(1, 2), 3);
+            }),
+            DependsOnLib: resultAssertions.contract(async (dependsOnLib) => {
+              assert.equal(await dependsOnLib.addThreeNumbers(1, 2, 3), 6);
+            }),
+          },
+        });
+      });
+    });
   });
 
   describe("abi/bytecodes", () => {
-    it("should deploy a contract with an abi/bytecode", async function () {
+    it("should deploy a contract", async function () {
       const artifact = await this.hre.artifacts.readArtifact("Foo");
 
       // given
@@ -142,6 +238,46 @@ describe("contract deploys", () => {
             assert.isTrue(await foo.isFoo());
           }),
         },
+      });
+    });
+
+    describe("libraries", () => {
+      it("should deploy a contract with a library", async function () {
+        const rubbishMathArtifact = await this.hre.artifacts.readArtifact(
+          "RubbishMath"
+        );
+
+        // given
+        const withLibModule = buildModule("LibModule", (m) => {
+          const rubbishMath = m.contract("RubbishMath", rubbishMathArtifact);
+
+          const dependsOnLib = m.contract("DependsOnLib", {
+            libraries: {
+              RubbishMath: rubbishMath,
+            },
+          });
+
+          return { dependsOnLib };
+        });
+
+        // when
+        const deploymentResult = await deployModules(
+          this.hre,
+          [withLibModule],
+          [1, 1]
+        );
+
+        // then
+        await assertDeploymentState(this.hre, deploymentResult, {
+          LibModule: {
+            RubbishMath: resultAssertions.contract(async (rubbishMath) => {
+              assert.equal(await rubbishMath.add(1, 2), 3);
+            }),
+            DependsOnLib: resultAssertions.contract(async (dependsOnLib) => {
+              assert.equal(await dependsOnLib.addThreeNumbers(1, 2, 3), 6);
+            }),
+          },
+        });
       });
     });
   });
@@ -185,99 +321,6 @@ describe("contract deploys", () => {
         ExistingFooModule: {
           ExistingFoo: resultAssertions.contract(async (existingFoo) => {
             assert.isTrue(await existingFoo.isFoo());
-          }),
-        },
-      });
-    });
-  });
-
-  describe("libraries", () => {
-    it("should deploy a contract with a library", async function () {
-      // given
-      const withLibModule = buildModule("LibModule", (m) => {
-        const rubbishMath = m.contract("RubbishMath");
-
-        const dependsOnLib = m.contract("DependsOnLib", {
-          libraries: {
-            RubbishMath: rubbishMath,
-          },
-        });
-
-        return { dependsOnLib };
-      });
-
-      // when
-      const deploymentResult = await deployModules(
-        this.hre,
-        [withLibModule],
-        [1, 1]
-      );
-
-      // then
-      await assertDeploymentState(this.hre, deploymentResult, {
-        LibModule: {
-          RubbishMath: resultAssertions.contract(async (rubbishMath) => {
-            assert.equal(await rubbishMath.add(1, 2), 3);
-          }),
-          DependsOnLib: resultAssertions.contract(async (dependsOnLib) => {
-            assert.equal(await dependsOnLib.addThreeNumbers(1, 2, 3), 6);
-          }),
-        },
-      });
-    });
-
-    it("should deploy a contract with an existing library", async function () {
-      // given
-      const rubbishMathLibModule = buildModule("RubbishMathLibModule", (m) => {
-        const rubbishMath = m.contract("RubbishMath");
-
-        return { rubbishMath };
-      });
-
-      const rubbishMathDeploymentResult = await deployModules(
-        this.hre,
-        [rubbishMathLibModule],
-        [1]
-      );
-
-      if (
-        !isContract(
-          rubbishMathDeploymentResult.RubbishMathLibModule.RubbishMath.value
-        )
-      ) {
-        assert.fail("Expected library deployed");
-      }
-
-      const { address, abi } =
-        rubbishMathDeploymentResult.RubbishMathLibModule.RubbishMath.value;
-
-      const withLibModule = buildModule("LibModule", (m) => {
-        const rubbishMath = m.contractAt("RubbishMath", address, abi);
-
-        const dependsOnLib = m.contract("DependsOnLib", {
-          libraries: {
-            RubbishMath: rubbishMath,
-          },
-        });
-
-        return { dependsOnLib };
-      });
-
-      // when
-      const deploymentResult = await deployModules(
-        this.hre,
-        [withLibModule],
-        [1]
-      );
-
-      // then
-      await assertDeploymentState(this.hre, deploymentResult, {
-        LibModule: {
-          RubbishMath: resultAssertions.contract(async (rubbishMath) => {
-            assert.equal(await rubbishMath.add(1, 2), 3);
-          }),
-          DependsOnLib: resultAssertions.contract(async (dependsOnLib) => {
-            assert.equal(await dependsOnLib.addThreeNumbers(1, 2, 3), 6);
           }),
         },
       });
