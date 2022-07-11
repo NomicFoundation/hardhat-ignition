@@ -24,18 +24,18 @@ type ModulesOutputs = Record<string, any>;
 
 export class Ignition {
   constructor(
-    public chainId: number,
     private _providers: Providers,
     private _modulesResults: IgnitionModulesResults
   ) {}
 
   public async deploy(
+    chainId: number,
     userModules: Array<UserModule<any>>,
     { pathToJournal, txPollingInterval }: IgnitionDeployOptions
   ): Promise<[DeploymentResult, ModulesOutputs]> {
     log(`Start deploy, '${userModules.length}' modules`);
 
-    const m = new ModuleBuilderImpl(this.chainId);
+    const m = new ModuleBuilderImpl(chainId);
 
     const modulesOutputs: ModulesOutputs = {};
 
@@ -77,11 +77,12 @@ export class Ignition {
   }
 
   public async buildPlan(
+    chainId: number,
     userModules: Array<UserModule<any>>
   ): Promise<DeploymentPlan> {
     log(`Start building plan, '${userModules.length}' modules`);
 
-    const m = new ModuleBuilderImpl(this.chainId);
+    const m = new ModuleBuilderImpl(chainId);
 
     for (const userModule of userModules) {
       log("Load module '%s'", userModule.id);

@@ -29,7 +29,7 @@ export class IgnitionWrapper {
     private _paths: HardhatPaths,
     private _deployOptions: IgnitionDeployOptions
   ) {
-    this._ignition = new Ignition(chainId, providers, {
+    this._ignition = new Ignition(providers, {
       load: (moduleId) => this._getModuleResult(moduleId),
       save: (moduleId, moduleResult) =>
         this._saveModuleResult(moduleId, moduleResult),
@@ -50,6 +50,9 @@ export class IgnitionWrapper {
    */
   public async deployMany(userModulesOrNames: Array<UserModule<any> | string>) {
     const userModules: Array<UserModule<any>> = [];
+
+    const chainId = await this._getChainId();
+
     for (const userModuleOrName of userModulesOrNames) {
       const userModule: UserModule<any> =
         typeof userModuleOrName === "string"
@@ -60,6 +63,7 @@ export class IgnitionWrapper {
     }
 
     const [deploymentResult, moduleOutputs] = await this._ignition.deploy(
+      chainId,
       userModules,
       this._deployOptions
     );
@@ -124,7 +128,9 @@ export class IgnitionWrapper {
       userModules.push(userModule);
     }
 
-    const plan = await this._ignition.buildPlan(userModules);
+    const chainId = await this._getChainId()
+
+    const plan = await this._ignition.buildPlan(chainId, userModules);
 
     return plan;
   }
@@ -192,6 +198,7 @@ export class IgnitionWrapper {
       this._paths.deployments,
       String(chainId)
     );
+
     fsExtra.ensureDirSync(deploymentsDirectory);
 
     const moduleResultPath = path.join(
