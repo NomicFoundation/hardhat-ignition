@@ -22,13 +22,14 @@ export class IgnitionWrapper {
   private _cachedChainId: number | undefined;
 
   constructor(
+    private chainId: number,
     providers: Providers,
     private _ethers: HardhatEthers,
     private _isHardhatNetwork: boolean,
     private _paths: HardhatPaths,
     private _deployOptions: IgnitionDeployOptions
   ) {
-    this._ignition = new Ignition(providers, {
+    this._ignition = new Ignition(chainId, providers, {
       load: (moduleId) => this._getModuleResult(moduleId),
       save: (moduleId, moduleResult) =>
         this._saveModuleResult(moduleId, moduleResult),
