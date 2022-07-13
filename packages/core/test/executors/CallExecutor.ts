@@ -113,7 +113,7 @@ describe("Call Executor", () => {
     it("should call overloaded function", async () => {
       const input: CallOptions = {
         contract: exampleContractBinding,
-        method: "inc",
+        method: "inc(bool,uint256)",
         args: [true, 2],
       };
 
