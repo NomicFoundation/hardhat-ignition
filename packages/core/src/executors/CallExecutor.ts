@@ -64,6 +64,7 @@ export class CallExecutor extends Executor<CallOptions, Tx> {
     const argsLength = input.args.length;
 
     const iface = new ethers.utils.Interface(artifact.abi);
+
     const functionFragments = iface.fragments.filter(
       (f) => f.name === input.method
     );
