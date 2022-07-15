@@ -22,7 +22,6 @@ export class IgnitionWrapper {
   private _cachedChainId: number | undefined;
 
   constructor(
-    private chainId: number,
     providers: Providers,
     private _ethers: HardhatEthers,
     private _isHardhatNetwork: boolean,
@@ -128,7 +127,7 @@ export class IgnitionWrapper {
       userModules.push(userModule);
     }
 
-    const chainId = await this._getChainId()
+    const chainId = await this._getChainId();
 
     const plan = await this._ignition.buildPlan(chainId, userModules);
 

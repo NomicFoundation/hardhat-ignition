@@ -104,10 +104,7 @@ extendEnvironment((hre) => {
 
     const txPollingInterval = isHardhatNetwork ? 100 : 5000;
 
-    const chainId = hre.network.config.chainId
-
     return new IgnitionWrapper(
-      chainId ?? 0,
       providers,
       hre.ethers,
       isHardhatNetwork,
