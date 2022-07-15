@@ -1,4 +1,4 @@
-require("../../../src/index");
+require("../../../dist/src/index");
 
 module.exports = {
   networks: {

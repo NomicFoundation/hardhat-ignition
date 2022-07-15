@@ -16,10 +16,11 @@ export { Hold } from "./executors/Hold";
 export { buildModule } from "./modules/buildModule";
 export type { ModuleBuilder } from "./modules/types";
 export { UserModule } from "./modules/UserModule";
+export type { ParamValue } from "./modules/types";
 
 export type { Services } from "./services/types";
 
-export type { Providers } from "./providers";
+export type { Providers, ConfigProvider } from "./providers";
 
 export type { DeploymentResult } from "./execution-engine";
 export { DeploymentPlan } from "./execution-engine";
