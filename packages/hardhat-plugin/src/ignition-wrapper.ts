@@ -62,8 +62,7 @@ export class IgnitionWrapper {
     }
 
     const [deploymentResult, moduleOutputs] = await this._ignition.deploy(
-      chainId,
-      userModules,
+      { chainId, userModules },
       this._deployOptions
     );
 
@@ -129,7 +128,7 @@ export class IgnitionWrapper {
 
     const chainId = await this._getChainId();
 
-    const plan = await this._ignition.buildPlan(chainId, userModules);
+    const plan = await this._ignition.buildPlan({ chainId, userModules });
 
     return plan;
   }

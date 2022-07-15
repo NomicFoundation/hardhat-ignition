@@ -15,6 +15,11 @@ import { Providers } from "./providers";
 
 const log = setupDebug("ignition:main");
 
+export interface IgnitionDeploymentParameters {
+  chainId: number;
+  userModules: Array<UserModule<any>>;
+}
+
 export interface IgnitionDeployOptions {
   pathToJournal: string | undefined;
   txPollingInterval: number;
@@ -29,8 +34,7 @@ export class Ignition {
   ) {}
 
   public async deploy(
-    chainId: number,
-    userModules: Array<UserModule<any>>,
+    { chainId, userModules }: IgnitionDeploymentParameters,
     { pathToJournal, txPollingInterval }: IgnitionDeployOptions
   ): Promise<[DeploymentResult, ModulesOutputs]> {
     log(`Start deploy, '${userModules.length}' modules`);
@@ -76,10 +80,10 @@ export class Ignition {
     return [deploymentResult, modulesOutputs];
   }
 
-  public async buildPlan(
-    chainId: number,
-    userModules: Array<UserModule<any>>
-  ): Promise<DeploymentPlan> {
+  public async buildPlan({
+    chainId,
+    userModules,
+  }: IgnitionDeploymentParameters): Promise<DeploymentPlan> {
     log(`Start building plan, '${userModules.length}' modules`);
 
     const m = new ModuleBuilderImpl(chainId);
