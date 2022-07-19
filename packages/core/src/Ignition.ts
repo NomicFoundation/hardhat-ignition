@@ -15,11 +15,6 @@ import { Providers } from "./providers";
 
 const log = setupDebug("ignition:main");
 
-export interface IgnitionDeploymentParameters {
-  chainId: number;
-  userModules: Array<UserModule<any>>;
-}
-
 export interface IgnitionDeployOptions {
   pathToJournal: string | undefined;
   txPollingInterval: number;
@@ -34,10 +29,12 @@ export class Ignition {
   ) {}
 
   public async deploy(
-    { chainId, userModules }: IgnitionDeploymentParameters,
+    userModules: Array<UserModule<any>>,
     { pathToJournal, txPollingInterval }: IgnitionDeployOptions
   ): Promise<[DeploymentResult, ModulesOutputs]> {
     log(`Start deploy, '${userModules.length}' modules`);
+
+    const chainId = await this._getChainId();
 
     const m = new ModuleBuilderImpl(chainId);
 
@@ -80,11 +77,12 @@ export class Ignition {
     return [deploymentResult, modulesOutputs];
   }
 
-  public async buildPlan({
-    chainId,
-    userModules,
-  }: IgnitionDeploymentParameters): Promise<DeploymentPlan> {
+  public async buildPlan(
+    userModules: Array<UserModule<any>>
+  ): Promise<DeploymentPlan> {
     log(`Start building plan, '${userModules.length}' modules`);
+
+    const chainId = await this._getChainId();
 
     const m = new ModuleBuilderImpl(chainId);
 
@@ -97,5 +95,13 @@ export class Ignition {
     const executionGraph = m.buildExecutionGraph();
 
     return ExecutionEngine.buildPlan(executionGraph, this._modulesResults);
+  }
+
+  private async _getChainId(): Promise<number> {
+    const result = await this._providers.ethereumProvider.request({
+      method: "eth_chainId",
+    });
+
+    return Number(result);
   }
 }

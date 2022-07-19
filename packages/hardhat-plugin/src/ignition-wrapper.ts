@@ -50,8 +50,6 @@ export class IgnitionWrapper {
   public async deployMany(userModulesOrNames: Array<UserModule<any> | string>) {
     const userModules: Array<UserModule<any>> = [];
 
-    const chainId = await this._getChainId();
-
     for (const userModuleOrName of userModulesOrNames) {
       const userModule: UserModule<any> =
         typeof userModuleOrName === "string"
@@ -62,7 +60,7 @@ export class IgnitionWrapper {
     }
 
     const [deploymentResult, moduleOutputs] = await this._ignition.deploy(
-      { chainId, userModules },
+      userModules,
       this._deployOptions
     );
 
@@ -126,9 +124,7 @@ export class IgnitionWrapper {
       userModules.push(userModule);
     }
 
-    const chainId = await this._getChainId();
-
-    const plan = await this._ignition.buildPlan({ chainId, userModules });
+    const plan = await this._ignition.buildPlan(userModules);
 
     return plan;
   }
