@@ -1,6 +1,8 @@
-import type { ConfigProvider } from "@nomicfoundation/ignition-core";
-import { ParamValue } from "@nomicfoundation/ignition-core/dist/src/modules/types";
-import { HasParamResult } from "@nomicfoundation/ignition-core/dist/src/providers";
+import type {
+  ConfigProvider,
+  ParamValue,
+  HasParamResult,
+} from "@nomicfoundation/ignition-core";
 
 export class ConfigWrapper implements ConfigProvider {
   private parameters: { [key: string]: ParamValue } | undefined;

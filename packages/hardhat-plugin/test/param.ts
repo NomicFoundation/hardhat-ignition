@@ -1,5 +1,4 @@
-import { buildModule } from "@nomicfoundation/ignition-core";
-import { ModuleDefinition } from "@nomicfoundation/ignition-core/dist/src/modules/types";
+import { buildModule, ModuleDefinition } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 
 import { mineBlocks } from "./helpers";
