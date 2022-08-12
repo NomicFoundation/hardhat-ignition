@@ -155,11 +155,11 @@ export class ModuleBuilderImpl implements ModuleBuilder {
   public getParam(paramName: string): ParamFuture {
     const id = paramName;
 
-    const binding = new ParamFuture(this.getModuleId(), id, { paramName });
+    const future = new ParamFuture(this.getModuleId(), id, { paramName });
 
-    this.addExecutor(new ParamExecutor(binding));
+    this.addExecutor(new ParamExecutor(future));
 
-    return binding;
+    return future;
   }
 
   public getOptionalParam(
@@ -168,13 +168,13 @@ export class ModuleBuilderImpl implements ModuleBuilder {
   ): ParamFuture {
     const id = paramName;
 
-    const binding = new ParamFuture(this.getModuleId(), id, {
+    const future = new ParamFuture(this.getModuleId(), id, {
       paramName,
       defaultValue,
     });
 
-    this.addExecutor(new ParamExecutor(binding));
+    this.addExecutor(new ParamExecutor(future));
 
-    return binding;
+    return future;
   }
 }
