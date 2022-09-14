@@ -173,7 +173,7 @@ describe("Execution", () => {
 
     const contractCall: ExecutionVertex = {
       type: "ContractCall",
-      id: 0,
+      id: 1,
       label: "Foo",
       contract: { vertexId: 0, type: "contract", label: "Foo", _future: true },
       method: "inc",
@@ -303,7 +303,7 @@ async function assertDependentVertex(
   const executionGraph = new ExecutionGraph();
   executionGraph.adjacencyList = buildAdjacencyListFrom({
     0: [1],
-    1: [0],
+    1: [],
   });
   executionGraph.vertexes.set(0, parent);
   executionGraph.vertexes.set(1, child);

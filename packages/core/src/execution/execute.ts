@@ -1,63 +1,61 @@
-import { getSortedVertexIdsFrom } from "graph/utils";
-import { visit } from "graph/visit";
 import { Services } from "services/types";
 import { IgnitionRecipesResults } from "types/deployment";
-import { ExecutionVertex, IExecutionGraph } from "types/executionGraph";
+import { IExecutionGraph } from "types/executionGraph";
 import { VisitResult } from "types/graph";
-import { DeploymentState } from "ui/types";
 import { UiService } from "ui/ui-service";
 
+import { batcher } from "./batcher";
 import { executionDispatch } from "./dispatch/executionDispatch";
 
 export async function execute(
   executionGraph: IExecutionGraph,
   services: Services,
-  ui: UiService,
+  _ui: UiService,
   _recipeResults: IgnitionRecipesResults
 ): Promise<VisitResult> {
-  const orderedVertexIds = getSortedVertexIdsFrom(executionGraph);
+  // const uiDeploymentState = setupUiDeploymentState(
+  //   executionGraph,
+  //   ui,
+  //   orderedVertexIds
+  // );
 
-  const uiDeploymentState = setupUiDeploymentState(
-    executionGraph,
-    ui,
-    orderedVertexIds
-  );
+  return batcher(executionGraph, { services }, executionDispatch);
 
-  return visit(
-    "Execution",
-    orderedVertexIds,
-    executionGraph,
-    { services },
-    new Map<number, any>(),
-    executionDispatch,
-    (vertex, kind, error) => {
-      if (kind === "success") {
-        uiDeploymentState.setExeuctionVertexAsSuccess(vertex);
-      } else if (kind === "failure") {
-        uiDeploymentState.setExecutionVertexAsFailure(vertex, error);
-      } else {
-        throw new Error(`Unknown kind ${kind}`);
-      }
+  // return visit(
+  //   "Execution",
+  //   orderedVertexIds,
+  //   executionGraph,
+  //   { services },
+  //   new Map<number, any>(),
+  //   executionDispatch,
+  //   (vertex, kind, error) => {
+  //     if (kind === "success") {
+  //       uiDeploymentState.setExeuctionVertexAsSuccess(vertex);
+  //     } else if (kind === "failure") {
+  //       uiDeploymentState.setExecutionVertexAsFailure(vertex, error);
+  //     } else {
+  //       throw new Error(`Unknown kind ${kind}`);
+  //     }
 
-      ui.render();
-    }
-  );
+  //     ui.render();
+  //   }
+  // );
 }
 
-function setupUiDeploymentState(
-  executionGraph: IExecutionGraph,
-  ui: UiService,
-  orderedVertexIds: number[]
-): DeploymentState {
-  const uiDeploymentState: DeploymentState = new DeploymentState();
+// function setupUiDeploymentState(
+//   executionGraph: IExecutionGraph,
+//   ui: UiService,
+//   orderedVertexIds: number[]
+// ): DeploymentState {
+//   const uiDeploymentState: DeploymentState = new DeploymentState();
 
-  uiDeploymentState.setExecutionVertexes(
-    orderedVertexIds
-      .map((vid) => executionGraph.vertexes.get(vid))
-      .filter((vertex): vertex is ExecutionVertex => vertex !== undefined)
-  );
+//   uiDeploymentState.setExecutionVertexes(
+//     orderedVertexIds
+//       .map((vid) => executionGraph.vertexes.get(vid))
+//       .filter((vertex): vertex is ExecutionVertex => vertex !== undefined)
+//   );
 
-  ui.setDeploymentState(uiDeploymentState);
+//   ui.setDeploymentState(uiDeploymentState);
 
-  return uiDeploymentState;
-}
+//   return uiDeploymentState;
+// }
