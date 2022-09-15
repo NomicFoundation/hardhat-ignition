@@ -29,10 +29,15 @@ describe("Execution - visitInBatches", () => {
     executionGraph.vertexes.set(2, vertex2);
 
     const mockServices = {} as any;
+    const mockUiService = {
+      startExecutionPhase: () => {},
+      setBatch: () => {},
+    } as any;
 
     const result = await visitInBatches(
       executionGraph,
       { services: mockServices },
+      mockUiService,
       async (): Promise<VertexVisitResult> => {
         return { _kind: "success", result: true };
       }

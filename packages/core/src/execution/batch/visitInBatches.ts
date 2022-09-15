@@ -1,6 +1,7 @@
 import { Services } from "services/types";
 import { ExecutionVertex } from "types/executionGraph";
 import { VisitResult } from "types/graph";
+import { UiService } from "ui/ui-service";
 import { union } from "utils/sets";
 
 import { ExecutionGraph } from "../ExecutionGraph";
@@ -22,12 +23,17 @@ import { allDependenciesCompleted } from "./utils";
 export async function visitInBatches(
   executionGraph: ExecutionGraph,
   { services }: { services: Services },
+  ui: UiService,
   executionVertexDispatcher: ExecutionVertexDispatcher
 ): Promise<VisitResult> {
   const executionState = initialiseExecutionStateFrom(executionGraph);
 
+  ui.startExecutionPhase(executionGraph);
+
+  let batchCount = 1;
   while (hasUnstarted(executionState)) {
     const batch = calculateNextBatch(executionState, executionGraph);
+    ui.setBatch(batchCount, batch);
 
     updateExecutionStateWithNewBatch(executionState, batch);
 
@@ -40,10 +46,13 @@ export async function visitInBatches(
     );
 
     updateExecutionStateWithBatchResults(executionState, executeBatchResult);
+    ui.setBatch(batchCount, batch, executeBatchResult);
 
     if (hasErrors(executionState)) {
       return { _kind: "failure", failures: ["execution failed", []] };
     }
+
+    batchCount++;
   }
 
   return { _kind: "success", result: executionState.resultsAccumulator };

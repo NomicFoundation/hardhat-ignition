@@ -1,19 +1,71 @@
 import { render } from "ink";
 import React from "react";
 
+import { ExecutionGraph } from "execution/ExecutionGraph";
+import { ExecuteBatchResult } from "execution/batch/types";
+
 import { IgnitionUi } from "./components";
-import { DeploymentState } from "./types";
+import { DeploymentState, UiVertex, UiVertexStatus } from "./types";
 
 export class UiService {
   private _enabled: boolean;
-  private _deploymentState: DeploymentState | undefined;
+  private _deploymentState: DeploymentState;
+  private _executionGraph: ExecutionGraph | undefined;
 
-  constructor({ enabled }: { enabled: boolean }) {
+  constructor({
+    recipeName,
+    enabled,
+  }: {
+    recipeName: string;
+    enabled: boolean;
+  }) {
     this._enabled = enabled;
+    this._deploymentState = new DeploymentState({ recipeName });
   }
 
-  public setDeploymentState(deploymentState: DeploymentState) {
-    this._deploymentState = deploymentState;
+  public startExecutionPhase(executionGraph: ExecutionGraph) {
+    this._deploymentState.startExecutionPhase();
+    this._executionGraph = executionGraph;
+
+    this.render();
+  }
+
+  public setBatch(
+    batchCount: number,
+    batch: Set<number>,
+    executeBatchResult?: ExecuteBatchResult
+  ) {
+    const vertexes: UiVertex[] = [...batch].map((id) => ({
+      label: this._executionGraph?.vertexes.get(id)?.label ?? "ua",
+      status: this._resolveVertexStatus(id, executeBatchResult),
+    }));
+
+    this._deploymentState.setBatch(batchCount, { batchCount, vertexes });
+
+    this.render();
+  }
+
+  private _resolveVertexStatus(
+    vertexId: number,
+    executeBatchResult?: ExecuteBatchResult
+  ): UiVertexStatus {
+    if (executeBatchResult === undefined) {
+      return "RUNNING";
+    }
+
+    if (executeBatchResult.completed.has(vertexId)) {
+      return "COMPELETED";
+    }
+
+    if (executeBatchResult.errored.has(vertexId)) {
+      return "ERRORED";
+    }
+
+    if (executeBatchResult.onhold.has(vertexId)) {
+      return "HELD";
+    }
+
+    return "RUNNING";
   }
 
   public render() {

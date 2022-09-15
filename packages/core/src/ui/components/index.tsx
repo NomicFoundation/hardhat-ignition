@@ -1,15 +1,33 @@
 import { Box, Text } from "ink";
 import React from "react";
 
-import { DeploymentState, VertexStatus } from "../types";
+import { DeploymentState, UiBatch, UiVertex, VertexStatus } from "../types";
 
 export const IgnitionUi = ({
   deploymentState,
 }: {
   deploymentState: DeploymentState;
 }) => {
+  const recipeName = deploymentState.recipeName;
+
   const vertexEntries = deploymentState.toStatus();
   const { executed, total } = deploymentState.executedCount();
+
+  if (deploymentState.phase === "uninitialized") {
+    return null;
+  }
+
+  if (deploymentState.phase === "execution") {
+    return (
+      <Box flexDirection="column">
+        <Text bold={true}>Executing recipe {recipeName}</Text>
+
+        {deploymentState.batches.map((batch, i) => (
+          <Batch key={`batch-${i}`} batch={batch}></Batch>
+        ))}
+      </Box>
+    );
+  }
 
   return (
     <Box flexDirection="column">
@@ -45,6 +63,53 @@ const VertexStatusRow = ({ vertexEntry }: { vertexEntry: VertexStatus }) => {
     </Box>
   );
 };
+
+const Batch = ({ batch }: { batch: UiBatch }) => {
+  return (
+    <Box borderStyle="single" flexDirection="column">
+      <Box flexDirection="row-reverse">
+        <Text>#{batch.batchCount}</Text>
+      </Box>
+
+      {batch.vertexes.map((vertex, i) => (
+        <Vertex
+          key={`batch-${batch.batchCount}-vertex-${i}`}
+          vertex={vertex}
+        ></Vertex>
+      ))}
+    </Box>
+  );
+};
+
+const Vertex = ({ vertex }: { vertex: UiVertex }) => {
+  let color = "lightgray";
+  switch (vertex.status) {
+    case "COMPELETED":
+      color = "green";
+      break;
+    case "RUNNING":
+      color = "lightgray";
+      break;
+    case "HELD":
+      color = "darkgray";
+      break;
+    case "ERRORED":
+      color = "red";
+      break;
+    default:
+      assertNeverVertexStatus(vertex.status);
+  }
+
+  return (
+    <Box borderStyle="single" borderColor={color}>
+      <Text color={color}>{vertex.label}</Text>
+    </Box>
+  );
+};
+
+function assertNeverVertexStatus(status: never) {
+  throw new Error(`Unexpected vertex status ${status}`);
+}
 
 function toDisplayMessage(vertexEntry: VertexStatus): {
   color: "green" | "gray";

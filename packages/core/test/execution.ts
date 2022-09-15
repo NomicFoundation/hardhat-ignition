@@ -281,8 +281,8 @@ async function assertExecuteSingleVertex(
   executionGraph.vertexes.set(0, executionVertex);
 
   const mockUiService = {
-    setDeploymentState: () => {},
-    render: () => {},
+    startExecutionPhase: () => {},
+    setBatch: () => {},
   } as any;
 
   const mockRecipeResults = {} as any;
@@ -309,8 +309,8 @@ async function assertDependentVertex(
   executionGraph.vertexes.set(1, child);
 
   const mockUiService = {
-    setDeploymentState: () => {},
-    render: () => {},
+    startExecutionPhase: () => {},
+    setBatch: () => {},
   } as any;
 
   const mockRecipeResults = {} as any;

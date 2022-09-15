@@ -18,19 +18,43 @@ interface Unstarted {
 
 export type VertexStatus = Unstarted | VertexSuccess | VertexFailure;
 
+export type UiVertexStatus = "RUNNING" | "COMPELETED" | "ERRORED" | "HELD";
+export interface UiVertex {
+  label: string;
+  status: UiVertexStatus;
+}
+
+export interface UiBatch {
+  batchCount: number;
+  vertexes: UiVertex[];
+}
+
 export class DeploymentState {
-  private phase: "validation" | "execution" | "uninitialized";
+  public phase: "uninitialized" | "execution";
+  public recipeName: string;
+
   private validationErrors: string[];
   private executionVertexes: { [key: string]: VertexStatus };
   private order: number[];
+  public batches: UiBatch[];
 
-  constructor() {
+  constructor({ recipeName }: { recipeName: string }) {
+    this.recipeName = recipeName;
     this.phase = "uninitialized";
 
     this.order = [];
 
     this.validationErrors = [];
     this.executionVertexes = {};
+    this.batches = [];
+  }
+
+  public startExecutionPhase() {
+    this.phase = "execution";
+  }
+
+  public setBatch(batchCount: number, batch: UiBatch) {
+    this.batches[batchCount] = batch;
   }
 
   public setExecutionVertexes(vertexes: ExecutionVertex[]) {

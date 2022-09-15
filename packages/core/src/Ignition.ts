@@ -44,7 +44,7 @@ export class Ignition {
   ): Promise<[DeploymentResult, RecipesOutputs]> {
     log(`Start deploy`);
 
-    const ui = new UiService({ enabled: options.ui });
+    const ui = new UiService({ recipeName: recipe.name, enabled: options.ui });
 
     log("Create journal with path '%s'", options.pathToJournal);
 
