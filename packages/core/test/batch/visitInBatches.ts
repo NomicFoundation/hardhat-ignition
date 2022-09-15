@@ -2,13 +2,13 @@
 import { assert } from "chai";
 
 import { ExecutionGraph } from "execution/ExecutionGraph";
-import { batcher } from "execution/batcher";
+import { visitInBatches } from "execution/batch/visitInBatches";
 import { ContractDeploy, ExecutionVertex } from "types/executionGraph";
 import { VertexVisitResult } from "types/graph";
 
-import { buildAdjacencyListFrom } from "./graph/helpers";
+import { buildAdjacencyListFrom } from "../graph/helpers";
 
-describe("Execution - batcher", () => {
+describe("Execution - visitInBatches", () => {
   it("should run", async () => {
     const vertex0: ExecutionVertex = createFakeContractDeployVertex(0, "first");
     const vertex1: ExecutionVertex = createFakeContractDeployVertex(
@@ -30,7 +30,7 @@ describe("Execution - batcher", () => {
 
     const mockServices = {} as any;
 
-    const result = await batcher(
+    const result = await visitInBatches(
       executionGraph,
       { services: mockServices },
       async (): Promise<VertexVisitResult> => {

@@ -4,7 +4,7 @@ import { IExecutionGraph } from "types/executionGraph";
 import { VisitResult } from "types/graph";
 import { UiService } from "ui/ui-service";
 
-import { batcher } from "./batcher";
+import { visitInBatches } from "./batch/visitInBatches";
 import { executionDispatch } from "./dispatch/executionDispatch";
 
 export async function execute(
@@ -19,7 +19,7 @@ export async function execute(
   //   orderedVertexIds
   // );
 
-  return batcher(executionGraph, { services }, executionDispatch);
+  return visitInBatches(executionGraph, { services }, executionDispatch);
 
   // return visit(
   //   "Execution",
