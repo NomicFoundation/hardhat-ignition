@@ -24,7 +24,7 @@ export async function executeContractDeploy(
   );
 
   await new Promise((resolve) => {
-    setTimeout(resolve, 3000);
+    setTimeout(resolve, Math.random() * (5000 - 1000) + 1000);
   });
 
   const receipt = await services.transactions.wait(txHash);

@@ -1,4 +1,5 @@
 import { Box, Text } from "ink";
+import Spinner from "ink-spinner";
 import React from "react";
 
 import { DeploymentState, UiBatch, UiVertex, VertexStatus } from "../types";
@@ -92,8 +93,37 @@ const Vertex = ({ vertex }: { vertex: UiVertex }) => {
 
   return (
     <Box borderStyle={borderStyle} borderColor={borderColor}>
+      <StatusBadge vertex={vertex} />
       <Text color={textColor}>{vertex.label}</Text>
     </Box>
+  );
+};
+
+const StatusBadge = ({ vertex }: { vertex: UiVertex }) => {
+  let badge: any = " ";
+  switch (vertex.status) {
+    case "COMPELETED":
+      badge = <Text>✅</Text>;
+      break;
+    case "ERRORED":
+      badge = <Text>❌</Text>;
+      break;
+    case "HELD":
+      badge = <Text>⚠</Text>;
+      break;
+    case "RUNNING":
+      badge = <Spinner />;
+      break;
+    default:
+      return assertNeverVertexStatus(vertex.status);
+  }
+
+  return (
+    <>
+      <Text> </Text>
+      {badge}
+      <Text> </Text>
+    </>
   );
 };
 
