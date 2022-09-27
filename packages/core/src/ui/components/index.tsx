@@ -20,7 +20,11 @@ export const IgnitionUi = ({
   if (deploymentState.phase === "execution") {
     return (
       <Box flexDirection="column">
-        <Text bold={true}>Executing recipe {recipeName}</Text>
+        <Box margin={1}>
+          <Text bold={true}>
+            Deploying recipe <Text italic={true}>{recipeName}</Text>
+          </Text>
+        </Box>
 
         {deploymentState.batches.map((batch, i) => (
           <Batch key={`batch-${i}`} batch={batch}></Batch>
@@ -65,8 +69,10 @@ const VertexStatusRow = ({ vertexEntry }: { vertexEntry: VertexStatus }) => {
 };
 
 const Batch = ({ batch }: { batch: UiBatch }) => {
+  const borderColor = resolveBatchBorderColor(batch.vertexes);
+
   return (
-    <Box borderStyle="single" flexDirection="column">
+    <Box borderStyle="single" flexDirection="column" borderColor={borderColor}>
       <Box flexDirection="row-reverse">
         <Text>#{batch.batchCount}</Text>
       </Box>
@@ -82,32 +88,67 @@ const Batch = ({ batch }: { batch: UiBatch }) => {
 };
 
 const Vertex = ({ vertex }: { vertex: UiVertex }) => {
-  let color = "lightgray";
-  switch (vertex.status) {
-    case "COMPELETED":
-      color = "green";
-      break;
-    case "RUNNING":
-      color = "lightgray";
-      break;
-    case "HELD":
-      color = "darkgray";
-      break;
-    case "ERRORED":
-      color = "red";
-      break;
-    default:
-      assertNeverVertexStatus(vertex.status);
-  }
+  const { borderColor, borderStyle, textColor } = resolveVertexColors(vertex);
 
   return (
-    <Box borderStyle="single" borderColor={color}>
-      <Text color={color}>{vertex.label}</Text>
+    <Box borderStyle={borderStyle} borderColor={borderColor}>
+      <Text color={textColor}>{vertex.label}</Text>
     </Box>
   );
 };
 
-function assertNeverVertexStatus(status: never) {
+function resolveBatchBorderColor(vertexes: UiVertex[]) {
+  if (vertexes.some((v) => v.status === "RUNNING")) {
+    return "lightgray";
+  }
+
+  if (vertexes.some((v) => v.status === "ERRORED")) {
+    return "red";
+  }
+
+  if (vertexes.every((v) => v.status === "COMPELETED")) {
+    return "green";
+  }
+
+  return "lightgray";
+}
+
+function resolveVertexColors(vertex: UiVertex): {
+  borderColor: string;
+  borderStyle: "single" | "classic" | "bold" | "singleDouble";
+  textColor: string;
+} {
+  switch (vertex.status) {
+    case "COMPELETED":
+      return {
+        borderColor: "greenBright",
+        borderStyle: "single",
+        textColor: "white",
+      };
+    case "RUNNING":
+      return {
+        borderColor: "lightgray",
+        borderStyle: "singleDouble",
+        textColor: "white",
+      };
+    case "HELD":
+      return {
+        borderColor: "darkgray",
+        borderStyle: "bold",
+        textColor: "white",
+      };
+    case "ERRORED":
+      return {
+        borderColor: "redBright",
+        borderStyle: "bold",
+        textColor: "white",
+      };
+    default:
+      return assertNeverVertexStatus(vertex.status);
+  }
+}
+
+function assertNeverVertexStatus(status: never): any {
   throw new Error(`Unexpected vertex status ${status}`);
 }
 

@@ -37,13 +37,15 @@ export class IgnitionWrapper {
       | { parameters: { [key: string]: ExternalParamValue }; ui?: boolean }
       | undefined
   ) {
+    const showUi = deployParams?.ui ?? true;
+
     if (deployParams !== undefined) {
       await this._providers.config.setParams(deployParams.parameters);
     }
 
     const [deploymentResult] = await this._ignition.deploy(recipe, {
       ...this._deployOptions,
-      ui: deployParams?.ui ?? true,
+      ui: showUi,
     });
 
     if (deploymentResult._kind === "hold") {
@@ -59,9 +61,14 @@ export class IgnitionWrapper {
         failuresMessage += `  - ${failure.message}\n`;
       }
 
-      throw new Error(
-        `Execution failed for recipe '${recipeId}':\n\n${failuresMessage}`
-      );
+      if (showUi) {
+        return process.exit(1);
+      } else {
+        console.log(`boom`, deployParams?.ui);
+        throw new Error(
+          `Execution failed for recipe '${recipeId}':\n\n${failuresMessage}`
+        );
+      }
     }
 
     const resolvedOutput: any = {};

@@ -23,6 +23,10 @@ export async function executeContractDeploy(
     resolvedLibraries
   );
 
+  await new Promise((resolve) => {
+    setTimeout(resolve, 3000);
+  });
+
   const receipt = await services.transactions.wait(txHash);
 
   return {

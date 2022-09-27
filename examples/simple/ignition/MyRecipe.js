@@ -7,5 +7,7 @@ module.exports = buildRecipe("MyRecipe", (m) => {
 
   const qux = m.contract("Qux", { args: [foo] });
 
+  m.call(foo, "inc", { args: [0] });
+
   return { foo, bar, qux };
 });
