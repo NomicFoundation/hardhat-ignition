@@ -123,7 +123,7 @@ flowchart BT
   classDef ccall fill:#b2e061,stroke:darkgray;
 ```
 
-This `RecipeGraph` is validated (i.e. are all named hardhat contracts within the hardhat project; do all the calls have the right number of arguments etc). The validation attempts to ensure the `RecipeGraph` can be transformed into an `ExecutionGraph` without error and to reduce the chance of an on-chain error during execution. Validation checks do not take into account on-chain state, only enforcing that the deployment makes sense internally.
+This `RecipeGraph` is validated (i.e. are all named hardhat contracts within the hardhat project; do all the calls have the right number of arguments etc). The validation attempts to ensure the `RecipeGraph` can be transformed into an `ExecutionGraph` without error and to reduce the chance of an on-chain errors during execution. Validation checks do not take into account on-chain state, only enforcing that the deployment makes sense internally.
 
 A valid `RecipeGraph` is then reduced to remove unnecessary edges (**NOTE: currently only a partial reduction, to remove subrecipe virtual nodes**).
 
@@ -157,9 +157,9 @@ Validated, simplified and converted to the agnostic `ExecutionGraph` representat
 
 The execution engine is responsible for submitting transactions to the blockchain. It takes the `ExecutionGraph` as input and uses the vertexes to determine which transactions should be sent, and uses the edges to determine how the transactions are ordered and batched.
 
-More than one transaction can be submitted to the ethereum chain at once. A **depenency** in this context means that the previous transaction must have completed successfully on chain before the dependent transaction can be submitted.
+More than one transaction can be submitted to the Ethereum chain at once. A **depenency** in this context means that the previous transaction must have completed successfully on chain before the dependent transaction can be submitted.
 
-To simplify user reasoning about the order of execution, the execution engine groups into batches. A batch is the next set of transactions to submitted. Batches are submitted until there is an error or all transactions are complete.
+To simplify user reasoning about the order of execution, the execution engine groups into batches. A batch is the next set of transactions to submit. Batches are submitted until there is an error or all transactions are complete.
 
 ```javascript
   let unstarted = getVertexesFrom(executionGraph)
@@ -187,9 +187,9 @@ To simplify user reasoning about the order of execution, the execution engine gr
 
 A batch is constructed by looking at all unstarted or on-hold vertexes and using the `ExecutionGraph` to determine if all there dependencies have been met (executed successfully).
 
-The execution engine will wait until all the transactions in a batch have completed or failed or been designated on-hold. Once the batch is complete, either the deployment finishes because there was an error, the deployment finishes because all transactions are complete, or a new batch is constructed.
+The execution engine will wait until all the transactions in a batch have completed or failed or been designated on-hold or timed out. Once the batch is complete, either the deployment finishes as complete because because all transactions are complete, as error because there was an error, as on-hold because there was an on-hold result but no errors or timeouts.
 
-A policy governs how to deal with on-hold transactions. By default if an on-hold transaction fails to complete `x` times (once per batch) it becomes a failure.
+A policy governs how to deal with timed-out transactions. By default if an timed-out transaction fails to complete `x` times (once per batch) it becomes a failure.
 
 Either the entire graph of transactions will eventually succeed, in which case the deployment was a success. Or a transaction will fail or be stopped from completing, leading to a failed deployment.
 
