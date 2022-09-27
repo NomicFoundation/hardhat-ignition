@@ -30,7 +30,7 @@ export interface UiBatch {
 }
 
 export class DeploymentState {
-  public phase: "uninitialized" | "execution";
+  public phase: "uninitialized" | "execution" | "complete" | "failed";
   public recipeName: string;
 
   private validationErrors: string[];
@@ -51,6 +51,10 @@ export class DeploymentState {
 
   public startExecutionPhase() {
     this.phase = "execution";
+  }
+
+  public endExecutionPhase(endPhase: "complete" | "failed") {
+    this.phase = endPhase;
   }
 
   public setBatch(batchCount: number, batch: UiBatch) {

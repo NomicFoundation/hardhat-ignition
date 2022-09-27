@@ -30,6 +30,18 @@ export class UiService {
     this.render();
   }
 
+  public failExecutionPhase() {
+    this._deploymentState.endExecutionPhase("failed");
+
+    this.render();
+  }
+
+  public completeExecutionPhase() {
+    this._deploymentState.endExecutionPhase("complete");
+
+    this.render();
+  }
+
   public setBatch(
     batchCount: number,
     batch: Set<number>,

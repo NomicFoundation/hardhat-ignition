@@ -49,12 +49,14 @@ export async function visitInBatches(
     ui.setBatch(batchCount, batch, executeBatchResult);
 
     if (hasErrors(executionState)) {
+      ui.failExecutionPhase();
       return { _kind: "failure", failures: ["execution failed", []] };
     }
 
     batchCount++;
   }
 
+  ui.completeExecutionPhase();
   return { _kind: "success", result: executionState.resultsAccumulator };
 }
 

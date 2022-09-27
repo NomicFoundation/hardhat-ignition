@@ -9,64 +9,69 @@ export const IgnitionUi = ({
 }: {
   deploymentState: DeploymentState;
 }) => {
-  const recipeName = deploymentState.recipeName;
-
-  const vertexEntries = deploymentState.toStatus();
-  const { executed, total } = deploymentState.executedCount();
-
   if (deploymentState.phase === "uninitialized") {
     return null;
   }
 
-  if (deploymentState.phase === "execution") {
-    return (
-      <Box flexDirection="column">
-        <Box margin={1}>
-          <Text bold={true}>
-            Deploying recipe <Text italic={true}>{recipeName}</Text>
-          </Text>
-        </Box>
-
-        {deploymentState.batches.map((batch, i) => (
-          <Batch key={`batch-${i}`} batch={batch}></Batch>
-        ))}
-      </Box>
-    );
-  }
-
   return (
     <Box flexDirection="column">
-      <Text> </Text>
-      <Text bold={true}>
-        Deploying ({executed} of {total} transactions executed){" "}
-      </Text>
-      <Text> </Text>
-
-      {vertexEntries.map((entry) => (
-        <VertexStatusRow key={entry.vertex.id} vertexEntry={entry} />
-      ))}
-
-      {executed === total ? (
-        <>
-          <Text> </Text>
-          <Text bold={true} color={"green"}>
-            Deployment complete
-          </Text>
-          <Text> </Text>
-        </>
-      ) : null}
+      <SummarySection deploymentState={deploymentState} />
+      <BatchExecution deploymentState={deploymentState} />
+      <FinalStatus deploymentState={deploymentState} />
     </Box>
   );
 };
 
-const VertexStatusRow = ({ vertexEntry }: { vertexEntry: VertexStatus }) => {
-  const { color, message } = toDisplayMessage(vertexEntry);
-
+const SummarySection = ({
+  deploymentState: { recipeName },
+}: {
+  deploymentState: DeploymentState;
+}) => {
   return (
-    <Box key={vertexEntry.vertex.id}>
-      <Text color={color}>{message}</Text>
+    <Box margin={1}>
+      <Text bold={true}>
+        Deploying recipe <Text italic={true}>{recipeName}</Text>
+      </Text>
     </Box>
   );
+};
+
+const BatchExecution = ({
+  deploymentState,
+}: {
+  deploymentState: DeploymentState;
+}) => {
+  return (
+    <>
+      {deploymentState.batches.map((batch, i) => (
+        <Batch key={`batch-${i}`} batch={batch}></Batch>
+      ))}
+    </>
+  );
+};
+
+const FinalStatus = ({
+  deploymentState,
+}: {
+  deploymentState: DeploymentState;
+}) => {
+  if (deploymentState.phase === "complete") {
+    return (
+      <Box>
+        <Text>Complete</Text>
+      </Box>
+    );
+  }
+
+  if (deploymentState.phase === "failed") {
+    return (
+      <Box>
+        <Text>Failed</Text>
+      </Box>
+    );
+  }
+
+  return null;
 };
 
 const Batch = ({ batch }: { batch: UiBatch }) => {
