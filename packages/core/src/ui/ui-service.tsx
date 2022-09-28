@@ -6,6 +6,7 @@ import { ExecuteBatchResult } from "execution/batch/types";
 
 import { IgnitionUi } from "./components";
 import { DeploymentState, UiVertex, UiVertexStatus } from "./types";
+import { VertexVisitResultFailure } from "types/graph";
 
 export class UiService {
   private _enabled: boolean;
@@ -30,8 +31,10 @@ export class UiService {
     this.render();
   }
 
-  public failExecutionPhase() {
-    this._deploymentState.endExecutionPhase("failed");
+  public failExecutionPhaseWith(errors: {
+    [key: number]: VertexVisitResultFailure;
+  }) {
+    this._deploymentState.endExecutionPhase("failed", errors);
 
     this.render();
   }
@@ -48,6 +51,7 @@ export class UiService {
     executeBatchResult?: ExecuteBatchResult
   ) {
     const vertexes: UiVertex[] = [...batch].map((id) => ({
+      id,
       label: this._executionGraph?.vertexes.get(id)?.label ?? "ua",
       status: this._resolveVertexStatus(id, executeBatchResult),
     }));

@@ -6,7 +6,7 @@ import { resolveFrom, toAddress } from "./utils";
 
 export async function executeContractDeploy(
   { artifact, args, libraries }: ContractDeploy,
-  resultAccumulator: Map<number, any>,
+  resultAccumulator: Map<number, VertexVisitResult>,
   { services }: { services: Services }
 ): Promise<VertexVisitResult> {
   const resolve = resolveFrom(resultAccumulator);

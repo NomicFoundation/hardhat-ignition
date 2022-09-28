@@ -2,7 +2,13 @@ import { Box, Text } from "ink";
 import Spinner from "ink-spinner";
 import React from "react";
 
-import { DeploymentState, UiBatch, UiVertex, VertexStatus } from "../types";
+import {
+  DeploymentError,
+  DeploymentState,
+  UiBatch,
+  UiVertex,
+  VertexStatus,
+} from "../types";
 
 export const IgnitionUi = ({
   deploymentState,
@@ -58,20 +64,49 @@ const FinalStatus = ({
   if (deploymentState.phase === "complete") {
     return (
       <Box>
-        <Text>Complete</Text>
+        <Text>
+          🚀 Deployment Complete for recipe{" "}
+          <Text italic={true}>{deploymentState.recipeName}</Text>
+        </Text>
       </Box>
     );
   }
 
   if (deploymentState.phase === "failed") {
+    const deploymentErrors = deploymentState.getDeploymentErrors();
+
     return (
-      <Box>
-        <Text>Failed</Text>
+      <Box flexDirection="column">
+        <Box paddingTop={1}>
+          <Text>
+            ⛔ Deployment failed for recipe{" "}
+            <Text italic={true}>{deploymentState.recipeName}</Text>
+          </Text>
+        </Box>
+
+        <Box flexDirection="column">
+          {deploymentErrors.map((de) => (
+            <DepError key={`error-${de.id}`} deploymentError={de} />
+          ))}
+        </Box>
       </Box>
     );
   }
 
   return null;
+};
+
+const DepError = ({
+  deploymentError,
+}: {
+  deploymentError: DeploymentError;
+}) => {
+  return (
+    <Box flexDirection="column" margin={1}>
+      <Text bold={true}>Failure - {deploymentError.vertex}</Text>
+      <Text>{deploymentError.message}</Text>
+    </Box>
+  );
 };
 
 const Batch = ({ batch }: { batch: UiBatch }) => {

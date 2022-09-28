@@ -1,6 +1,11 @@
 import { Services } from "services/types";
 import { ExecutionVertex } from "types/executionGraph";
-import { VisitResult } from "types/graph";
+import {
+  VertexVisitResult,
+  VertexVisitResultFailure,
+  VertexVisitResultSuccess,
+  VisitResult,
+} from "types/graph";
 import { UiService } from "ui/ui-service";
 import { union } from "utils/sets";
 
@@ -49,8 +54,30 @@ export async function visitInBatches(
     ui.setBatch(batchCount, batch, executeBatchResult);
 
     if (hasErrors(executionState)) {
-      ui.failExecutionPhase();
-      return { _kind: "failure", failures: ["execution failed", []] };
+      const errors = [...executionState.errored].reduce(
+        (acc: { [key: number]: VertexVisitResultFailure }, id) => {
+          const result = executionState.resultsAccumulator.get(id);
+
+          if (result === undefined || result._kind === "success") {
+            return acc;
+          }
+
+          acc[id] = result;
+
+          return acc;
+        },
+        {}
+      );
+
+      ui.failExecutionPhaseWith(errors);
+
+      return {
+        _kind: "failure",
+        failures: [
+          "execution failed",
+          Object.values(errors).map((err) => err.failure),
+        ],
+      };
     }
 
     batchCount++;
@@ -76,7 +103,7 @@ function calculateNextBatch(
 async function executeBatch(
   batch: Set<number>,
   executionGraph: ExecutionGraph,
-  resultsAccumulator: Map<number, any>,
+  resultsAccumulator: Map<number, VertexVisitResult>,
   { services }: { services: Services },
   executionVertexDispatcher: ExecutionVertexDispatcher
 ): Promise<ExecuteBatchResult> {
@@ -103,22 +130,31 @@ async function executeBatch(
       executionResult
     ): executionResult is {
       vertexId: number;
-      result: { _kind: "success"; result: any };
+      result: VertexVisitResultSuccess;
     } => executionResult.result._kind === "success"
+  );
+
+  const errored = results.filter(
+    (
+      executionResult
+    ): executionResult is {
+      vertexId: number;
+      result: VertexVisitResultFailure;
+    } => executionResult.result._kind === "failure"
+  );
+
+  const updatedResultsAccumulator = [...successes, ...errored].reduce(
+    (acc, success) => {
+      acc.set(success.vertexId, success.result);
+      return acc;
+    },
+    new Map<number, VertexVisitResult>()
   );
 
   return {
     completed: new Set<number>(successes.map(({ vertexId }) => vertexId)),
     onhold: new Set<number>(),
-    errored: new Set<number>(
-      results
-        .filter(({ result }) => result._kind === "failure")
-        .map(({ vertexId }) => vertexId)
-    ),
-
-    resultsAccumulator: successes.reduce((acc, success) => {
-      acc.set(success.vertexId, success.result.result);
-      return acc;
-    }, new Map<number, any>()),
+    errored: new Set<number>(errored.map(({ vertexId }) => vertexId)),
+    resultsAccumulator: updatedResultsAccumulator,
   };
 }

@@ -10,7 +10,7 @@ export interface ExecutionState {
 
   batch: Set<number>;
 
-  resultsAccumulator: Map<number, any>;
+  resultsAccumulator: Map<number, VertexVisitResult>;
 }
 
 export type BatcherResult =
@@ -25,7 +25,7 @@ export type BatcherResult =
 
 export type ExecutionVertexDispatcher = (
   vertex: ExecutionVertex,
-  resultAccumulator: Map<number, any>,
+  resultAccumulator: Map<number, VertexVisitResult>,
   context: { services: Services }
 ) => Promise<VertexVisitResult>;
 
@@ -33,5 +33,5 @@ export interface ExecuteBatchResult {
   completed: Set<number>;
   onhold: Set<number>;
   errored: Set<number>;
-  resultsAccumulator: Map<number, any>;
+  resultsAccumulator: Map<number, VertexVisitResult>;
 }

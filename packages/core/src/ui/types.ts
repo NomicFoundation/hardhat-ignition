@@ -1,4 +1,5 @@
 import { ExecutionVertex } from "types/executionGraph";
+import { VertexVisitResultFailure } from "types/graph";
 
 interface VertexSuccess {
   status: "success";
@@ -20,6 +21,7 @@ export type VertexStatus = Unstarted | VertexSuccess | VertexFailure;
 
 export type UiVertexStatus = "RUNNING" | "COMPELETED" | "ERRORED" | "HELD";
 export interface UiVertex {
+  id: number;
   label: string;
   status: UiVertexStatus;
 }
@@ -27,6 +29,12 @@ export interface UiVertex {
 export interface UiBatch {
   batchCount: number;
   vertexes: UiVertex[];
+}
+
+export interface DeploymentError {
+  id: number;
+  vertex: string;
+  message: string;
 }
 
 export class DeploymentState {
@@ -37,6 +45,7 @@ export class DeploymentState {
   private executionVertexes: { [key: string]: VertexStatus };
   private order: number[];
   public batches: UiBatch[];
+  private errors: { [key: number]: VertexVisitResultFailure } | undefined;
 
   constructor({ recipeName }: { recipeName: string }) {
     this.recipeName = recipeName;
@@ -53,8 +62,14 @@ export class DeploymentState {
     this.phase = "execution";
   }
 
-  public endExecutionPhase(endPhase: "complete" | "failed") {
+  public endExecutionPhase(
+    endPhase: "complete" | "failed",
+    errors?: {
+      [key: number]: VertexVisitResultFailure;
+    }
+  ) {
     this.phase = endPhase;
+    this.errors = errors;
   }
 
   public setBatch(batchCount: number, batch: UiBatch) {
@@ -98,5 +113,43 @@ export class DeploymentState {
     ).length;
 
     return { executed, total };
+  }
+
+  public getDeploymentErrors(): DeploymentError[] {
+    if (this.batches.length === 0) {
+      return [];
+    }
+
+    const lastBatch = this.batches[this.batches.length - 1];
+    const errors = this.errors ?? {};
+
+    return Object.keys(errors)
+      .map((ids: string) => {
+        const id = parseInt(ids);
+
+        const error = errors[id];
+        const vertex = lastBatch.vertexes.find((v) => v.id === id);
+
+        if (vertex === undefined) {
+          return undefined;
+        }
+
+        const errorDescription = this._buildErrorDescriptionFrom(
+          error.failure,
+          vertex
+        );
+
+        return errorDescription;
+      })
+      .filter((x): x is DeploymentError => x !== undefined);
+  }
+
+  private _buildErrorDescriptionFrom(
+    error: Error,
+    vertex: UiVertex
+  ): DeploymentError {
+    const message = "reason" in error ? (error as any).reason : error.message;
+
+    return { id: vertex.id, vertex: vertex.label, message };
   }
 }

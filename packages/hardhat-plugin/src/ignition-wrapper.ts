@@ -64,7 +64,6 @@ export class IgnitionWrapper {
       if (showUi) {
         return process.exit(1);
       } else {
-        console.log(`boom`, deployParams?.ui);
         throw new Error(
           `Execution failed for recipe '${recipeId}':\n\n${failuresMessage}`
         );

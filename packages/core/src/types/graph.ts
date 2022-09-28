@@ -13,15 +13,19 @@ export interface IGraph<T> {
 
 export type VertexGraph = IGraph<VertexDescriptor>;
 
+export interface VertexVisitResultSuccess {
+  _kind: "success";
+  result: any;
+}
+
+export interface VertexVisitResultFailure {
+  _kind: "failure";
+  failure: Error;
+}
+
 export type VertexVisitResult =
-  | {
-      _kind: "success";
-      result: any;
-    }
-  | {
-      _kind: "failure";
-      failure: Error;
-    };
+  | VertexVisitResultSuccess
+  | VertexVisitResultFailure;
 
 export type VisitResult =
   | {
