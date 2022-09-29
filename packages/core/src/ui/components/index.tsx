@@ -49,6 +49,21 @@ const BatchExecution = ({
 }) => {
   return (
     <>
+      <Divider />
+      <Box paddingBottom={1}>
+        {deploymentState.phase === "execution" ? (
+          <>
+            <Text bold>
+              Executing <Spinner type="simpleDots" />
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text bold>Executed</Text>
+          </>
+        )}
+      </Box>
+
       {deploymentState.batches.map((batch, i) => (
         <Batch key={`batch-${i}`} batch={batch}></Batch>
       ))}
@@ -77,10 +92,15 @@ const FinalStatus = ({
 
     return (
       <Box flexDirection="column">
+        <Divider />
+
         <Box paddingTop={1}>
           <Text>
-            ⛔ Deployment failed for recipe{" "}
-            <Text italic={true}>{deploymentState.recipeName}</Text>
+            ⛔ <Text italic={true}>{deploymentState.recipeName}</Text>{" "}
+            deployment{" "}
+            <Text bold color="red">
+              failed
+            </Text>
           </Text>
         </Box>
 
@@ -103,7 +123,9 @@ const DepError = ({
 }) => {
   return (
     <Box flexDirection="column" margin={1}>
-      <Text bold={true}>Failure - {deploymentError.vertex}</Text>
+      <Text bold={true}>
+        {deploymentError.failureType} - {deploymentError.vertex}
+      </Text>
       <Text>{deploymentError.message}</Text>
     </Box>
   );
@@ -276,3 +298,17 @@ function assertNeverMessage(vertexEntry: never): string {
 
   throw new Error(`Unexpected vertex type: ${text}`);
 }
+
+const Divider = () => {
+  return (
+    <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
+      <Box width="100%">
+        <Text wrap="truncate">
+          {Array.from({ length: 400 })
+            .map((_i) => "─")
+            .join("")}
+        </Text>
+      </Box>
+    </Box>
+  );
+};

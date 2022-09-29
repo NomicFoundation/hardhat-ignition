@@ -1,4 +1,4 @@
-import { ExecutionVertex } from "types/executionGraph";
+import { ExecutionVertex, ExecutionVertexType } from "types/executionGraph";
 import { VertexVisitResultFailure } from "types/graph";
 
 interface VertexSuccess {
@@ -23,6 +23,7 @@ export type UiVertexStatus = "RUNNING" | "COMPELETED" | "ERRORED" | "HELD";
 export interface UiVertex {
   id: number;
   label: string;
+  type: ExecutionVertexType;
   status: UiVertexStatus;
 }
 
@@ -35,6 +36,7 @@ export interface DeploymentError {
   id: number;
   vertex: string;
   message: string;
+  failureType: string;
 }
 
 export class DeploymentState {
@@ -150,6 +152,30 @@ export class DeploymentState {
   ): DeploymentError {
     const message = "reason" in error ? (error as any).reason : error.message;
 
-    return { id: vertex.id, vertex: vertex.label, message };
+    return {
+      id: vertex.id,
+      vertex: vertex.label,
+      message,
+      failureType: this._resolveFailureTypeFrom(vertex),
+    };
   }
+
+  private _resolveFailureTypeFrom(vertex: UiVertex): string {
+    switch (vertex.type) {
+      case "ContractCall":
+        return "Failed contract call";
+      case "ContractDeploy":
+        return "Failed contract deploy";
+      case "DeployedContract":
+        return "-";
+      case "LibraryDeploy":
+        return "Failed library deploy";
+      default:
+        return assertNeverUiVertexType(vertex.type);
+    }
+  }
+}
+
+function assertNeverUiVertexType(type: never): string {
+  throw new Error(`Unexpected ui vertex type ${type}`);
 }

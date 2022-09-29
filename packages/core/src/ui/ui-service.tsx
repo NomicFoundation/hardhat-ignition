@@ -50,11 +50,20 @@ export class UiService {
     batch: Set<number>,
     executeBatchResult?: ExecuteBatchResult
   ) {
-    const vertexes: UiVertex[] = [...batch].map((id) => ({
-      id,
-      label: this._executionGraph?.vertexes.get(id)?.label ?? "ua",
-      status: this._resolveVertexStatus(id, executeBatchResult),
-    }));
+    const vertexes: UiVertex[] = [...batch].map((id) => {
+      const vertex = this._executionGraph?.vertexes.get(id);
+
+      if (!vertex) {
+        throw new Error("Unable to retrieve vertex");
+      }
+
+      return {
+        id,
+        label: vertex.label,
+        type: vertex.type,
+        status: this._resolveVertexStatus(id, executeBatchResult),
+      };
+    });
 
     this._deploymentState.setBatch(batchCount, { batchCount, vertexes });
 
