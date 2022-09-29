@@ -76,10 +76,13 @@ describe("Execution", () => {
     }
 
     assert.deepStrictEqual(response.result.get(0), {
-      abi: [],
-      address: "0xAddr",
-      bytecode: "0x0",
-      name: "Foo",
+      _kind: "success",
+      result: {
+        abi: [],
+        address: "0xAddr",
+        bytecode: "0x0",
+        name: "Foo",
+      },
     });
   });
 
@@ -145,10 +148,13 @@ describe("Execution", () => {
     }
 
     assert.deepStrictEqual(response.result.get(0), {
-      abi: [],
-      address: "0xAddr",
-      bytecode: "0x0",
-      name: "Foo",
+      _kind: "success",
+      result: {
+        abi: [],
+        address: "0xAddr",
+        bytecode: "0x0",
+        name: "Foo",
+      },
     });
   });
 
@@ -230,7 +236,10 @@ describe("Execution", () => {
     }
 
     assert.deepStrictEqual(response.result.get(1), {
-      hash: "0x2",
+      _kind: "success",
+      result: {
+        hash: "0x2",
+      },
     });
   });
 
@@ -263,9 +272,12 @@ describe("Execution", () => {
     }
 
     assert.deepStrictEqual(response.result.get(0), {
-      name: "Foo",
-      abi: [],
-      address: "0xAddr",
+      _kind: "success",
+      result: {
+        name: "Foo",
+        abi: [],
+        address: "0xAddr",
+      },
     });
   });
 });
@@ -282,6 +294,7 @@ async function assertExecuteSingleVertex(
 
   const mockUiService = {
     startExecutionPhase: () => {},
+    completeExecutionPhase: () => {},
     setBatch: () => {},
   } as any;
 
@@ -310,6 +323,7 @@ async function assertDependentVertex(
 
   const mockUiService = {
     startExecutionPhase: () => {},
+    completeExecutionPhase: () => {},
     setBatch: () => {},
   } as any;
 

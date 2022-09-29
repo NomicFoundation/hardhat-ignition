@@ -2,17 +2,6 @@ import { Services } from "services/types";
 import { ExecutionVertex } from "types/executionGraph";
 import { VertexVisitResult } from "types/graph";
 
-export interface ExecutionState {
-  unstarted: Set<number>;
-  onHold: Set<number>;
-  completed: Set<number>;
-  errored: Set<number>;
-
-  batch: Set<number>;
-
-  resultsAccumulator: Map<number, VertexVisitResult>;
-}
-
 export type BatcherResult =
   | {
       _kind: "success";

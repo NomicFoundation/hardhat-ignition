@@ -1,3 +1,4 @@
+import { DeployPhase } from "types/deployment";
 import { ExecutionVertex, ExecutionVertexType } from "types/executionGraph";
 import { VertexVisitResultFailure } from "types/graph";
 
@@ -40,7 +41,7 @@ export interface DeploymentError {
 }
 
 export class DeploymentState {
-  public phase: "uninitialized" | "execution" | "complete" | "failed";
+  public phase: DeployPhase;
   public recipeName: string;
 
   private validationErrors: string[];

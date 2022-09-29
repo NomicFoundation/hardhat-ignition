@@ -31,6 +31,7 @@ describe("Execution - visitInBatches", () => {
     const mockServices = {} as any;
     const mockUiService = {
       startExecutionPhase: () => {},
+      completeExecutionPhase: () => {},
       setBatch: () => {},
     } as any;
 

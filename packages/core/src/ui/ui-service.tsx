@@ -7,21 +7,27 @@ import { ExecuteBatchResult } from "execution/batch/types";
 import { IgnitionUi } from "./components";
 import { DeploymentState, UiVertex, UiVertexStatus } from "./types";
 import { VertexVisitResultFailure } from "types/graph";
+import { DeployState } from "types/deployment";
 
 export class UiService {
   private _enabled: boolean;
   private _deploymentState: DeploymentState;
   private _executionGraph: ExecutionGraph | undefined;
+  private _deployState: DeployState;
 
-  constructor({
-    recipeName,
-    enabled,
-  }: {
-    recipeName: string;
-    enabled: boolean;
-  }) {
+  constructor(
+    deployState: DeployState,
+    {
+      enabled,
+    }: {
+      enabled: boolean;
+    }
+  ) {
+    this._deployState = deployState;
     this._enabled = enabled;
-    this._deploymentState = new DeploymentState({ recipeName });
+    this._deploymentState = new DeploymentState({
+      recipeName: deployState.details.recipeName,
+    });
   }
 
   public startExecutionPhase(executionGraph: ExecutionGraph) {

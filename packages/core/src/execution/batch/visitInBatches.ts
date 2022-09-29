@@ -1,4 +1,5 @@
 import { Services } from "services/types";
+import { ExecutionState } from "types/deployment";
 import { ExecutionVertex } from "types/executionGraph";
 import {
   VertexVisitResult,
@@ -18,11 +19,7 @@ import {
   updateExecutionStateWithBatchResults,
   hasErrors,
 } from "./executionState";
-import {
-  ExecutionVertexDispatcher,
-  ExecutionState,
-  ExecuteBatchResult,
-} from "./types";
+import { ExecutionVertexDispatcher, ExecuteBatchResult } from "./types";
 import { allDependenciesCompleted } from "./utils";
 
 export async function visitInBatches(

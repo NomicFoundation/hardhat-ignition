@@ -7,7 +7,11 @@ import { generateRecipeGraphFrom } from "process/generateRecipeGraphFrom";
 import { transformRecipeGraphToExecutionGraph } from "process/transformRecipeGraphToExecutionGraph";
 import { createServices } from "services/createServices";
 import { Services } from "services/types";
-import { DeploymentResult, IgnitionRecipesResults } from "types/deployment";
+import {
+  DeploymentResult,
+  DeployState,
+  IgnitionRecipesResults,
+} from "types/deployment";
 import { DependableFuture, FutureDict } from "types/future";
 import { IgnitionPlan } from "types/plan";
 import { Providers } from "types/providers";
@@ -44,49 +48,15 @@ export class Ignition {
   ): Promise<[DeploymentResult, RecipesOutputs]> {
     log(`Start deploy`);
 
-    const ui = new UiService({ recipeName: recipe.name, enabled: options.ui });
-
-    log("Create journal with path '%s'", options.pathToJournal);
-
-    const journal =
-      options.pathToJournal !== undefined
-        ? new FileJournal(options.pathToJournal)
-        : new InMemoryJournal();
-
-    const serviceOptions = {
-      providers: this._providers,
-      journal,
-      txPollingInterval: 300,
-    };
-
-    const services: Services = createServices(
-      "recipeIdEXECUTE",
-      "executorIdEXECUTE",
-      serviceOptions
-    );
-
     const chainId = await this._getChainId();
     log("ChainId resolved as '%s'", chainId);
 
-    log("Generate recipe graph from recipe");
+    const deployState: DeployState = initializeDeployState(recipe, chainId);
+    const ui = new UiService(deployState, { enabled: options.ui });
+    const services = initializeServices(options, this._providers);
 
-    const { graph: recipeGraph, recipeOutputs } = generateRecipeGraphFrom(
-      recipe,
-      { chainId }
-    );
-
-    log("Validate recipe graph");
-    const validationResult = await validateRecipeGraph(recipeGraph, services);
-
-    if (validationResult._kind === "failure") {
-      return [validationResult, {}];
-    }
-
-    log("Transform recipe graph to execution graph");
-    const transformResult = await transformRecipeGraphToExecutionGraph(
-      recipeGraph,
-      services
-    );
+    const { result: transformResult, recipeOutputs } =
+      await constructExecutionGraphFrom(deployState, services, recipe);
 
     if (transformResult._kind === "failure") {
       return [transformResult, {}];
@@ -177,4 +147,79 @@ export class Ignition {
 
     return Object.fromEntries(convertedEntries);
   }
+}
+
+function initializeDeployState(recipe: Recipe, chainId: number): DeployState {
+  return {
+    phase: "uninitialized",
+    details: {
+      recipeName: recipe.name,
+      chainId,
+    },
+    validation: {
+      errors: [],
+    },
+    execution: {} as any,
+  };
+}
+
+function initializeServices(
+  options: IgnitionDeployOptions,
+  providers: Providers
+): Services {
+  log("Create journal with path '%s'", options.pathToJournal);
+
+  const journal =
+    options.pathToJournal !== undefined
+      ? new FileJournal(options.pathToJournal)
+      : new InMemoryJournal();
+
+  const serviceOptions = {
+    providers,
+    journal,
+    txPollingInterval: 300,
+  };
+
+  const services: Services = createServices(
+    "recipeIdEXECUTE",
+    "executorIdEXECUTE",
+    serviceOptions
+  );
+
+  return services;
+}
+
+async function constructExecutionGraphFrom(
+  deployState: DeployState,
+  services: Services,
+  recipe: Recipe
+): Promise<{ result: any; recipeOutputs: FutureDict }> {
+  log("Generate recipe graph from recipe");
+  const { graph: recipeGraph, recipeOutputs } = generateRecipeGraphFrom(
+    recipe,
+    { chainId: deployState.details.chainId }
+  );
+
+  log("Validate recipe graph");
+  const validationResult = await validateRecipeGraph(recipeGraph, services);
+
+  if (validationResult._kind === "failure") {
+    console.log(validationResult);
+    return { result: [validationResult, {}], recipeOutputs };
+  }
+
+  log("Transform recipe graph to execution graph");
+  const transformResult = await transformRecipeGraphToExecutionGraph(
+    recipeGraph,
+    services
+  );
+
+  return { result: transformResult, recipeOutputs };
+}
+
+function deployStateReducer(
+  state: DeployState,
+  action: { type: string }
+): DeployState {
+  return state;
 }

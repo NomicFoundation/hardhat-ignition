@@ -1,7 +1,8 @@
 import { ExecutionGraph } from "execution/ExecutionGraph";
+import { ExecutionState } from "types/deployment";
 import { difference, union } from "utils/sets";
 
-import { ExecutionState, ExecuteBatchResult } from "./types";
+import { ExecuteBatchResult } from "./types";
 
 export function initialiseExecutionStateFrom(
   executionGraph: ExecutionGraph
