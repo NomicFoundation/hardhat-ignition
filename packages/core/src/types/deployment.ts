@@ -39,7 +39,7 @@ export interface ExecutionState {
   completed: Set<number>;
   errored: Set<number>;
 
-  batch: Set<number>;
+  batch: Map<number, null | VertexVisitResult>;
   previousBatches: Array<Set<number>>;
 
   resultsAccumulator: Map<number, VertexVisitResult>;

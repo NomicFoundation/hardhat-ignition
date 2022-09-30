@@ -25,6 +25,10 @@ export async function executeContractCall(
     };
   }
 
+  // await new Promise((r) => {
+  //   setTimeout(r, Math.random() * (3000 - 1000) + 1000);
+  // });
+
   await services.transactions.wait(txHash);
 
   return {

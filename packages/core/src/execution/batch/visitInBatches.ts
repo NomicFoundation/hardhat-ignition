@@ -34,14 +34,15 @@ export async function visitInBatches(
       batch,
       executionGraph,
       deployment.state.execution.resultsAccumulator,
-      { services: deployment.services! },
+      deployment.updateCurrentBatchWithResult.bind(deployment),
+      { services: deployment.services },
       executionVertexDispatcher
     );
 
     deployment.updateExecutionWithBatchResults(executeBatchResult);
 
     if (deployment.hasErrors()) {
-      const errors = deployment.readExectionErrors();
+      const errors = deployment.readExecutionErrors();
 
       return {
         _kind: "failure",
@@ -76,6 +77,7 @@ async function executeBatch(
   batch: Set<number>,
   executionGraph: ExecutionGraph,
   resultsAccumulator: Map<number, VertexVisitResult>,
+  uiUpdate: (vertexId: number, result: VertexVisitResult) => void,
   { services }: { services: Services },
   executionVertexDispatcher: ExecutionVertexDispatcher
 ): Promise<ExecuteBatchResult> {
@@ -91,6 +93,8 @@ async function executeBatch(
     const result = await executionVertexDispatcher(vertex, resultsAccumulator, {
       services,
     });
+
+    uiUpdate(vertex.id, result);
 
     return { vertexId: vertex.id, result };
   });

@@ -95,12 +95,16 @@ const BatchExecution = ({ deployState }: { deployState: DeployState }) => {
 const resolveBatchesFrom = (deployState: DeployState): UiBatch[] => {
   const stateBatches =
     deployState.execution.batch.size > 0
-      ? [...deployState.execution.previousBatches, deployState.execution.batch]
+      ? [
+          ...deployState.execution.previousBatches,
+          deployState.execution.batch.keys(),
+        ]
       : deployState.execution.previousBatches;
 
   return stateBatches.map((sb, i) => ({
     batchCount: i,
     vertexes: [...sb]
+      .sort()
       .map((vertexId): UiVertex | null => {
         const vertex =
           deployState.transform.executionGraph?.vertexes.get(vertexId);
@@ -129,7 +133,21 @@ const determineStatusOf = (
   const execution = deployState.execution;
 
   if (execution.batch.has(vertexId)) {
-    return "RUNNING";
+    const entry = execution.batch.get(vertexId);
+
+    if (entry === null) {
+      return "RUNNING";
+    }
+
+    if (entry?._kind === "success") {
+      return "COMPELETED";
+    }
+
+    if (entry?._kind === "failure") {
+      return "ERRORED";
+    }
+
+    throw new Error(`Unable to determine current batch status ${entry}`);
   }
 
   if (execution.errored.has(vertexId)) {

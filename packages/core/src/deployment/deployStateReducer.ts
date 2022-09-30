@@ -23,7 +23,7 @@ export function initializeDeployState(recipe: Recipe): DeployState {
       onHold: new Set<number>(),
       completed: new Set<number>(),
       errored: new Set<number>(),
-      batch: new Set<number>(),
+      batch: new Map<number, VertexVisitResult | null>(),
       previousBatches: [],
       resultsAccumulator: new Map<number, VertexVisitResult>(),
     },
@@ -40,7 +40,7 @@ export function initialiseExecutionStateFrom(
     onHold: new Set<number>(),
     completed: new Set<number>(),
     errored: new Set<number>(),
-    batch: new Set<number>(),
+    batch: new Map<number, VertexVisitResult | null>(),
     previousBatches: [],
     resultsAccumulator: [...unstarted].reduce<Map<number, any>>((acc, id) => {
       acc.set(id, null);
@@ -78,6 +78,11 @@ export function deployStateReducer(
     | {
         type: "UPDATE_EXECUTION_WITH_BATCH_RESULTS";
         batchResult: ExecuteBatchResult;
+      }
+    | {
+        type: "UPDATE_CURRENT_BATCH_WITH_RESULT";
+        vertexId: number;
+        result: VertexVisitResult;
       }
 ): DeployState {
   switch (action.type) {
@@ -133,7 +138,17 @@ export function deployStateReducer(
         phase: resolvePhaseFrom(updatedExecution),
         execution: updatedExecution,
       };
+    case "UPDATE_CURRENT_BATCH_WITH_RESULT":
+      const updatedBatch = new Map(state.execution.batch);
+      updatedBatch.set(action.vertexId, action.result);
 
+      return {
+        ...state,
+        execution: {
+          ...state.execution,
+          batch: updatedBatch,
+        },
+      };
     default:
       assertNeverMessageType(action);
       return state;
@@ -155,12 +170,18 @@ function resolvePhaseFrom(updatedState: ExecutionState): DeployPhase {
 export function updateExecutionStateWithNewBatch(
   executionState: ExecutionState,
   batch: Set<number>
-) {
+): ExecutionState {
+  const batchEntries = new Map<number, VertexVisitResult | null>();
+
+  for (const vertexId of batch) {
+    batchEntries.set(vertexId, null);
+  }
+
   return {
     ...executionState,
     unstarted: difference(executionState.unstarted, batch),
     onHold: difference(executionState.onHold, batch),
-    batch: union(executionState.batch, batch),
+    batch: batchEntries,
   };
 }
 
@@ -211,7 +232,7 @@ export function transferFromBatchToCompleted(
 ): ExecutionState {
   return {
     ...executionState,
-    batch: difference(executionState.batch, completed),
+    batch: removeFromBatch(executionState.batch, completed),
     completed: union(executionState.completed, completed),
   };
 }
@@ -222,7 +243,7 @@ export function transferFromBatchToOnHold(
 ): ExecutionState {
   return {
     ...executionState,
-    batch: difference(executionState.batch, onHold),
+    batch: removeFromBatch(executionState.batch, onHold),
     onHold: union(executionState.onHold, onHold),
   };
 }
@@ -230,10 +251,10 @@ export function transferFromBatchToOnHold(
 export function transferFromBatchToErrored(
   executionState: ExecutionState,
   errored: Set<number>
-) {
+): ExecutionState {
   return {
     ...executionState,
-    batch: difference(executionState.batch, errored),
+    batch: removeFromBatch(executionState.batch, errored),
     errored: union(executionState.errored, errored),
   };
 }
@@ -246,6 +267,19 @@ function appendBatchToArchive(
     ...extensionState,
     previousBatches: [...extensionState.previousBatches, previousBatch],
   };
+}
+
+function removeFromBatch(
+  batch: Map<number, VertexVisitResult | null>,
+  toRemove: Set<number>
+): Map<number, VertexVisitResult | null> {
+  const updated = new Map(batch);
+
+  for (const vertexId of toRemove) {
+    updated.delete(vertexId);
+  }
+
+  return updated;
 }
 
 function assertNeverMessageType(action: never) {

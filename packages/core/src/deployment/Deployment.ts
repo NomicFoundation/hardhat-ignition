@@ -8,7 +8,7 @@ import { InMemoryJournal } from "journal/InMemoryJournal";
 import { createServices } from "services/createServices";
 import { Services } from "services/types";
 import { DeployState, UpdateUiAction } from "types/deployment";
-import { VertexVisitResultFailure } from "types/graph";
+import { VertexVisitResult, VertexVisitResultFailure } from "types/graph";
 import { Providers } from "types/providers";
 import { Recipe } from "types/recipeGraph";
 
@@ -123,7 +123,21 @@ export class Deployment {
     this._renderToUi(this.state);
   }
 
-  public readExectionErrors() {
+  public updateCurrentBatchWithResult(
+    vertexId: number,
+    result: VertexVisitResult
+  ) {
+    log(`Update current with batch result for ${vertexId}`, result);
+    this.state = deployStateReducer(this.state, {
+      type: "UPDATE_CURRENT_BATCH_WITH_RESULT",
+      vertexId,
+      result,
+    });
+
+    this._renderToUi(this.state);
+  }
+
+  public readExecutionErrors() {
     const errors = [...this.state.execution.errored].reduce(
       (acc: { [key: number]: VertexVisitResultFailure }, id) => {
         const result = this.state.execution.resultsAccumulator.get(id);
