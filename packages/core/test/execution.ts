@@ -1,6 +1,7 @@
 /* eslint-disable import/no-unused-modules */
 import { assert } from "chai";
 
+import { Deployment } from "deployment/Deployment";
 import { ExecutionGraph } from "execution/ExecutionGraph";
 import { execute } from "execution/execute";
 import { Services, TransactionOptions } from "services/types";
@@ -293,19 +294,18 @@ async function assertExecuteSingleVertex(
   executionGraph.vertexes.set(0, executionVertex);
 
   const mockUiService = {
-    startExecutionPhase: () => {},
-    completeExecutionPhase: () => {},
-    setBatch: () => {},
+    render: () => {},
   } as any;
 
-  const mockRecipeResults = {} as any;
-
-  return execute(
-    executionGraph,
+  const deployment = new Deployment(
+    { name: "MyRecipe" },
     mockServices,
-    mockUiService,
-    mockRecipeResults
+    mockUiService
   );
+
+  deployment.state.transform.executionGraph = executionGraph;
+
+  return execute(deployment);
 }
 
 async function assertDependentVertex(
@@ -322,17 +322,16 @@ async function assertDependentVertex(
   executionGraph.vertexes.set(1, child);
 
   const mockUiService = {
-    startExecutionPhase: () => {},
-    completeExecutionPhase: () => {},
-    setBatch: () => {},
+    render: () => {},
   } as any;
 
-  const mockRecipeResults = {} as any;
-
-  return execute(
-    executionGraph,
+  const deployment = new Deployment(
+    { name: "MyRecipe" },
     mockServices,
-    mockUiService,
-    mockRecipeResults
+    mockUiService
   );
+
+  deployment.state.transform.executionGraph = executionGraph;
+
+  return execute(deployment);
 }

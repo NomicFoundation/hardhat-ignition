@@ -128,7 +128,7 @@ export class DeploymentState {
 
     return Object.keys(errors)
       .map((ids: string) => {
-        const id = parseInt(ids);
+        const id = parseInt(ids, 10);
 
         const error = errors[id];
         const vertex = lastBatch.vertexes.find((v) => v.id === id);

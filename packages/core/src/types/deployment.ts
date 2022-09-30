@@ -1,14 +1,16 @@
+import { ExecutionGraph } from "execution/ExecutionGraph";
+
 import { VertexVisitResult } from "./graph";
 import {
   SerializedDeploymentResult,
-  SerializedRecipeResult,
+  SerializedFutureResult,
 } from "./serialization";
 
 export interface IgnitionRecipesResults {
-  load: (recipeId: string) => Promise<SerializedRecipeResult | undefined>;
+  load: (recipeId: string) => Promise<SerializedFutureResult | undefined>;
   save: (
     recipeId: string,
-    recipeResult: SerializedRecipeResult
+    recipeResult: SerializedFutureResult
   ) => Promise<void>;
 }
 
@@ -36,6 +38,7 @@ export interface ExecutionState {
   errored: Set<number>;
 
   batch: Set<number>;
+  previousBatches: Array<Set<number>>;
 
   resultsAccumulator: Map<number, VertexVisitResult>;
 }
@@ -47,5 +50,8 @@ export interface DeployState {
     chainId: number;
   };
   validation: ValidationState;
+  transform: {
+    executionGraph: ExecutionGraph | null;
+  };
   execution: ExecutionState;
 }

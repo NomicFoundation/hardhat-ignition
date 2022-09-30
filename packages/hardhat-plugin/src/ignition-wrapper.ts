@@ -1,7 +1,7 @@
 import {
   Ignition,
   IgnitionDeployOptions,
-  SerializedRecipeResult,
+  SerializedFutureResult,
   Providers,
   ExternalParamValue,
   Recipe,
@@ -99,7 +99,7 @@ export class IgnitionWrapper {
 
   private async _getRecipeResult(
     recipeId: string
-  ): Promise<SerializedRecipeResult | undefined> {
+  ): Promise<SerializedFutureResult | undefined> {
     if (this._isHardhatNetwork) {
       return;
     }
@@ -123,7 +123,7 @@ export class IgnitionWrapper {
 
   private async _saveRecipeResult(
     recipeId: string,
-    serializedRecipeResult: SerializedRecipeResult
+    serializedRecipeResult: SerializedFutureResult
   ): Promise<void> {
     if (this._isHardhatNetwork) {
       return;

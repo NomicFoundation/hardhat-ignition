@@ -30,7 +30,7 @@ export type VertexVisitResult =
 export type VisitResult =
   | {
       _kind: "success";
-      result: Map<number, any>;
+      result: Map<number, VertexVisitResult>;
     }
   | {
       _kind: "failure";

@@ -1,17 +1,17 @@
-import { Services } from "services/types";
-import { IgnitionRecipesResults } from "types/deployment";
-import { IExecutionGraph } from "types/executionGraph";
+import { Deployment } from "deployment/Deployment";
 import { VisitResult } from "types/graph";
-import { UiService } from "ui/ui-service";
 
 import { visitInBatches } from "./batch/visitInBatches";
 import { executionDispatch } from "./dispatch/executionDispatch";
 
-export async function execute(
-  executionGraph: IExecutionGraph,
-  services: Services,
-  ui: UiService,
-  _recipeResults: IgnitionRecipesResults
-): Promise<VisitResult> {
-  return visitInBatches(executionGraph, { services }, ui, executionDispatch);
+export async function execute(deployment: Deployment): Promise<VisitResult> {
+  if (deployment.state.transform.executionGraph === null) {
+    throw new Error("Cannot execute without an execution graph");
+  }
+
+  return visitInBatches(
+    deployment,
+    deployment.state.transform.executionGraph,
+    executionDispatch
+  );
 }

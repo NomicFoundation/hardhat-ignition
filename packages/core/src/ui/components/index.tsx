@@ -1,37 +1,62 @@
-import { Box, Newline, Text } from "ink";
+import { Box, Text } from "ink";
 import Spinner from "ink-spinner";
 import React from "react";
 
-import {
-  DeploymentError,
-  DeploymentState,
-  UiBatch,
-  UiVertex,
-  VertexStatus,
-} from "../types";
+import { DeployState } from "types/deployment";
+import { ExecutionVertex } from "types/executionGraph";
 
-export const IgnitionUi = ({
-  deploymentState,
-}: {
-  deploymentState: DeploymentState;
-}) => {
-  if (deploymentState.phase === "uninitialized") {
-    return null;
+import { DeploymentError, UiBatch, UiVertex, UiVertexStatus } from "../types";
+
+export const IgnitionUi = ({ deployState }: { deployState: DeployState }) => {
+  if (
+    deployState.phase === "uninitialized" ||
+    deployState.phase === "validating"
+  ) {
+    return (
+      <Box>
+        <Text>
+          Ignition starting <Spinner type="simpleDots" />
+        </Text>
+      </Box>
+    );
+  }
+
+  if (deployState.phase === "validation-failed") {
+    return (
+      <Box flexDirection="column">
+        <Text>
+          Ignition validation <Text color="red">failed</Text> for recipe{" "}
+          {deployState.details.recipeName}
+        </Text>
+
+        <Box flexDirection="column" marginTop={1}>
+          {deployState.validation.errors.map((err, i) => (
+            <ErrorBox key={`err-${i}`} error={err} />
+          ))}
+        </Box>
+      </Box>
+    );
   }
 
   return (
     <Box flexDirection="column">
-      <SummarySection deploymentState={deploymentState} />
-      <BatchExecution deploymentState={deploymentState} />
-      <FinalStatus deploymentState={deploymentState} />
+      <SummarySection deployState={deployState} />
+      <BatchExecution deployState={deployState} />
+      <FinalStatus deployState={deployState} />
     </Box>
   );
 };
 
+const ErrorBox = ({ error }: { error: Error }) => {
+  return <Text>{error.message}</Text>;
+};
+
 const SummarySection = ({
-  deploymentState: { recipeName },
+  deployState: {
+    details: { recipeName },
+  },
 }: {
-  deploymentState: DeploymentState;
+  deployState: DeployState;
 }) => {
   return (
     <Box margin={1}>
@@ -42,16 +67,14 @@ const SummarySection = ({
   );
 };
 
-const BatchExecution = ({
-  deploymentState,
-}: {
-  deploymentState: DeploymentState;
-}) => {
+const BatchExecution = ({ deployState }: { deployState: DeployState }) => {
+  const batches = resolveBatchesFrom(deployState);
+
   return (
     <>
       <Divider />
       <Box paddingBottom={1}>
-        {deploymentState.phase === "execution" ? (
+        {deployState.phase === "execution" ? (
           <>
             <Text bold>
               Executing <Spinner type="simpleDots" />
@@ -64,39 +87,88 @@ const BatchExecution = ({
         )}
       </Box>
 
-      {deploymentState.batches.map((batch, i) => (
+      {batches.map((batch, i) => (
         <Batch key={`batch-${i}`} batch={batch}></Batch>
       ))}
     </>
   );
 };
 
-const FinalStatus = ({
-  deploymentState,
-}: {
-  deploymentState: DeploymentState;
-}) => {
-  if (deploymentState.phase === "complete") {
+const resolveBatchesFrom = (deployState: DeployState): UiBatch[] => {
+  const stateBatches =
+    deployState.execution.batch.size > 0
+      ? [...deployState.execution.previousBatches, deployState.execution.batch]
+      : deployState.execution.previousBatches;
+
+  return stateBatches.map((sb, i) => ({
+    batchCount: i,
+    vertexes: [...sb]
+      .map((vertexId): UiVertex | null => {
+        const vertex =
+          deployState.transform.executionGraph?.vertexes.get(vertexId);
+
+        if (vertex === undefined) {
+          return null;
+        }
+
+        const uiVertex: UiVertex = {
+          id: vertex.id,
+          label: vertex.label,
+          type: vertex.type,
+          status: determineStatusOf(deployState, vertex.id),
+        };
+
+        return uiVertex;
+      })
+      .filter((v): v is UiVertex => v !== null),
+  }));
+};
+
+const determineStatusOf = (
+  deployState: DeployState,
+  vertexId: number
+): UiVertexStatus => {
+  const execution = deployState.execution;
+
+  if (execution.batch.has(vertexId)) {
+    return "RUNNING";
+  }
+
+  if (execution.errored.has(vertexId)) {
+    return "ERRORED";
+  }
+
+  if (execution.completed.has(vertexId)) {
+    return "COMPELETED";
+  }
+
+  throw new Error(`Unable to determine vertex status for ${vertexId}`);
+};
+
+const FinalStatus = ({ deployState }: { deployState: DeployState }) => {
+  if (deployState.phase === "complete") {
     return (
-      <Box>
+      <Box flexDirection="column">
+        <Divider />
         <Text>
           🚀 Deployment Complete for recipe{" "}
-          <Text italic={true}>{deploymentState.recipeName}</Text>
+          <Text italic={true}>{deployState.details.recipeName}</Text>
         </Text>
       </Box>
     );
   }
 
-  if (deploymentState.phase === "failed") {
-    const deploymentErrors = deploymentState.getDeploymentErrors();
+  if (deployState.phase === "failed") {
+    const deploymentErrors: DeploymentError[] =
+      getDeploymentErrors(deployState);
 
     return (
       <Box flexDirection="column">
         <Divider />
 
-        <Box paddingTop={1}>
+        <Box>
           <Text>
-            ⛔ <Text italic={true}>{deploymentState.recipeName}</Text>{" "}
+            ⛔ <Text italic={true}>{deployState.details.recipeName}</Text>{" "}
             deployment{" "}
             <Text bold color="red">
               failed
@@ -115,6 +187,63 @@ const FinalStatus = ({
 
   return null;
 };
+
+const getDeploymentErrors = (deployState: DeployState): DeploymentError[] => {
+  return [...deployState.execution.errored]
+    .map((id) => {
+      const vertexResult = deployState.execution.resultsAccumulator.get(id);
+
+      if (vertexResult === undefined || vertexResult._kind === "success") {
+        return null;
+      }
+
+      const failure = vertexResult.failure;
+
+      const vertex = deployState.transform.executionGraph?.vertexes.get(id);
+
+      if (vertex === undefined) {
+        return null;
+      }
+
+      const errorDescription = buildErrorDescriptionFrom(failure, vertex);
+
+      return errorDescription;
+    })
+    .filter((x): x is DeploymentError => x !== null);
+};
+
+const buildErrorDescriptionFrom = (
+  error: Error,
+  vertex: ExecutionVertex
+): DeploymentError => {
+  const message = "reason" in error ? (error as any).reason : error.message;
+
+  return {
+    id: vertex.id,
+    vertex: vertex.label,
+    message,
+    failureType: resolveFailureTypeFrom(vertex),
+  };
+};
+
+const resolveFailureTypeFrom = (vertex: ExecutionVertex): string => {
+  switch (vertex.type) {
+    case "ContractCall":
+      return "Failed contract call";
+    case "ContractDeploy":
+      return "Failed contract deploy";
+    case "DeployedContract":
+      return "-";
+    case "LibraryDeploy":
+      return "Failed library deploy";
+    default:
+      return assertNeverUiVertexType(vertex);
+  }
+};
+
+function assertNeverUiVertexType(vertex: never): string {
+  throw new Error(`Unexpected ui vertex type ${vertex}`);
+}
 
 const DepError = ({
   deploymentError,
@@ -242,61 +371,6 @@ function resolveVertexColors(vertex: UiVertex): {
 
 function assertNeverVertexStatus(status: never): any {
   throw new Error(`Unexpected vertex status ${status}`);
-}
-
-function toDisplayMessage(vertexEntry: VertexStatus): {
-  color: "green" | "gray";
-  message: string;
-} {
-  if (vertexEntry.status === "unstarted") {
-    return {
-      color: "gray",
-      message: resolveUnstartedMessage(vertexEntry),
-    };
-  }
-
-  if (vertexEntry.status === "success") {
-    return { color: "green", message: resolveCompletedMessage(vertexEntry) };
-  }
-
-  throw new Error(`Unexpected vertex status: ${vertexEntry}`);
-}
-
-function resolveUnstartedMessage(vertexEntry: VertexStatus) {
-  switch (vertexEntry.vertex.type) {
-    case "ContractCall":
-      return `Waiting to call contract ${vertexEntry.vertex.label}`;
-    case "ContractDeploy":
-      return `Waiting to deploy contract ${vertexEntry.vertex.label}`;
-    case "DeployedContract":
-      return `Waiting to resolve contract ${vertexEntry.vertex.label}`;
-    case "LibraryDeploy":
-      return `Waiting to deploy library ${vertexEntry.vertex.label}`;
-    default:
-      return assertNeverMessage(vertexEntry.vertex);
-  }
-}
-
-function resolveCompletedMessage(vertexEntry: VertexStatus) {
-  switch (vertexEntry.vertex.type) {
-    case "ContractCall":
-      return `Executed call to contract ${vertexEntry.vertex.label}`;
-    case "ContractDeploy":
-      return `Deployed contract ${vertexEntry.vertex.label}`;
-    case "DeployedContract":
-      return `Contract resolved ${vertexEntry.vertex.label}`;
-    case "LibraryDeploy":
-      return `Deployed contract ${vertexEntry.vertex.label}`;
-    default:
-      return assertNeverMessage(vertexEntry.vertex);
-  }
-}
-
-function assertNeverMessage(vertexEntry: never): string {
-  const entry: any = vertexEntry;
-  const text = "type" in entry ? entry.type : entry;
-
-  throw new Error(`Unexpected vertex type: ${text}`);
 }
 
 const Divider = () => {

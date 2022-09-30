@@ -1,3 +1,4 @@
+import { Deployment } from "deployment/Deployment";
 import { Services } from "services/types";
 import { ExecutionState } from "types/deployment";
 import { ExecutionVertex } from "types/executionGraph";
@@ -7,66 +8,40 @@ import {
   VertexVisitResultSuccess,
   VisitResult,
 } from "types/graph";
-import { UiService } from "ui/ui-service";
 import { union } from "utils/sets";
 
 import { ExecutionGraph } from "../ExecutionGraph";
 
-import {
-  initialiseExecutionStateFrom,
-  hasUnstarted,
-  updateExecutionStateWithNewBatch,
-  updateExecutionStateWithBatchResults,
-  hasErrors,
-} from "./executionState";
 import { ExecutionVertexDispatcher, ExecuteBatchResult } from "./types";
 import { allDependenciesCompleted } from "./utils";
 
 export async function visitInBatches(
+  deployment: Deployment,
   executionGraph: ExecutionGraph,
-  { services }: { services: Services },
-  ui: UiService,
   executionVertexDispatcher: ExecutionVertexDispatcher
 ): Promise<VisitResult> {
-  const executionState = initialiseExecutionStateFrom(executionGraph);
+  deployment.startExecutionPhase(executionGraph);
 
-  ui.startExecutionPhase(executionGraph);
+  while (deployment.hasUnstarted()) {
+    const batch = calculateNextBatch(
+      deployment.state.execution,
+      executionGraph
+    );
 
-  let batchCount = 1;
-  while (hasUnstarted(executionState)) {
-    const batch = calculateNextBatch(executionState, executionGraph);
-    ui.setBatch(batchCount, batch);
-
-    updateExecutionStateWithNewBatch(executionState, batch);
+    deployment.updateExecutionWithNewBatch(batch);
 
     const executeBatchResult = await executeBatch(
       batch,
       executionGraph,
-      executionState.resultsAccumulator,
-      { services },
+      deployment.state.execution.resultsAccumulator,
+      { services: deployment.services! },
       executionVertexDispatcher
     );
 
-    updateExecutionStateWithBatchResults(executionState, executeBatchResult);
-    ui.setBatch(batchCount, batch, executeBatchResult);
+    deployment.updateExecutionWithBatchResults(executeBatchResult);
 
-    if (hasErrors(executionState)) {
-      const errors = [...executionState.errored].reduce(
-        (acc: { [key: number]: VertexVisitResultFailure }, id) => {
-          const result = executionState.resultsAccumulator.get(id);
-
-          if (result === undefined || result._kind === "success") {
-            return acc;
-          }
-
-          acc[id] = result;
-
-          return acc;
-        },
-        {}
-      );
-
-      ui.failExecutionPhaseWith(errors);
+    if (deployment.hasErrors()) {
+      const errors = deployment.readExectionErrors();
 
       return {
         _kind: "failure",
@@ -76,12 +51,12 @@ export async function visitInBatches(
         ],
       };
     }
-
-    batchCount++;
   }
 
-  ui.completeExecutionPhase();
-  return { _kind: "success", result: executionState.resultsAccumulator };
+  return {
+    _kind: "success",
+    result: deployment.state.execution.resultsAccumulator,
+  };
 }
 
 function calculateNextBatch(

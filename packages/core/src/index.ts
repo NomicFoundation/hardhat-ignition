@@ -3,7 +3,6 @@ export { buildRecipe } from "recipe/buildRecipe";
 
 export type {
   SerializedDeploymentResult,
-  SerializedRecipeResult,
   SerializedFutureResult,
 } from "types/serialization";
 export type { Services } from "services/types";

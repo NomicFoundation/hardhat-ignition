@@ -1,6 +1,7 @@
 /* eslint-disable import/no-unused-modules */
 import { assert } from "chai";
 
+import { Deployment } from "deployment/Deployment";
 import { ExecutionGraph } from "execution/ExecutionGraph";
 import { visitInBatches } from "execution/batch/visitInBatches";
 import { ContractDeploy, ExecutionVertex } from "types/executionGraph";
@@ -30,15 +31,18 @@ describe("Execution - visitInBatches", () => {
 
     const mockServices = {} as any;
     const mockUiService = {
-      startExecutionPhase: () => {},
-      completeExecutionPhase: () => {},
-      setBatch: () => {},
+      render: () => {},
     } as any;
 
+    const deployment = new Deployment(
+      { name: "MyRecipe" },
+      mockServices,
+      mockUiService
+    );
+
     const result = await visitInBatches(
+      deployment,
       executionGraph,
-      { services: mockServices },
-      mockUiService,
       async (): Promise<VertexVisitResult> => {
         return { _kind: "success", result: true };
       }
