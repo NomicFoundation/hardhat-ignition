@@ -27,10 +27,6 @@ export async function executeContractDeploy(
       resolvedLibraries
     );
 
-    // await new Promise((r) => {
-    //   setTimeout(r, Math.random() * (3000 - 1000) + 1000);
-    // });
-
     const receipt = await services.transactions.wait(txHash);
 
     return {
