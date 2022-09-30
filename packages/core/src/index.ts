@@ -11,7 +11,11 @@ export type {
   ConfigProvider,
   HasParamResult,
 } from "types/providers";
-export type { DeploymentResult } from "types/deployment";
+export type {
+  DeployState,
+  DeployPhase,
+  DeploymentResult,
+} from "types/deployment";
 export type {
   Recipe,
   ExternalParamValue,
@@ -19,4 +23,12 @@ export type {
 } from "types/recipeGraph";
 export type { FutureDict } from "types/future";
 export type { IgnitionPlan } from "types/plan";
-export type { VertexGraph, VertexDescriptor } from "types/graph";
+export type {
+  VertexGraph,
+  VertexDescriptor,
+  VertexVisitResultFailure,
+} from "types/graph";
+export type {
+  ExecutionVertex,
+  ExecutionVertexType,
+} from "types/executionGraph";

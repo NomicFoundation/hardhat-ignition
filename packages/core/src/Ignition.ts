@@ -7,14 +7,13 @@ import { generateRecipeGraphFrom } from "process/generateRecipeGraphFrom";
 import { transformRecipeGraphToExecutionGraph } from "process/transformRecipeGraphToExecutionGraph";
 import { createServices } from "services/createServices";
 import { Services } from "services/types";
-import { DeploymentResult, IgnitionRecipesResults } from "types/deployment";
+import { DeploymentResult, UpdateUiAction } from "types/deployment";
 import { DependableFuture, FutureDict } from "types/future";
 import { VertexVisitResult } from "types/graph";
 import { IgnitionPlan } from "types/plan";
 import { Providers } from "types/providers";
 import { Recipe } from "types/recipeGraph";
 import { SerializedFutureResult } from "types/serialization";
-import { UiService } from "ui/ui-service";
 import { isDependable } from "utils/guards";
 import { serializeFutureOutput } from "utils/serialize";
 import { validateRecipeGraph } from "validation/validateRecipeGraph";
@@ -24,32 +23,31 @@ const log = setupDebug("ignition:main");
 export interface IgnitionDeployOptions {
   pathToJournal: string | undefined;
   txPollingInterval: number;
-  ui: boolean;
+  ui?: UpdateUiAction;
 }
 
 type RecipesOutputs = Record<string, any>;
 
 export class Ignition {
-  constructor(
-    private _providers: Providers,
-    private _recipesResults: IgnitionRecipesResults
-  ) {}
+  constructor(private _providers: Providers) {}
 
   public async deploy(
     recipe: Recipe,
-    options: IgnitionDeployOptions = {
-      ui: true,
-      pathToJournal: undefined,
-      txPollingInterval: 300,
-    }
+    givenOptions?: IgnitionDeployOptions
   ): Promise<[DeploymentResult, RecipesOutputs]> {
     log(`Start deploy`);
 
-    const ui = new UiService({ enabled: options.ui ?? true });
+    const options = {
+      pathToJournal: undefined,
+      txPollingInterval: 300,
+      ui: undefined,
+      ...givenOptions,
+    };
+
     const deployment = new Deployment(
       recipe,
       Deployment.setupServices(options, this._providers),
-      ui
+      options.ui
     );
 
     const chainId = await this._getChainId();

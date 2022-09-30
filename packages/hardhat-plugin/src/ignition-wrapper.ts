@@ -1,14 +1,13 @@
 import {
   Ignition,
   IgnitionDeployOptions,
-  SerializedFutureResult,
   Providers,
   ExternalParamValue,
   Recipe,
 } from "@nomicfoundation/ignition-core";
-import fsExtra from "fs-extra";
 import { HardhatConfig, HardhatRuntimeEnvironment } from "hardhat/types";
-import path from "path";
+
+import { renderToCli } from "./ui/renderToCli";
 
 type HardhatEthers = HardhatRuntimeEnvironment["ethers"];
 type HardhatPaths = HardhatConfig["paths"];
@@ -22,13 +21,12 @@ export class IgnitionWrapper {
     private _ethers: HardhatEthers,
     private _isHardhatNetwork: boolean,
     private _paths: HardhatPaths,
-    private _deployOptions: IgnitionDeployOptions
+    private _deployOptions: Omit<
+      IgnitionDeployOptions,
+      keyof { ui?: boolean }
+    > & { ui?: boolean }
   ) {
-    this._ignition = new Ignition(_providers, {
-      load: (recipeId) => this._getRecipeResult(recipeId),
-      save: (recipeId, recipeResult) =>
-        this._saveRecipeResult(recipeId, recipeResult),
-    });
+    this._ignition = new Ignition(_providers);
   }
 
   public async deploy(
@@ -45,7 +43,7 @@ export class IgnitionWrapper {
 
     const [deploymentResult] = await this._ignition.deploy(recipe, {
       ...this._deployOptions,
-      ui: showUi,
+      ui: Boolean(deployParams?.ui) ? renderToCli : undefined,
     });
 
     if (deploymentResult._kind === "hold") {
@@ -95,65 +93,5 @@ export class IgnitionWrapper {
 
   public async plan(recipe: Recipe) {
     return this._ignition.plan(recipe);
-  }
-
-  private async _getRecipeResult(
-    recipeId: string
-  ): Promise<SerializedFutureResult | undefined> {
-    if (this._isHardhatNetwork) {
-      return;
-    }
-
-    const chainId = await this._getChainId();
-
-    const recipeResultPath = path.join(
-      this._paths.deployments,
-      String(chainId),
-      `${recipeId}.json`
-    );
-
-    if (!(await fsExtra.pathExists(recipeResultPath))) {
-      return;
-    }
-
-    const serializedRecipeResult = await fsExtra.readJson(recipeResultPath);
-
-    return serializedRecipeResult;
-  }
-
-  private async _saveRecipeResult(
-    recipeId: string,
-    serializedRecipeResult: SerializedFutureResult
-  ): Promise<void> {
-    if (this._isHardhatNetwork) {
-      return;
-    }
-
-    const chainId = await this._getChainId();
-
-    const deploymentsDirectory = path.join(
-      this._paths.deployments,
-      String(chainId)
-    );
-
-    fsExtra.ensureDirSync(deploymentsDirectory);
-
-    const recipeResultPath = path.join(
-      deploymentsDirectory,
-      `${recipeId}.json`
-    );
-
-    await fsExtra.writeJson(recipeResultPath, serializedRecipeResult, {
-      spaces: 2,
-    });
-  }
-
-  private async _getChainId(): Promise<number> {
-    if (this._cachedChainId === undefined) {
-      const { chainId } = await this._ethers.provider.getNetwork();
-      this._cachedChainId = chainId;
-    }
-
-    return this._cachedChainId;
   }
 }

@@ -6,6 +6,8 @@ import {
   SerializedFutureResult,
 } from "./serialization";
 
+export type UpdateUiAction = (deployState: DeployState) => void;
+
 export interface IgnitionRecipesResults {
   load: (recipeId: string) => Promise<SerializedFutureResult | undefined>;
   save: (

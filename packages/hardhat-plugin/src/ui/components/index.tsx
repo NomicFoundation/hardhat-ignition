@@ -1,9 +1,7 @@
+import { DeployState, ExecutionVertex } from "@nomicfoundation/ignition-core";
 import { Box, Text } from "ink";
 import Spinner from "ink-spinner";
 import React from "react";
-
-import { DeployState } from "types/deployment";
-import { ExecutionVertex } from "types/executionGraph";
 
 import { DeploymentError, UiBatch, UiVertex, UiVertexStatus } from "../types";
 

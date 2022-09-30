@@ -1,6 +1,9 @@
-import { DeployPhase } from "types/deployment";
-import { ExecutionVertex, ExecutionVertexType } from "types/executionGraph";
-import { VertexVisitResultFailure } from "types/graph";
+import {
+  DeployPhase,
+  ExecutionVertex,
+  ExecutionVertexType,
+  VertexVisitResultFailure,
+} from "@nomicfoundation/ignition-core";
 
 interface VertexSuccess {
   status: "success";

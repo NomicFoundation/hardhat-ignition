@@ -30,14 +30,12 @@ describe("Execution - visitInBatches", () => {
     executionGraph.vertexes.set(2, vertex2);
 
     const mockServices = {} as any;
-    const mockUiService = {
-      render: () => {},
-    } as any;
+    const mockUpdateUiAction = () => {};
 
     const deployment = new Deployment(
       { name: "MyRecipe" },
       mockServices,
-      mockUiService
+      mockUpdateUiAction
     );
 
     const result = await visitInBatches(

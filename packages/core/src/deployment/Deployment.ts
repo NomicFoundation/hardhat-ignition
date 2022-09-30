@@ -7,11 +7,10 @@ import { FileJournal } from "journal/FileJournal";
 import { InMemoryJournal } from "journal/InMemoryJournal";
 import { createServices } from "services/createServices";
 import { Services } from "services/types";
-import { DeployState } from "types/deployment";
+import { DeployState, UpdateUiAction } from "types/deployment";
 import { VertexVisitResultFailure } from "types/graph";
 import { Providers } from "types/providers";
 import { Recipe } from "types/recipeGraph";
-import { UiService } from "ui/ui-service";
 
 import {
   deployStateReducer,
@@ -23,12 +22,12 @@ const log = setupDebug("ignition:deployment");
 export class Deployment {
   public state: DeployState;
   public services: Services;
-  public ui: UiService;
+  public ui?: UpdateUiAction;
 
-  constructor(recipe: Recipe, services: Services, ui: UiService) {
+  constructor(recipe: Recipe, services: Services, ui?: UpdateUiAction) {
     this.state = initializeDeployState(recipe);
-    this.ui = ui;
     this.services = services;
+    this.ui = ui;
   }
 
   public static setupServices(
@@ -71,7 +70,7 @@ export class Deployment {
       type: "START_VALIDATION",
     });
 
-    this.ui.render(this.state);
+    this._renderToUi(this.state);
   }
 
   public failValidation(errors: Error[]) {
@@ -81,7 +80,7 @@ export class Deployment {
       errors,
     });
 
-    this.ui.render(this.state);
+    this._renderToUi(this.state);
   }
 
   public transformComplete(executionGraph: ExecutionGraph) {
@@ -91,7 +90,7 @@ export class Deployment {
       executionGraph,
     });
 
-    this.ui.render(this.state);
+    this._renderToUi(this.state);
   }
 
   public startExecutionPhase(executionGraph: ExecutionGraph) {
@@ -101,7 +100,7 @@ export class Deployment {
       executionGraph,
     });
 
-    this.ui.render(this.state);
+    this._renderToUi(this.state);
   }
 
   public updateExecutionWithNewBatch(batch: Set<number>) {
@@ -111,7 +110,7 @@ export class Deployment {
       batch,
     });
 
-    this.ui.render(this.state);
+    this._renderToUi(this.state);
   }
 
   public updateExecutionWithBatchResults(batchResult: ExecuteBatchResult) {
@@ -121,7 +120,7 @@ export class Deployment {
       batchResult,
     });
 
-    this.ui.render(this.state);
+    this._renderToUi(this.state);
   }
 
   public readExectionErrors() {
@@ -149,5 +148,13 @@ export class Deployment {
 
   public hasErrors(): boolean {
     return this.state.execution.errored.size > 0;
+  }
+
+  private _renderToUi(state: DeployState) {
+    if (this.ui === undefined) {
+      return;
+    }
+
+    this.ui(state);
   }
 }

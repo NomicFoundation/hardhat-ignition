@@ -293,14 +293,12 @@ async function assertExecuteSingleVertex(
   });
   executionGraph.vertexes.set(0, executionVertex);
 
-  const mockUiService = {
-    render: () => {},
-  } as any;
+  const mockUpdateUiAction = () => {};
 
   const deployment = new Deployment(
     { name: "MyRecipe" },
     mockServices,
-    mockUiService
+    mockUpdateUiAction
   );
 
   deployment.state.transform.executionGraph = executionGraph;
@@ -321,14 +319,12 @@ async function assertDependentVertex(
   executionGraph.vertexes.set(0, parent);
   executionGraph.vertexes.set(1, child);
 
-  const mockUiService = {
-    render: () => {},
-  } as any;
+  const mockUpdateUiAction = () => {};
 
   const deployment = new Deployment(
     { name: "MyRecipe" },
     mockServices,
-    mockUiService
+    mockUpdateUiAction
   );
 
   deployment.state.transform.executionGraph = executionGraph;
