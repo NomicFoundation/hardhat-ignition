@@ -6,7 +6,7 @@ For example, this is a minimal recipe `MyRecipe` that deploys an instance of a `
 
 ```javascript
 // ./ignition/MyRecipe.ts
-import { buildRecipe, RecipeBuilder } from "@nomicfoundation/hardhat-ignition";
+import { buildRecipe, RecipeBuilder } from "@ignored/hardhat-ignition";
 
 export default buildRecipe("MyRecipe", (m: RecipeBuilder) => {
   const token = m.contract("Token");
@@ -149,7 +149,7 @@ import {
   buildRecipe,
   buildModule,
   RecipeBuilder,
-} from "@nomicfoundation/hardhat-ignition";
+} from "@ignored/hardhat-ignition";
 
 const myModule = buildModule("MyModule", (m: RecipeBuilder) => {
   const symbol = m.getParam("tokenSymbol");

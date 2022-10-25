@@ -10,7 +10,7 @@ import {
   Services,
   Future,
   Hold,
-} from "@nomicfoundation/hardhat-ignition";
+} from "@ignored/hardhat-ignition";
 
 interface CallFromMultisigOptions {
   id: string;

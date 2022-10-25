@@ -8,7 +8,7 @@ import {
   Contract,
   Services,
   Hold,
-} from "@nomicfoundation/hardhat-ignition";
+} from "@ignored/hardhat-ignition";
 
 class TimelockCallExecutor extends Executor<TimelockCallOptions, string> {
   public async execute(

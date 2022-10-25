@@ -1,8 +1,5 @@
 /* eslint-disable import/no-unused-modules */
-import {
-  buildRecipe,
-  IRecipeGraphBuilder,
-} from "@nomicfoundation/ignition-core";
+import { buildRecipe, IRecipeGraphBuilder } from "@ignored/ignition-core";
 import { assert } from "chai";
 
 import { mineBlocks } from "./helpers";

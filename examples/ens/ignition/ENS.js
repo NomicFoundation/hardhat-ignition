@@ -1,4 +1,4 @@
-const { buildRecipe } = require("@nomicfoundation/hardhat-ignition");
+const { buildRecipe } = require("@ignored/hardhat-ignition");
 
 const namehash = require("eth-ens-namehash");
 const ethers = hre.ethers;

@@ -4,7 +4,7 @@ import {
   Providers,
   ExternalParamValue,
   Recipe,
-} from "@nomicfoundation/ignition-core";
+} from "@ignored/ignition-core";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { renderToCli } from "./ui/renderToCli";

@@ -6,7 +6,7 @@ import {
   buildRecipe,
   IRecipeGraphBuilder,
   FutureDict,
-} from "@nomicfoundation/ignition-core";
+} from "@ignored/ignition-core";
 import { assert } from "chai";
 
 export const resultAssertions = {

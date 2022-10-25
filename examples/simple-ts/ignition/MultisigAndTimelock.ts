@@ -8,7 +8,7 @@ import {
   Services,
   Future,
   Hold,
-} from "@nomicfoundation/hardhat-ignition";
+} from "@ignored/hardhat-ignition";
 
 interface CallFromMultisigAndTimelockOptions {
   id: string;

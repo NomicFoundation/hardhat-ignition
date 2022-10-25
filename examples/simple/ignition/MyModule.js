@@ -1,7 +1,4 @@
-const {
-  buildRecipe,
-  buildModule,
-} = require("@nomicfoundation/hardhat-ignition");
+const { buildRecipe, buildModule } = require("@ignored/hardhat-ignition");
 
 const myModule = buildModule("MyModule", (m) => {
   const foo = m.contract("Foo");

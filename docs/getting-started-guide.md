@@ -5,7 +5,7 @@
 Add **Ignition** to your **Hardhat** project by installing the plugin:
 
 ```shell
-npm install @nomicfoundation/hardhat-ignition
+npm install @ignored/hardhat-ignition
 ```
 
 Modify your `Hardhat.config.{ts,js}` file, to include **Ignition**:
@@ -13,7 +13,7 @@ Modify your `Hardhat.config.{ts,js}` file, to include **Ignition**:
 ```javascript
 import { HardhatUserConfig, task } from "hardhat/config";
 // ...
-import "@nomicfoundation/hardhat-ignition";
+import "@ignored/hardhat-ignition";
 ```
 
 Create an `./ignition` folder in your project root to contain your deployment recipes.
@@ -29,7 +29,7 @@ Add a deployment recipe under the `./ignition` folder:
 ```typescript
 // ./ignition/MyRecipe.ts
 
-import { buildRecipe } from "@nomicfoundation/hardhat-ignition";
+import { buildRecipe } from "@ignored/hardhat-ignition";
 
 export default buildRecipe("MyRecipe", (m) => {
   const token = m.contract("Token");

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unused-modules */
-import { buildRecipe } from "@nomicfoundation/ignition-core";
+import { buildRecipe } from "@ignored/ignition-core";
 import { assert } from "chai";
 
 import { deployRecipe, mineBlocks } from "./helpers";

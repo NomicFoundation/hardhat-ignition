@@ -1,5 +1,5 @@
 import "@nomiclabs/hardhat-ethers";
-import { Providers, Recipe } from "@nomicfoundation/ignition-core";
+import { Providers, Recipe } from "@ignored/ignition-core";
 import { extendConfig, extendEnvironment, task } from "hardhat/config";
 import { lazyObject } from "hardhat/plugins";
 import path from "path";
@@ -10,7 +10,7 @@ import { Renderer } from "./plan";
 import { loadUserRecipes, loadAllUserRecipes } from "./user-recipes";
 import "./type-extensions";
 
-export { buildRecipe, buildModule } from "@nomicfoundation/ignition-core";
+export { buildRecipe, buildModule } from "@ignored/ignition-core";
 
 extendConfig((config, userConfig) => {
   const userIgnitionPath = userConfig.paths?.ignition;

@@ -1,4 +1,4 @@
-import { Recipe } from "@nomicfoundation/ignition-core";
+import { Recipe } from "@ignored/ignition-core";
 import setupDebug from "debug";
 import fsExtra from "fs-extra";
 import path from "path";
