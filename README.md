@@ -29,6 +29,11 @@ See our [Getting started guide](./docs/getting-started-guide.md) for a worked ex
 
 - [Creating recipes for deployment](./docs/creating-recipes-for-deployment.md)
 
+### Examples
+
+- [Simple](./examples/simple/README.md)
+- [ENS](./examples/ens/README.md)
+
 ## Contributing
 
 Contributions are always welcome! Feel free to open any issue or send a pull request.
