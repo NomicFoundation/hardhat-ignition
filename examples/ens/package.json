@@ -1,6 +1,6 @@
 {
   "name": "@nomicfoundation/ignition-ens-example",
-  "private": "true",
+  "private": true,
   "version": "0.0.1",
   "scripts": {
     "test:examples": "hardhat test",
