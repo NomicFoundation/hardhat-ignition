@@ -86,4 +86,4 @@ npx hardhat deploy --network localhost LockModule.js
 
 Next, dig deeper into defining modules:
 
-[Creating modules for deployment](./creating-recipes-for-deployment.md)
+[Creating modules for deployment](./creating-modules-for-deployment.md)
