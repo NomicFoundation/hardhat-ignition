@@ -121,7 +121,7 @@ const contract = m.contract("Contract", {
 
 A library is deployed in the same way as a contract.
 
-## Executing a Method on a Contract
+## Calling Contract methods
 
 Not all contract configuration happens via the constructor. To configure a contract calls can be made:
 
