@@ -41,8 +41,10 @@ See our [Getting started guide](./docs/getting-started-guide.md) for a worked ex
   - [Including modules within modules](./docs/creating-modules-for-deployment.md#modules-within-modules)
   - [Module parameters](./docs/creating-modules-for-deployment.md#module-parameters)
   - [Switching based on the _Network Chain ID_](./docs/creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
-- [Testing With Hardhat](./docs/testing-with-hardhat.md)
-- [Visualizing Your Deployment](./docs/visualizing-your-deployment.md)
+- [Using Ignition in _Hardhat_ tests](./docs/testing-with-hardhat.md)
+- [Visualizing your deployment with the `plan` task](./docs/visualizing-your-deployment.md)
+- [Running a deployment](./docs/running-a-deployment.md)
+  - [Resuming a failed or onhold deployment (TBD)](./docs/running-a-deployment.md#resuming-a-failed-or-onhold-deployment-tbd)
 
 ### Examples
 

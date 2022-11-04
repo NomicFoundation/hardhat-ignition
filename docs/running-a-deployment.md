@@ -1,4 +1,6 @@
-# Deployment Resumability (implementation TBD)
+# Running a deployment
+
+## Resuming a failed or onhold deployment (TBD)
 
 Currently, failed transactions will be retried a number of times, with an increasing gas price each time, up to a max retry limit. If it has failed past that point, the deployment is considered failed and will be stopped. But what happens if some transactions in the deployment had already succeeded?
 
