@@ -34,13 +34,13 @@ See our [Getting started guide](./docs/getting-started-guide.md) for a worked ex
 
 ## Documentation
 
-- [Getting Started](./docs/getting-started-guide.md)
-- [Creating Modules for Deployment](./docs/creating-modules-for-deployment.md)
-  - [Deploying a Contract](./docs/creating-modules-for-deployment.md#deploying-a-contract)
+- [Getting started](./docs/getting-started-guide.md)
+- [Creating modules for deployment](./docs/creating-modules-for-deployment.md)
+  - [Deploying a contract](./docs/creating-modules-for-deployment.md#deploying-a-contract)
   - [Calling contract methods](./docs/creating-modules-for-deployment.md#calling-contract-methods)
-  - [Switching based on the Network Chain ID](./docs/creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
-  - [Module Parameters](./docs/creating-modules-for-deployment.md#module-parameters)
-  - [Modules Within Modules](./docs/creating-modules-for-deployment.md#modules-within-modules)
+  - [Including modules within modules](./docs/creating-modules-for-deployment.md#modules-within-modules)
+  - [Switching based on the _Network Chain ID_](./docs/creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
+  - [Module parameters](./docs/creating-modules-for-deployment.md#module-parameters)
 - [Testing With Hardhat](./docs/testing-with-hardhat.md)
 - [Visualizing Your Deployment](./docs/visualizing-your-deployment.md)
 

@@ -121,7 +121,7 @@ const contract = m.contract("Contract", {
 
 A library is deployed in the same way as a contract.
 
-## Calling Contract methods
+## Calling contract methods
 
 Not all contract configuration happens via the constructor. To configure a contract calls can be made:
 
@@ -177,44 +177,7 @@ m.await({
 
 The `await` during deployment will check whether a transaction matching the parameters has occured. If it has the deployment will continue, if not the deployment stops in the `on-hold` condition. A further run of the deployment will recheck the `await` condition.
 
-## Switching based on the Network Chain ID
-
-The `DeploymentBuilder` (`m`) exposes the chain id of the network in which the contracts are being deployed. This is useful if you need to do different things depending on the network.
-
-```tsx
-const userModule = buildModule("MyModule", (m) => {
-  const daiAddresses = {
-    1: "0x123...", // mainnet DAI
-    4: "0x234...", // rinkeby DAI
-  };
-
-  const daiAddress = daiAddresses[m.chainId];
-  const myContract = m.contract("MyContract", {
-    args: [daiAddress],
-  });
-});
-```
-
-## Module Parameters
-
-Modules can have parameters that are accessed using the `DeploymentBuilder` object:
-
-```tsx
-const symbol = m.getParam("tokenSymbol");
-const name = m.getParam("tokenName");
-
-const token = m.contract("Token", {
-  args: [symbol, name, 1_000_000],
-});
-```
-
-When a module is deployed, the proper parameters must be provided. If they are not available, the deployment won't be executed. You can use optional params with default values too:
-
-```tsx
-const symbol = m.getOptionalParam("tokenSymbol", "TKN");
-```
-
-## Modules Within Modules
+## Including modules within modules
 
 Modules can be deployed and consumed within other modules via `m.useModule(...)`:
 
@@ -243,6 +206,43 @@ module.exports = buildModule("`TEST` registrar", (m) => {
 Calls to `useModule` memoize the results object, assuming the same parameters are passed. Multiple calls to the same module with different parameters are banned.
 
 Only `CallableFuture` types can be returned when building a module, so contracts or libraries (not calls).
+
+## Switching based on the _Network Chain ID_
+
+The `DeploymentBuilder` (`m`) exposes the chain id of the network in which the contracts are being deployed. This is useful if you need to do different things depending on the network.
+
+```tsx
+const userModule = buildModule("MyModule", (m) => {
+  const daiAddresses = {
+    1: "0x123...", // mainnet DAI
+    4: "0x234...", // rinkeby DAI
+  };
+
+  const daiAddress = daiAddresses[m.chainId];
+  const myContract = m.contract("MyContract", {
+    args: [daiAddress],
+  });
+});
+```
+
+## Module parameters
+
+Modules can have parameters that are accessed using the `DeploymentBuilder` object:
+
+```tsx
+const symbol = m.getParam("tokenSymbol");
+const name = m.getParam("tokenName");
+
+const token = m.contract("Token", {
+  args: [symbol, name, 1_000_000],
+});
+```
+
+When a module is deployed, the proper parameters must be provided. If they are not available, the deployment won't be executed. You can use optional params with default values too:
+
+```tsx
+const symbol = m.getOptionalParam("tokenSymbol", "TKN");
+```
 
 ## Create2 (TBD)
 
@@ -318,6 +318,8 @@ These config values control how **Ignition** retries unconfirmed transactions th
 The value of `maxRetries` is the number of times an unconfirmed transaction will be retried before considering it failed. (default value is 4)
 
 The value of `gasIncrementPerRetry` must be an `ethers.BigNumber` and is assumed to be in wei units. This value will be added to the previous transactions gas price on each subsequent retry. However, if not given or if given value is `null`, then the default logic will run which adds 10% of the previous transactions gas price on each retry.
+
+---
 
 Next, let's take a look at another way to visualize your deployments:
 
