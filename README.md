@@ -38,7 +38,7 @@ See our [Getting started guide](./docs/getting-started-guide.md) for a worked ex
 - [Creating Modules for Deployment](./docs/creating-modules-for-deployment.md)
   - [Deploying a Contract](./docs/creating-modules-for-deployment.md#deploying-a-contract)
   - [Calling contract methods](./docs/creating-modules-for-deployment.md#calling-contract-methods)
-  - [Using the Network Chain ID](./docs/creating-modules-for-deployment.md#using-the-network-chain-id)
+  - [Switching based on the Network Chain ID](./docs/creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
   - [Module Parameters](./docs/creating-modules-for-deployment.md#module-parameters)
   - [Modules Within Modules](./docs/creating-modules-for-deployment.md#modules-within-modules)
 - [Testing With Hardhat](./docs/testing-with-hardhat.md)

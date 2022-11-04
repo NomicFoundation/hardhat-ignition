@@ -177,7 +177,7 @@ m.await({
 
 The `await` during deployment will check whether a transaction matching the parameters has occured. If it has the deployment will continue, if not the deployment stops in the `on-hold` condition. A further run of the deployment will recheck the `await` condition.
 
-## Using the Network Chain ID
+## Switching based on the Network Chain ID
 
 The `DeploymentBuilder` (`m`) exposes the chain id of the network in which the contracts are being deployed. This is useful if you need to do different things depending on the network.
 
