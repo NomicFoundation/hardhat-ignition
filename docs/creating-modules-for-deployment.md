@@ -16,7 +16,7 @@
   - [Create2 (TBD)](./creating-modules-for-deployment.md#create2-tbd)
 - [Visualizing Your Deployment](./visualizing-your-deployment.md)
   - [Actions](./visualizing-your-deployment.md#actions)
-- [Testing With Hardhat](./testing-with-hardhat.md)
+- [Testing With Hardhat](./using-ignition-in-hardhat-tests.md)
 
 ---
 
@@ -323,6 +323,6 @@ The value of `gasIncrementPerRetry` must be an `ethers.BigNumber` and is assumed
 
 ---
 
-Next, let's take a look at another way to visualize your deployments:
+Next, let's take a look at using an **Ignition** module within _Hardhat_ tests:
 
-[Visualizing your deployment](./visualizing-your-deployment.md)
+[Using Ignition in _Hardhat_ tests](./using-ignition-in-hardhat-tests.md)

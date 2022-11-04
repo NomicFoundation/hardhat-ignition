@@ -15,7 +15,7 @@
   - [Modules Within Modules](./creating-modules-for-deployment.md#modules-within-modules)
 - [Visualizing Your Deployment](./visualizing-your-deployment.md)
   - [Actions](./visualizing-your-deployment.md#actions)
-- [Testing With Hardhat](./testing-with-hardhat.md)
+- [Testing With Hardhat](./using-ignition-in-hardhat-tests.md)
 
 ---
 
@@ -120,6 +120,8 @@ npx hardhat node
 # in another terminal
 npx hardhat deploy --network localhost LockModule.js
 ```
+
+---
 
 Next, dig deeper into defining modules:
 

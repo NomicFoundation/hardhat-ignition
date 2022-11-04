@@ -1,25 +1,6 @@
-# Testing With Hardhat
+# Using Ignition in _Hardhat_ tests
 
----
-
-### Table of Contents
-
-- [Getting Started](./getting-started-guide.md)
-  - [Setup](./getting-started-guide.md#setup)
-  - [Writing Your First Deployment Module](./getting-started-guide.md#writing-your-first-deployment-module)
-- [Creating Modules for Deployment](./creating-modules-for-deployment.md)
-  - [Deploying a Contract](./creating-modules-for-deployment.md#deploying-a-contract)
-  - [Executing a Method on a Contract](./creating-modules-for-deployment.md#executing-a-method-on-a-contract)
-  - [Using the Network Chain ID](./creating-modules-for-deployment.md#using-the-network-chain-id)
-  - [Module Parameters](./creating-modules-for-deployment.md#module-parameters)
-  - [Modules Within Modules](./creating-modules-for-deployment.md#modules-within-modules)
-- [Visualizing Your Deployment](./visualizing-your-deployment.md)
-  - [Actions](./visualizing-your-deployment.md#actions)
-- Testing With Hardhat
-
----
-
-For this guide, we'll be referring to the **Ignition** module and test inside the [simple example](../examples/simple):
+For this guide, we'll be referring to the **Ignition** module and test inside the [simple example](../examples/simple/README.md):
 
 ```javascript
 // ignition/Simple.js
@@ -67,3 +48,9 @@ describe("Simple", function () {
 As you can see above, the **Ignition** Hardhat plugin makes an `ignition` instance available globally during your Mocha tests. Using this instance allows you to deploy your imported modules exactly as you would on the command line!
 
 Since the contract instances returned from modules are resolved as ethers contracts, you can then call functions on them according to your testing needs just like you normally would.
+
+---
+
+Next learn how to run a deployment:
+
+[Running a deployment](./running-a-deployment.md)
