@@ -4,7 +4,7 @@
 
 Within any **Ignition** project, you can use the `plan` task to gain a better understanding of how your deployment module connects together from one transaction to the next.
 
-For example, using our [ENS example project](../examples/ens):
+For example, using our [ENS example project](../examples/ens/README.md):
 
 ```bash
 npx hardhat plan ENS.js
