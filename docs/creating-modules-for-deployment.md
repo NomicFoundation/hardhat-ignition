@@ -207,6 +207,27 @@ Calls to `useModule` memoize the results object, assuming the same parameters ar
 
 Only `CallableFuture` types can be returned when building a module, so contracts or libraries (not calls).
 
+## Module parameters
+
+Modules can have parameters that are accessed using the `DeploymentBuilder` object:
+
+```tsx
+const symbol = m.getParam("tokenSymbol");
+const name = m.getParam("tokenName");
+
+const token = m.contract("Token", {
+  args: [symbol, name, 1_000_000],
+});
+```
+
+When a module is deployed, the proper parameters must be provided. If they are not available, the deployment won't be executed and will error.
+
+You can use optional params with default values too:
+
+```tsx
+const symbol = m.getOptionalParam("tokenSymbol", "TKN");
+```
+
 ## Switching based on the _Network Chain ID_
 
 The `DeploymentBuilder` (`m`) exposes the chain id of the network in which the contracts are being deployed. This is useful if you need to do different things depending on the network.
@@ -223,25 +244,6 @@ const userModule = buildModule("MyModule", (m) => {
     args: [daiAddress],
   });
 });
-```
-
-## Module parameters
-
-Modules can have parameters that are accessed using the `DeploymentBuilder` object:
-
-```tsx
-const symbol = m.getParam("tokenSymbol");
-const name = m.getParam("tokenName");
-
-const token = m.contract("Token", {
-  args: [symbol, name, 1_000_000],
-});
-```
-
-When a module is deployed, the proper parameters must be provided. If they are not available, the deployment won't be executed. You can use optional params with default values too:
-
-```tsx
-const symbol = m.getOptionalParam("tokenSymbol", "TKN");
 ```
 
 ## Create2 (TBD)
