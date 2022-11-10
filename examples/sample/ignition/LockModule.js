@@ -11,7 +11,7 @@ module.exports = buildModule("LockModule", (m) => {
   const unlockTime = m.getOptionalParam("unlockTime", ONE_YEAR_IN_FUTURE);
   const lockedAmount = m.getOptionalParam("lockedAmount", ONE_GWEI);
 
-  const lock = m.contract("Lock", { args: [unlockTime], value: ONE_GWEI });
+  const lock = m.contract("Lock", { args: [unlockTime], value: lockedAmount });
 
   return { lock };
 });
