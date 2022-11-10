@@ -75,17 +75,19 @@ const currentTimestampInSeconds = Math.round(Date.now() / 1000);
 const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
 const ONE_YEAR_IN_FUTURE = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
 
-const ONE_ETHER = hre.ethers.utils.parseEther("1");
+const ONE_GWEI = hre.ethers.utils.parseUnits("1", "gwei");
 
 module.exports = buildModule("LockModule", (m) => {
   const unlockTime = m.getOptionalParam("unlockTime", ONE_YEAR_IN_FUTURE);
-  const lockedAmount = m.getOptionalParam("lockedAmount", ONE_ETHER);
+  const lockedAmount = m.getOptionalParam("lockedAmount", ONE_GWEI);
 
   const lock = m.contract("Lock", { args: [unlockTime], value: lockedAmount });
 
   return { lock };
 });
 ```
+
+### Deploying the Module
 
 Run the `deploy` task to test the module against an ephemeral **Hardhat** node (using the default `unlockTime`):
 
@@ -113,12 +115,50 @@ npx hardhat deploy --parameters "{\"unlockTime\":4102491600,\"lockedAmount\":200
 # Ensure you have properly escaped the json string
 ```
 
-To deploy against a local hardhat node:
+To deploy against a specific network pass it on the command line, for instance to deploy against a local **Hardhat** node:
 
 ```bash
 npx hardhat node
 # in another terminal
 npx hardhat deploy --network localhost LockModule.js
+```
+
+### Using the Module within Hardhat Tests
+
+Ignition modules can be used in **Hardhat** tests to simplify test setup. In the Hardhat quick start guide the `./test/Lock.js` test file can be leverage **Ingition** by updating the `deployOneYearLockFixture` fixture:
+
+```js
+...
+const { expect } = require("chai");
+const LockModule = require("../ignition/LockModule");
+
+...
+
+  async function deployOneYearLockFixture() {
+    const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
+    const ONE_GWEI = 1_000_000_000;
+
+    const lockedAmount = ONE_GWEI;
+    const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
+
+    // Contracts are deployed using the first signer/account by default
+    const [owner, otherAccount] = await ethers.getSigners();
+
+    const { lock } = await ignition.deploy(LockModule, {
+      parameters: {
+        unlockTime,
+        lockedAmount,
+      },
+    });
+
+    return { lock, unlockTime, lockedAmount, owner, otherAccount };
+  }
+```
+
+The **Hardhat** test command will automtically include the `ignition` object within the scope of test files when running tests:
+
+```sh
+npx hardhat test
 ```
 
 ---
