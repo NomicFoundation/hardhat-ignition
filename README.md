@@ -35,11 +35,11 @@ See our [Getting started guide](./docs/getting-started-guide.md) for a worked ex
 ## Documentation
 
 - [Getting started](./docs/getting-started-guide.md)
-- [Creating modules for deployment](./docs/creating-modules-for-deployment.md)
-  - [Deploying a contract](./docs/creating-modules-for-deployment.md#deploying-a-contract)
+- [Creating Modules for Deployments](./docs/creating-modules-for-deployment.md)
+  - [Deploying a Contract](./docs/creating-modules-for-deployment.md#deploying-a-contract)
   - [Calling contract methods](./docs/creating-modules-for-deployment.md#calling-contract-methods)
-  - [Including modules within modules](./docs/creating-modules-for-deployment.md#modules-within-modules)
-  - [Module parameters](./docs/creating-modules-for-deployment.md#module-parameters)
+  - [Including modules within modules](./docs/creating-modules-for-deployment.md#including-modules-within-modules)
+  - [Module Parameters](./docs/creating-modules-for-deployment.md#module-parameters)
   - [Switching based on the _Network Chain ID_](./docs/creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
 - [Using Ignition in _Hardhat_ tests](./docs/using-ignition-in-hardhat-tests.md)
 - [Running a deployment](./docs/running-a-deployment.md)

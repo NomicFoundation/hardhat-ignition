@@ -4,19 +4,22 @@
 
 ### Table of Contents
 
-- [Getting Started](./getting-started-guide.md)
-  - [Setup](./getting-started-guide.md#setup)
-  - [Writing Your First Deployment Module](./getting-started-guide.md#writing-your-first-deployment-module)
-- Creating Modules for Deployment
-  - [Deploying a Contract](./creating-modules-for-deployment.md#deploying-a-contract)
-  - [Executing a Method on a Contract](./creating-modules-for-deployment.md#executing-a-method-on-a-contract)
-  - [Using the Network Chain ID](./creating-modules-for-deployment.md#using-the-network-chain-id)
-  - [Module Parameters](./creating-modules-for-deployment.md#module-parameters)
-  - [Modules Within Modules](./creating-modules-for-deployment.md#modules-within-modules)
-  - [Create2 (TBD)](./creating-modules-for-deployment.md#create2-tbd)
-- [Visualizing Your Deployment](./visualizing-your-deployment.md)
-  - [Actions](./visualizing-your-deployment.md#actions)
-- [Testing With Hardhat](./using-ignition-in-hardhat-tests.md)
+- Creating Modules for Deployments
+- [Deploying a Contract](./creating-modules-for-deployment.md#deploying-a-contract)
+  - [Constructor arguments](./creating-modules-for-deployment.md#constructor-arguments)
+  - [Dependencies between contracts](./creating-modules-for-deployment.md#dependencies-between-contracts)
+  - [Using an existing contract](./creating-modules-for-deployment.md#using-an-existing-contract)
+  - [Deploying from an artifact](./creating-modules-for-deployment.md#deploying-from-an-artifact)
+  - [Linking libraries](./creating-modules-for-deployment.md#linking-libraries)
+- [Calling contract methods](./creating-modules-for-deployment.md#calling-contract-methods)
+  - [Transfering _Eth_ as part of a call](./creating-modules-for-deployment.md#transfering-eth-as-part-of-a-call)
+  - [Using the results of a call with a deferred value (TBD)](./creating-modules-for-deployment.md#using-the-results-of-a-call-with-a-deferred-value-tbd)
+  - [Waiting for on-chain events (TBD)](./creating-modules-for-deployment.md#waiting-for-on-chain-events-tbd)
+- [Including modules within modules](./creating-modules-for-deployment.md#including-modules-within-modules)
+- [Module Parameters](./creating-modules-for-deployment.md#module-parameters)
+- [Switching based on the _Network Chain ID_](./creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
+- [Create2 (TBD)](./creating-modules-for-deployment.md#create2-tbd)
+- [Global Configuration](./creating-modules-for-deployment.md#global-configuration)
 
 ---
 
@@ -25,7 +28,6 @@ An **Ignition** deployment is composed of modules. A module is a special javascr
 For example, this is a minimal module `MyModule` that deploys an instance of a `Token` contract and exposes it to any consumer of `MyModule`:
 
 ```javascript
-// ./ignition/MyModule.js
 const { buildModule } = require("@ignored/hardhat-ignition");
 
 module.exports = buildModule("MyModule", (m) => {
@@ -35,9 +37,9 @@ module.exports = buildModule("MyModule", (m) => {
 });
 ```
 
-Modules can be deployed directly at the cli (with `npx hardhat deploy MyModule.js`), within Hardhat mocha tests (see [Ignition in Tests](TBD)) or consumed by other Modules to allow for complex deployments.
+Modules can be deployed directly at the cli (with `npx hardhat deploy MyModule.js`), within Hardhat mocha tests (see [Ignition in Tests](./using-ignition-in-hardhat-tests.md)) or consumed by other Modules to allow for complex deployments.
 
-During a deployment **Ignition** uses the module to generate an execution plan of the transactions to run and the order and dependency in which to run them. A module uses the passed `DeploymentBuilder` to specify the on-chain transactions that will _eventually_ be run, and how they relate to each other to allow building a dependency graph.
+During a deployment **Ignition** uses the module to generate an execution plan of the transactions to run and the order and dependency in which to run them. A module uses the injected `DeploymentBuilder` to specify the on-chain transactions that will _eventually_ be run, and how they interdepend on each other.
 
 ## Deploying a contract
 
@@ -123,7 +125,7 @@ A library is deployed in the same way as a contract.
 
 ## Calling contract methods
 
-Not all contract configuration happens via the constructor. To configure a contract calls can be made:
+Not all contract configuration happens via the constructor. To configure a contract through a call to a contract method:
 
 ```tsx
 const token = m.contract("Token");
@@ -131,6 +133,17 @@ const exchange = m.contract("Exchange");
 
 m.call(exchange, "addToken", {
   args: [token],
+});
+```
+
+### Transfering _Eth_ as part of a call
+
+Similar to `ethers`, a call can transfer `Eth` by passing a `value` under the options:
+
+```tsx
+m.call(exchange, "deposit", {
+  args: [],
+  value: ethers.utils.parseUnits("1"),
 });
 ```
 
@@ -175,7 +188,7 @@ m.await({
 });
 ```
 
-The `await` during deployment will check whether a transaction matching the parameters has occured. If it has the deployment will continue, if not the deployment stops in the `on-hold` condition. A further run of the deployment will recheck the `await` condition.
+The `await` during deployment will check whether a transaction matching the parameters has occured. If it has, the deployment will continue, if not the deployment stops in the `on-hold` condition. A further run of the deployment will recheck the `await` condition.
 
 ## Including modules within modules
 
@@ -183,21 +196,15 @@ Modules can be deployed and consumed within other modules via `m.useModule(...)`
 
 ```tsx
 module.exports = buildModule("`TEST` registrar", (m) => {
-  const tld = "test";
-  const tldHash = namehash.hash(tld);
-  const tldLabel = labelhash(tld);
+  // ...
 
   const { ens, resolver, reverseRegistrar } = m.useModule(setupENSRegistry);
 
-  // Setup registrar
   const registrar = m.contract("FIFSRegistrar", {
-    args: [ens, tldHash],
+    args: [ens, namehash.hash("test")],
   });
 
-  m.call(ens, "setSubnodeOwner", {
-    id: "set sub-node owner for registrar",
-    args: [ZERO_HASH, tldLabel, ACCOUNT_0],
-  });
+  // ...
 
   return { ens, resolver, registrar, reverseRegistrar };
 });

@@ -4,18 +4,10 @@
 
 ### Table of Contents
 
-- Getting Started
-  - [Setup](./getting-started-guide.md#setup)
-  - [Writing Your First Deployment Module](./getting-started-guide.md#writing-your-first-deployment-module)
-- [Creating Modules for Deployment](./creating-modules-for-deployment.md)
-  - [Deploying a Contract](./creating-modules-for-deployment.md#deploying-a-contract)
-  - [Executing a Method on a Contract](./creating-modules-for-deployment.md#executing-a-method-on-a-contract)
-  - [Using the Network Chain ID](./creating-modules-for-deployment.md#using-the-network-chain-id)
-  - [Module Parameters](./creating-modules-for-deployment.md#module-parameters)
-  - [Modules Within Modules](./creating-modules-for-deployment.md#modules-within-modules)
-- [Visualizing Your Deployment](./visualizing-your-deployment.md)
-  - [Actions](./visualizing-your-deployment.md#actions)
-- [Testing With Hardhat](./using-ignition-in-hardhat-tests.md)
+- [Setup](./getting-started-guide.md#setup)
+- [Writing Your First Deployment Module](./getting-started-guide.md#writing-your-first-deployment-module)
+- [Deploying the module](./getting-started-guide.md#deploying-the-module)
+- [Using the module within **Hardhat** tests](./getting-started-guide.md#using-the-module-within-hardhat-tests)
 
 ---
 
