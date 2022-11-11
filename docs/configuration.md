@@ -1,4 +1,4 @@
-[placeholder for now so i can open a draft PR - will make this a proper doc later]
+[going to leave this doc for future reference since some things need to be circled back to]
 
 Config options:
 
