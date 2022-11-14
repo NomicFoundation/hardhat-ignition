@@ -1,53 +1,34 @@
 # Using Ignition in _Hardhat_ tests
 
-For this guide, we'll be referring to the **Ignition** module and test inside the [simple example](../examples/simple/README.md):
+**Ignition** can be used in **Hardhat** tests to simplify test setup, as **Ignition** modules can capture complex deployments of contract systems, which is a common problem when creating test fixtures.
 
-```javascript
-// ignition/Simple.js
-const { buildModule } = require("@ignored/hardhat-ignition");
+## The Ignition object
 
-module.exports = buildModule("Simple", (m) => {
-  const incAmount = m.getOptionalParam("IncAmount", 1);
+Requiring **Ignition** within your `hardhat.config.{ts,js}` will automatically inject the `ignition` object as a global variable within **Hardhat** test files.
 
-  const simple = m.contract("Simple");
+The `ignition` object exposes a `deploy` method, that takes a Module as the first argument and an optional options object as the second argument. Module parameters can be passed under the `parameters` property of the options object:
 
-  m.call(simple, "inc", {
-    args: [incAmount],
+```js
+it("should allow setting the start count for new counters", async function () {
+  const CounterModule = buildModule("Counter", (m) => {
+    const startCount = m.getOptionalParam("startCount", 0);
+
+    const counter = m.contract("Counter", { args: [startCount] });
+
+    return { counter };
   });
 
-  return { simple };
-});
-
-// test/simple.test.js
-const { assert } = require("chai");
-const SimpleModule = require("../ignition/Simple");
-
-describe("Simple", function () {
-  let simpleContract;
-
-  before(async () => {
-    const { simple } = await ignition.deploy(SimpleModule, {
-      parameters: {
-        IncAmount: 42,
-      },
-    });
-
-    simpleContract = simple;
+  const { counter } = await ignition.deploy(CounterModule, {
+    parameters: {
+      startCount: 42,
+    },
   });
 
-  it("should return an instantiated ethers contract", async function () {
-    assert.isDefined(simpleContract);
-  });
-
-  it("should have incremented the count with the deployment config call", async function () {
-    assert.equal(await simpleContract.count(), 52);
-  });
+  assert.equal(await counter.count(), 42);
 });
 ```
 
-As you can see above, the **Ignition** Hardhat plugin makes an `ignition` instance available globally during your Mocha tests. Using this instance allows you to deploy your imported modules exactly as you would on the command line!
-
-Since the contract instances returned from modules are resolved as ethers contracts, you can then call functions on them according to your testing needs just like you normally would.
+The `ignition.deploy` method automatically converts any `ContractFuture`s returned from the passed module into `ether`'s contract objects, so they can be manipulated and invoked.
 
 ---
 
