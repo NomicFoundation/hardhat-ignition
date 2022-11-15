@@ -50,7 +50,7 @@ See our [Getting started guide](./docs/getting-started-guide.md) for a worked ex
 
 This repo contains example projects that show **Ignitions** features in context (under `./examples`):
 
-- [Simple](./examples/simple/README.md) - a hello world example of a smart contract system deploy with Ignition
+- [Sample](./examples/sample/README.md) - the **Hardhat** starter project enhanced with Ignition
 - [ENS](./examples/ens/README.md) - deploy ENS and its registry for local testing
 - [Create2](./examples/create2/README.md) - deploy contracts using a `create2` factory
 
