@@ -7,11 +7,12 @@
 - Creating Modules for Deployments
 - [Deploying a Contract](./creating-modules-for-deployment.md#deploying-a-contract)
   - [Constructor arguments](./creating-modules-for-deployment.md#constructor-arguments)
-  - [Adding an endowment of __Eth__](./creating-modules-for-deployment.md#adding-an-endowment-of-eth)
+  - [Adding an endowment of _Eth_](./creating-modules-for-deployment.md#adding-an-endowment-of-eth)
   - [Dependencies between contracts](./creating-modules-for-deployment.md#dependencies-between-contracts)
   - [Using an existing contract](./creating-modules-for-deployment.md#using-an-existing-contract)
   - [Deploying from an artifact](./creating-modules-for-deployment.md#deploying-from-an-artifact)
   - [Linking libraries](./creating-modules-for-deployment.md#linking-libraries)
+  - [Create2 (TBD)](./creating-modules-for-deployment.md#create2-tbd)
 - [Calling contract methods](./creating-modules-for-deployment.md#calling-contract-methods)
   - [Transfering _Eth_ as part of a call](./creating-modules-for-deployment.md#transfering-eth-as-part-of-a-call)
   - [Using the results of a call with a deferred value (TBD)](./creating-modules-for-deployment.md#using-the-results-of-a-call-with-a-deferred-value-tbd)
@@ -19,8 +20,6 @@
 - [Including modules within modules](./creating-modules-for-deployment.md#including-modules-within-modules)
 - [Module Parameters](./creating-modules-for-deployment.md#module-parameters)
 - [Switching based on the _Network Chain ID_](./creating-modules-for-deployment.md#switching-based-on-the-network-chain-id)
-- [Create2 (TBD)](./creating-modules-for-deployment.md#create2-tbd)
-- [Global Configuration](./creating-modules-for-deployment.md#global-configuration)
 
 ---
 
@@ -62,7 +61,7 @@ const token = m.contract("Token", {
 });
 ```
 
-### Adding an endowment of __Eth__
+### Adding an endowment of _Eth_
 
 The deployed contract can be given an endowment of _Eth_ by passing the value of the endowment under the options object:
 
@@ -133,6 +132,54 @@ const contract = m.contract("Contract", {
 ```
 
 A library is deployed in the same way as a contract.
+
+### Create2 (TBD)
+
+`Create2` allows for reliably determining the address of a contract before it is deployed.
+
+It requires a factory contract:
+
+```solidity
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.5;
+
+import "@openzeppelin/contracts/utils/Create2.sol";
+
+contract Create2Factory {
+    event Deployed(bytes32 indexed salt, address deployed);
+
+    function deploy(
+        uint256 amount,
+        bytes32 salt,
+        bytes memory bytecode
+    ) public returns (address) {
+        address deployedAddress;
+
+        deployedAddress = Create2.deploy(amount, salt, bytecode);
+        emit Deployed(salt, deployedAddress);
+
+        return deployedAddress;
+    }
+}
+```
+
+Given the `create2` factory, you can deploy a contract via the factory by:
+
+```ts
+module.exports = buildModule("Create2Example", (m) => {
+  const create2 = m.contract("Create2Factory");
+
+  const fooAddress = m.call(create2, "deploy", {
+    args: [
+      0, // amount
+      toBytes32(1), // salt
+      m.getBytesForArtifact("Foo"), // contract bytecode
+    ],
+  });
+
+  return { create2, foo: m.asContract(fooAddress) };
+});
+```
 
 ## Calling contract methods
 
@@ -261,54 +308,6 @@ const userModule = buildModule("MyModule", (m) => {
   const myContract = m.contract("MyContract", {
     args: [daiAddress],
   });
-});
-```
-
-## Create2 (TBD)
-
-`Create2` allows for reliably determining the address of a contract before it is deployed.
-
-It requires a factory contract:
-
-```solidity
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.5;
-
-import "@openzeppelin/contracts/utils/Create2.sol";
-
-contract Create2Factory {
-    event Deployed(bytes32 indexed salt, address deployed);
-
-    function deploy(
-        uint256 amount,
-        bytes32 salt,
-        bytes memory bytecode
-    ) public returns (address) {
-        address deployedAddress;
-
-        deployedAddress = Create2.deploy(amount, salt, bytecode);
-        emit Deployed(salt, deployedAddress);
-
-        return deployedAddress;
-    }
-}
-```
-
-Given the `create2` factory, you can deploy a contract via it by:
-
-```ts
-module.exports = buildModule("Create2Example", (m) => {
-  const create2 = m.contract("Create2Factory");
-
-  const fooAddress = m.call(create2, "deploy", {
-    args: [
-      0, // amount
-      toBytes32(1), // salt
-      m.getBytesForArtifact("Foo"), // contract bytecode
-    ],
-  });
-
-  return { create2, foo: m.asContract(fooAddress) };
 });
 ```
 
