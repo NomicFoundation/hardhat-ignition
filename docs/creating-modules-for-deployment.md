@@ -7,6 +7,7 @@
 - Creating Modules for Deployments
 - [Deploying a Contract](./creating-modules-for-deployment.md#deploying-a-contract)
   - [Constructor arguments](./creating-modules-for-deployment.md#constructor-arguments)
+  - [Adding an endowment of __Eth__](./creating-modules-for-deployment.md#adding-an-endowment-of-eth)
   - [Dependencies between contracts](./creating-modules-for-deployment.md#dependencies-between-contracts)
   - [Using an existing contract](./creating-modules-for-deployment.md#using-an-existing-contract)
   - [Deploying from an artifact](./creating-modules-for-deployment.md#deploying-from-an-artifact)
@@ -58,6 +59,16 @@ In **Solidity** contracts may have constructor arguments that need satisfied on 
 ```tsx
 const token = m.contract("Token", {
   args: ["My Token", "TKN", 18],
+});
+```
+
+### Adding an endowment of __Eth__
+
+The deployed contract can be given an endowment of _Eth_ by passing the value of the endowment under the options object:
+
+```tsx
+const token = m.contract("Token", {
+  value: ethers.utils.parseUnits("1"),
 });
 ```
 
