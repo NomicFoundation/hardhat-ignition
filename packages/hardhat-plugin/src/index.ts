@@ -1,6 +1,7 @@
 import "@nomiclabs/hardhat-ethers";
 import { Module, ModuleDict, Providers } from "@ignored/ignition-core";
 import { BigNumber } from "ethers";
+import fs from "fs-extra";
 import { extendConfig, extendEnvironment, task } from "hardhat/config";
 import { lazyObject } from "hardhat/plugins";
 import path from "path";
@@ -117,28 +118,17 @@ task("deploy")
   .addOptionalVariadicPositionalParam("userModulesPaths")
   .addOptionalParam(
     "parameters",
-    "A json object as a string, of the module parameters"
+    "A JSON file containing inputs for module parameters"
   )
   .setAction(
     async (
       {
         userModulesPaths = [],
-        parameters: parametersAsJson,
+        parameters: parametersFile,
       }: { userModulesPaths: string[]; parameters?: string },
       hre
     ) => {
       await hre.run("compile", { quiet: true });
-
-      let parameters: { [key: string]: number | string };
-      try {
-        parameters =
-          parametersAsJson !== undefined
-            ? JSON.parse(parametersAsJson)
-            : undefined;
-      } catch {
-        console.warn("Could not parse parameters json");
-        process.exit(0);
-      }
 
       let userModules: Array<Module<ModuleDict>>;
       if (userModulesPaths.length === 0) {
@@ -155,7 +145,33 @@ task("deploy")
         process.exit(0);
       }
 
-      await hre.ignition.deploy(userModules[0], { parameters, ui: true });
+      const [userModule] = userModules;
+
+      let parametersPath: string | undefined;
+      if (parametersFile === undefined) {
+        const files = fs.readdirSync(hre.config.paths.ignition);
+        const configFilename = `${userModule.name}.config.json`;
+
+        parametersPath = files.includes(configFilename)
+          ? path.resolve(hre.config.paths.ignition, configFilename)
+          : undefined;
+      } else {
+        parametersPath = path.resolve(
+          hre.config.paths.ignition,
+          parametersFile
+        );
+      }
+
+      let parameters: { [key: string]: number | string };
+      try {
+        parameters =
+          parametersPath !== undefined ? require(parametersPath) : undefined;
+      } catch {
+        console.warn("Could not parse parameters json");
+        process.exit(0);
+      }
+
+      await hre.ignition.deploy(userModule, { parameters, ui: true });
     }
   );
 
