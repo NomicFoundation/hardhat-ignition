@@ -6,7 +6,7 @@
 
 - [Visualizing your deployment with the `plan` task](./running-a-deployment.md#visualizing-your-deployment-with-the-plan-task)
 - [Executing the deployment](./running-a-deployment.md#executing-the-deployment)
-  - [Global configuration](./running-a-deployment.md#global-configuration)
+  - [Configuration options](./running-a-deployment.md#configuration-options)
   - [Resuming a failed or onhold deployment (TBD)](./running-a-deployment.md#visualizing-your-deployment-with-the-plan-task)
 
 ---
@@ -53,17 +53,20 @@ By default the deploy task will deploy to an ephemeral Hardhat network. To targe
 npx hardhat deploy --network mainnet LockModule.js
 ```
 
-### Global Configuration
+### Configuration options
 
-There are currently two configurable options you can add to your `hardhat.config.js` file in order to adjust the way **Ignition** functions:
+There are currently two configurable options you can add to your Hardhat config file in order to adjust the way **Ignition** runs the deployment:
 
-```typescript
+```tsx
 interface IgnitionConfig {
   maxRetries: number;
   gasIncrementPerRetry: BigNumber | null;
 }
+```
 
-// example inside hardhat.config.js
+These can be set within Hardhat config under the `ignition` property:
+
+```tsx
 const { ethers } = require('ethers');
 
 module.exports = {
@@ -74,11 +77,11 @@ module.exports = {
 }
 ```
 
-These config values control how **Ignition** retries unconfirmed transactions that are taking too long to confirm.
+These config values control how **Ignition** retries transactions that are taking too long to confirm.
 
 The value of `maxRetries` is the number of times an unconfirmed transaction will be retried before considering it failed. (default value is 4)
 
-The value of `gasIncrementPerRetry` must be an `ethers.BigNumber` and is assumed to be in wei units. This value will be added to the previous transactions gas price on each subsequent retry. However, if not given or if given value is `null`, then the default logic will run which adds 10% of the previous transactions gas price on each retry.
+The value of `gasIncrementPerRetry` must be an `ethers.BigNumber` and is assumed to be in wei units. This value will be added to the previous transactions gas price on each subsequent retry. However, if not given or if the given value is `null`, then the default logic will run which adds 10% of the previous transactions gas price on each retry.
 
 ## Resuming a failed or onhold deployment (TBD)
 
