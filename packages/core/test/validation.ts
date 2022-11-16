@@ -79,7 +79,7 @@ describe("Validation", () => {
       );
     });
 
-    it("should not validate a artifact contract deploy with a non-number value", async () => {
+    it("should not validate a artifact contract deploy with a non-BigNumber value", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
         const example = m.contract("Example", exampleArtifact, {
           args: [1, 2, 3],
@@ -439,7 +439,7 @@ describe("Validation", () => {
       );
     });
 
-    it("should fail a call on a non-number as value", async () => {
+    it("should fail a call on a non-BigNumber as value", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
         const example = m.contract("Foo");
 
@@ -608,7 +608,7 @@ describe("Validation", () => {
       );
     });
 
-    it("should not validate a contract with non-number value", async () => {
+    it("should not validate a contract with non-BigNumber value", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
         const nonexistant = m.contract("Nonexistant", { value: "42" as any });
 
