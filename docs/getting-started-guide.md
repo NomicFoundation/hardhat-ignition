@@ -106,12 +106,11 @@ A relative path to a file containing module parameters can be passed as a flag a
 npx hardhat deploy --parameters ignition/LockModule.config.json LockModule.js
 ```
 
-However, **Ignition** will automatically look for config files in the `ignition` directory matching your modules name, so, in the above example, the `--parameters` flag could be omitted entirely.
-
-If you'd prefer your config file to live somewhere else, then you can use the command line flag to pass a relative path to wherever the file lives and it will be read directly.
+Parameters can also be passed at the command line via a json string:
 
 ```bash
-npx hardhat deploy --parameters src/myConfig.json LockModule.js
+npx hardhat deploy --parameters "{\"unlockTime\":4102491600,\"lockedAmount\":2000000000}" LockModule.js
+# Ensure you have properly escaped the json string
 ```
 
 To deploy against a local hardhat node:

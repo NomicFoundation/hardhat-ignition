@@ -19,6 +19,10 @@ export interface IgnitionConfig {
   gasIncrementPerRetry: BigNumber | null;
 }
 
+interface ModuleParams {
+  [key: string]: number | string;
+}
+
 /* ignition config defaults */
 const IGNITION_DIR = "ignition";
 const DEPLOYMENTS_DIR = "deployments";
@@ -118,13 +122,13 @@ task("deploy")
   .addOptionalVariadicPositionalParam("userModulesPaths")
   .addOptionalParam(
     "parameters",
-    "A JSON file containing inputs for module parameters"
+    "A JSON object as a string, of the module parameters, or a relative path to a JSON file"
   )
   .setAction(
     async (
       {
         userModulesPaths = [],
-        parameters: parametersFile,
+        parameters: parametersInput,
       }: { userModulesPaths: string[]; parameters?: string },
       hre
     ) => {
@@ -147,21 +151,16 @@ task("deploy")
 
       const [userModule] = userModules;
 
-      const parametersPath =
-        parametersFile === undefined
-          ? resolveParametersFilePath(
-              hre.config.paths.ignition,
-              userModule.name
-            )
-          : path.resolve(hre.config.paths.ignition, parametersFile);
-
-      let parameters: { [key: string]: number | string };
-      try {
-        parameters =
-          parametersPath !== undefined ? require(parametersPath) : undefined;
-      } catch {
-        console.warn(`Could not parse parameters from ${parametersPath}`);
-        process.exit(0);
+      let parameters: ModuleParams | undefined;
+      if (parametersInput === undefined) {
+        parameters = resolveParametersFromModuleName(
+          userModule.name,
+          hre.config.paths.ignition
+        );
+      } else if (parametersInput.endsWith(".json")) {
+        parameters = resolveParametersFromFileName(parametersInput);
+      } else {
+        parameters = resolveParametersString(parametersInput);
       }
 
       await hre.ignition.deploy(userModule, { parameters, ui: true });
@@ -217,14 +216,38 @@ task("plan")
     }
   );
 
-function resolveParametersFilePath(
-  ignitionPath: string,
-  moduleName: string
-): string | undefined {
+function resolveParametersFromModuleName(
+  moduleName: string,
+  ignitionPath: string
+): ModuleParams | undefined {
   const files = fs.readdirSync(ignitionPath);
   const configFilename = `${moduleName}.config.json`;
 
   return files.includes(configFilename)
-    ? path.resolve(ignitionPath, configFilename)
+    ? resolveConfigPath(path.resolve(ignitionPath, configFilename))
     : undefined;
+}
+
+function resolveParametersFromFileName(fileName: string): ModuleParams {
+  const filepath = path.resolve(process.cwd(), fileName);
+
+  return resolveConfigPath(filepath);
+}
+
+function resolveConfigPath(filepath: string): ModuleParams {
+  try {
+    return require(filepath);
+  } catch {
+    console.warn(`Could not parse parameters from ${filepath}`);
+    process.exit(0);
+  }
+}
+
+function resolveParametersString(paramString: string): ModuleParams {
+  try {
+    return JSON.parse(paramString);
+  } catch {
+    console.warn(`Could not parse JSON parameters`);
+    process.exit(0);
+  }
 }
