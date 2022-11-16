@@ -147,27 +147,20 @@ task("deploy")
 
       const [userModule] = userModules;
 
-      let parametersPath: string | undefined;
-      if (parametersFile === undefined) {
-        const files = fs.readdirSync(hre.config.paths.ignition);
-        const configFilename = `${userModule.name}.config.json`;
-
-        parametersPath = files.includes(configFilename)
-          ? path.resolve(hre.config.paths.ignition, configFilename)
-          : undefined;
-      } else {
-        parametersPath = path.resolve(
-          hre.config.paths.ignition,
-          parametersFile
-        );
-      }
+      const parametersPath =
+        parametersFile === undefined
+          ? resolveParametersFilePath(
+              hre.config.paths.ignition,
+              userModule.name
+            )
+          : path.resolve(hre.config.paths.ignition, parametersFile);
 
       let parameters: { [key: string]: number | string };
       try {
         parameters =
           parametersPath !== undefined ? require(parametersPath) : undefined;
       } catch {
-        console.warn("Could not parse parameters json");
+        console.warn(`Could not parse parameters from ${parametersPath}`);
         process.exit(0);
       }
 
@@ -223,3 +216,15 @@ task("plan")
       }
     }
   );
+
+function resolveParametersFilePath(
+  ignitionPath: string,
+  moduleName: string
+): string | undefined {
+  const files = fs.readdirSync(ignitionPath);
+  const configFilename = `${moduleName}.config.json`;
+
+  return files.includes(configFilename)
+    ? path.resolve(ignitionPath, configFilename)
+    : undefined;
+}
