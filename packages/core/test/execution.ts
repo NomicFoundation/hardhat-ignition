@@ -9,6 +9,7 @@ import { execute } from "execution/execute";
 import { Services, TransactionOptions } from "services/types";
 import { ExecutionVertex } from "types/executionGraph";
 import { Artifact } from "types/hardhat";
+import { ICommandJournal } from "types/journal";
 
 import { buildAdjacencyListFrom } from "./graph/helpers";
 import { getMockServices } from "./helpers";
@@ -490,10 +491,12 @@ async function assertExecuteSingleVertex(
   executionGraph.vertexes.set(0, executionVertex);
 
   const mockUpdateUiAction = () => {};
+  const mockJournal: ICommandJournal = { record: async () => {} };
 
   const deployment = new Deployment(
     "MyModule",
     mockServices,
+    mockJournal,
     mockUpdateUiAction
   );
 
@@ -520,10 +523,12 @@ async function assertDependentVertex(
   });
 
   const mockUpdateUiAction = () => {};
+  const mockJournal: ICommandJournal = { record: async () => {} };
 
   const deployment = new Deployment(
     "MyModule",
     mockServices,
+    mockJournal,
     mockUpdateUiAction
   );
 

@@ -35,3 +35,5 @@ export type {
   ExecutionVertex,
   ExecutionVertexType,
 } from "types/executionGraph";
+export type { ICommandJournal } from "types/journal";
+export type { DeployStateExecutionCommand } from "deployment/deployStateReducer";

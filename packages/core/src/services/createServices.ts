@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { Journal } from "journal/types";
+import { Journal } from "types/journal";
 import { Providers } from "types/providers";
 import { TxSender } from "utils/tx-sender";
 

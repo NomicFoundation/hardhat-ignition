@@ -6,7 +6,7 @@ import tmp from "tmp";
 
 import { FileJournal } from "journal/FileJournal";
 import { InMemoryJournal } from "journal/InMemoryJournal";
-import { Journal } from "journal/types";
+import { Journal } from "types/journal";
 import { GasProvider, IgnitionSigner } from "types/providers";
 import { TxSender } from "utils/tx-sender";
 

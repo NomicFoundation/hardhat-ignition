@@ -1,7 +1,7 @@
 import setupDebug, { IDebugger } from "debug";
 import fsExtra from "fs-extra";
 
-import { Journal, JournalEntry } from "./types";
+import { Journal, JournalEntry } from "../types/journal";
 
 export class FileJournal implements Journal {
   private _log: IDebugger = setupDebug("ignition:journal:file-journal");

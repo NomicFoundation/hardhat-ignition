@@ -22,7 +22,7 @@ export async function visitInBatches(
   executionVertexDispatcher: ExecutionVertexDispatcher,
   options: ExecutionOptions
 ): Promise<VisitResult> {
-  deployment.startExecutionPhase(executionGraph);
+  await deployment.startExecutionPhase(executionGraph);
 
   while (deployment.hasUnstarted()) {
     const batch = calculateNextBatch(
@@ -30,7 +30,7 @@ export async function visitInBatches(
       executionGraph
     );
 
-    deployment.updateExecutionWithNewBatch(batch);
+    await deployment.updateExecutionWithNewBatch(batch);
 
     const executeBatchResult = await executeBatch(
       batch,
@@ -42,7 +42,7 @@ export async function visitInBatches(
       options
     );
 
-    deployment.updateExecutionWithBatchResults(executeBatchResult);
+    await deployment.updateExecutionWithBatchResults(executeBatchResult);
 
     if (deployment.hasErrors()) {
       const errors = deployment.readExecutionErrors();

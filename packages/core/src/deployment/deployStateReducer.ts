@@ -4,6 +4,52 @@ import { DeployPhase, DeployState, ExecutionState } from "types/deployment";
 import { ResultsAccumulator, VertexVisitResult } from "types/graph";
 import { difference, union } from "utils/sets";
 
+export type DeployStateExecutionCommand =
+  | {
+      type: "START_EXECUTION_PHASE";
+      executionGraph: ExecutionGraph;
+    }
+  | {
+      type: "UPDATE_EXECUTION_WITH_NEW_BATCH";
+      batch: Set<number>;
+    }
+  | {
+      type: "UPDATE_EXECUTION_WITH_BATCH_RESULTS";
+      batchResult: ExecuteBatchResult;
+    }
+  | {
+      type: "UPDATE_CURRENT_BATCH_WITH_RESULT";
+      vertexId: number;
+      result: VertexVisitResult;
+    };
+
+export type DeployStateCommand =
+  | { type: "SET_CHAIN_ID"; chainId: number }
+  | { type: "SET_NETWORK_NAME"; networkName: string }
+  | {
+      type: "START_VALIDATION";
+    }
+  | {
+      type: "VALIDATION_FAIL";
+      errors: Error[];
+    }
+  | {
+      type: "TRANSFORM_COMPLETE";
+      executionGraph: ExecutionGraph;
+    }
+  | DeployStateExecutionCommand;
+
+export function isDeployStateExecutionCommand(
+  command: DeployStateCommand
+): command is DeployStateExecutionCommand {
+  return [
+    "START_EXECUTION_PHASE",
+    "UPDATE_EXECUTION_WITH_NEW_BATCH",
+    "UPDATE_EXECUTION_WITH_BATCH_RESULTS",
+    "UPDATE_CURRENT_BATCH_WITH_RESULT",
+  ].includes(command.type);
+}
+
 export function initializeDeployState(moduleName: string): DeployState {
   return {
     phase: "uninitialized",
@@ -56,37 +102,7 @@ export function initialiseExecutionStateFrom(
 
 export function deployStateReducer(
   state: DeployState,
-  action:
-    | { type: "SET_CHAIN_ID"; chainId: number }
-    | { type: "SET_NETWORK_NAME"; networkName: string }
-    | {
-        type: "START_VALIDATION";
-      }
-    | {
-        type: "VALIDATION_FAIL";
-        errors: Error[];
-      }
-    | {
-        type: "TRANSFORM_COMPLETE";
-        executionGraph: ExecutionGraph;
-      }
-    | {
-        type: "START_EXECUTION_PHASE";
-        executionGraph: ExecutionGraph;
-      }
-    | {
-        type: "UPDATE_EXECUTION_WITH_NEW_BATCH";
-        batch: Set<number>;
-      }
-    | {
-        type: "UPDATE_EXECUTION_WITH_BATCH_RESULTS";
-        batchResult: ExecuteBatchResult;
-      }
-    | {
-        type: "UPDATE_CURRENT_BATCH_WITH_RESULT";
-        vertexId: number;
-        result: VertexVisitResult;
-      }
+  action: DeployStateCommand
 ): DeployState {
   switch (action.type) {
     case "SET_CHAIN_ID":

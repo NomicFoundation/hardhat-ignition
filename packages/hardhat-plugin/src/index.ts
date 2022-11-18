@@ -111,15 +111,10 @@ extendEnvironment((hre) => {
   hre.ignition = lazyObject(() => {
     const isHardhatNetwork = hre.network.name === "hardhat";
 
-    const pathToJournal = isHardhatNetwork
-      ? undefined
-      : path.resolve(hre.config.paths.root, "ignition-journal.json");
-
     const txPollingInterval = isHardhatNetwork ? 100 : 5000;
 
     return new IgnitionWrapper(providers, hre.ethers, {
       ...hre.config.ignition,
-      pathToJournal,
       txPollingInterval,
       networkName: hre.network.name,
     });
@@ -171,7 +166,16 @@ task("deploy")
         parameters = resolveParametersString(parametersInput);
       }
 
-      await hre.ignition.deploy(userModule, { parameters, ui: true });
+      const isHardhatNetwork = hre.network.name === "hardhat";
+      const journalPath = isHardhatNetwork
+        ? undefined
+        : resolveJournalPath(userModule.name, hre.config.paths.ignition);
+
+      await hre.ignition.deploy(userModule, {
+        parameters,
+        journalPath,
+        ui: true,
+      });
     }
   );
 
@@ -249,6 +253,12 @@ function resolveConfigPath(filepath: string): ModuleParams {
     console.warn(`Could not parse parameters from ${filepath}`);
     process.exit(0);
   }
+}
+
+function resolveJournalPath(moduleName: string, ignitionPath: string) {
+  const journalFile = `${moduleName}.journal.ndjson`;
+
+  return path.join(ignitionPath, journalFile);
 }
 
 function resolveParametersString(paramString: string): ModuleParams {

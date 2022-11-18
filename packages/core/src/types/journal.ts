@@ -1,3 +1,5 @@
+import { DeployStateExecutionCommand } from "deployment/deployStateReducer";
+
 export interface JournalEntry {
   txHash: string;
   blockNumberWhenSent: number;
@@ -26,4 +28,8 @@ export interface Journal {
     entry: JournalEntry
   ): Promise<void>;
   delete(moduleId: string): Promise<void>;
+}
+
+export interface ICommandJournal {
+  record(command: DeployStateExecutionCommand): Promise<void>;
 }

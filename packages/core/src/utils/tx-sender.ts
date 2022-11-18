@@ -1,7 +1,7 @@
 import setupDebug, { IDebugger } from "debug";
 import { ethers } from "ethers";
 
-import { Journal } from "journal/types";
+import { Journal } from "types/journal";
 import { GasProvider, IgnitionSigner } from "types/providers";
 
 /**

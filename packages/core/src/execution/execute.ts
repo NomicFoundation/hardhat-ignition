@@ -1,6 +1,7 @@
 import type { Deployment } from "deployment/Deployment";
 import type { ExecutionOptions } from "types/deployment";
 import type { VisitResult } from "types/graph";
+import { IgnitionError } from "utils/errors";
 
 import { visitInBatches } from "./batch/visitInBatches";
 import { executionDispatch } from "./dispatch/executionDispatch";
@@ -10,8 +11,9 @@ export async function execute(
   options: ExecutionOptions
 ): Promise<VisitResult> {
   if (deployment.state.transform.executionGraph === null) {
-    throw new Error("Cannot execute without an execution graph");
+    throw new IgnitionError("Cannot execute without an execution graph");
   }
+
   return visitInBatches(
     deployment,
     deployment.state.transform.executionGraph,

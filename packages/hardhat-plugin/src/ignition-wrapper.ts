@@ -9,6 +9,7 @@ import {
 import { Contract, ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
+import { CommandJournal } from "./CommandJournal";
 import { renderToCli } from "./ui/renderToCli";
 
 type HardhatEthers = HardhatRuntimeEnvironment["ethers"];
@@ -18,33 +19,39 @@ interface DeployResult {
 }
 
 export class IgnitionWrapper {
-  private _ignition: Ignition;
-
   constructor(
     private _providers: Providers,
     private _ethers: HardhatEthers,
     private _deployOptions: Omit<IgnitionDeployOptions, keyof { ui?: boolean }>
-  ) {
-    this._ignition = new Ignition(_providers, renderToCli);
-  }
+  ) {}
 
   public async deploy<T extends ModuleDict>(
     ignitionModule: Module<T>,
     deployParams?: {
       parameters?: ModuleParams;
+      journalPath?: string | undefined;
       ui?: boolean;
     }
   ): Promise<DeployResult> {
     const showUi = deployParams?.ui ?? false;
 
+    const ignition = new Ignition({
+      providers: this._providers,
+      uiRenderer: showUi ? renderToCli : undefined,
+      journal:
+        deployParams?.journalPath !== undefined
+          ? new CommandJournal(deployParams?.journalPath)
+          : undefined,
+    });
+
     if (deployParams?.parameters !== undefined) {
       await this._providers.config.setParams(deployParams.parameters);
     }
 
-    const [deploymentResult] = await this._ignition.deploy(ignitionModule, {
-      ...this._deployOptions,
-      ui: showUi,
-    });
+    const [deploymentResult] = await ignition.deploy(
+      ignitionModule,
+      this._deployOptions
+    );
 
     if (deploymentResult._kind === "hold") {
       const [moduleId, holdReason] = deploymentResult.holds;
@@ -96,6 +103,8 @@ export class IgnitionWrapper {
   }
 
   public async plan<T extends ModuleDict>(ignitionModule: Module<T>) {
-    return this._ignition.plan(ignitionModule);
+    const ignition = new Ignition({ providers: this._providers });
+
+    return ignition.plan(ignitionModule);
   }
 }

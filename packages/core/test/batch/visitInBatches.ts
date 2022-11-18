@@ -1,11 +1,13 @@
 /* eslint-disable import/no-unused-modules */
 import { assert } from "chai";
+import { BigNumber } from "ethers";
 
 import { Deployment } from "deployment/Deployment";
 import { ExecutionGraph } from "execution/ExecutionGraph";
 import { visitInBatches } from "execution/batch/visitInBatches";
 import { ContractDeploy, ExecutionVertex } from "types/executionGraph";
 import { VertexVisitResult } from "types/graph";
+import { ICommandJournal } from "types/journal";
 
 import { buildAdjacencyListFrom } from "../graph/helpers";
 
@@ -30,11 +32,13 @@ describe("Execution - visitInBatches", () => {
     executionGraph.vertexes.set(2, vertex2);
 
     const mockServices = {} as any;
+    const mockJournal: ICommandJournal = { record: async () => {} };
     const mockUpdateUiAction = () => {};
 
     const deployment = new Deployment(
       "MyModule",
       mockServices,
+      mockJournal,
       mockUpdateUiAction
     );
 
@@ -43,6 +47,10 @@ describe("Execution - visitInBatches", () => {
       executionGraph,
       async (): Promise<VertexVisitResult> => {
         return { _kind: "success", result: true };
+      },
+      {
+        maxRetries: 4,
+        gasIncrementPerRetry: null,
       }
     );
 
@@ -62,5 +70,6 @@ function createFakeContractDeployVertex(
     artifact: {} as any,
     args: [],
     libraries: {},
+    value: BigNumber.from(0),
   };
 }

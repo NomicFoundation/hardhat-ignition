@@ -4,6 +4,7 @@ import { BigNumber } from "ethers";
 import { Deployment } from "deployment/Deployment";
 import { execute } from "execution/execute";
 import { InMemoryJournal } from "journal/InMemoryJournal";
+import { NoopCommandJournal } from "journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "process/transformDeploymentGraphToExecutionGraph";
 import { createServices } from "services/createServices";
@@ -11,6 +12,7 @@ import { Services } from "services/types";
 import { DeploymentResult, UiParamsClosure } from "types/deployment";
 import { DependableFuture, FutureDict } from "types/future";
 import { ResultsAccumulator } from "types/graph";
+import { ICommandJournal } from "types/journal";
 import { Module, ModuleDict } from "types/module";
 import { IgnitionPlan } from "types/plan";
 import { Providers } from "types/providers";
@@ -23,9 +25,7 @@ import { validateDeploymentGraph } from "validation/validateDeploymentGraph";
 const log = setupDebug("ignition:main");
 
 export interface IgnitionDeployOptions {
-  pathToJournal: string | undefined;
   txPollingInterval: number;
-  ui: boolean;
   networkName: string;
   maxRetries: number;
   gasIncrementPerRetry: BigNumber | null;
@@ -36,10 +36,27 @@ export interface IgnitionDeployOptions {
 type ModuleOutputs = Record<string, any>;
 
 export class Ignition {
-  constructor(
-    private _providers: Providers,
-    private _uiRenderer: UiParamsClosure
-  ) {}
+  private _providers: Providers;
+  private _uiRenderer: UiParamsClosure;
+  private _journal: ICommandJournal;
+
+  constructor({
+    providers,
+    uiRenderer,
+    journal,
+  }: {
+    providers: Providers;
+    uiRenderer?: UiParamsClosure;
+    journal?: ICommandJournal;
+  }) {
+    this._providers = providers;
+    this._uiRenderer =
+      uiRenderer ??
+      (() => {
+        return () => {};
+      });
+    this._journal = journal ?? new NoopCommandJournal();
+  }
 
   public async deploy<T extends ModuleDict>(
     ignitionModule: Module<T>,
@@ -49,15 +66,14 @@ export class Ignition {
 
     const deployment = new Deployment(
       ignitionModule.name,
-      Deployment.setupServices(options, this._providers),
-      options.ui
-        ? this._uiRenderer(this._providers.config.parameters)
-        : undefined
+      Deployment.setupServices(this._providers),
+      this._journal,
+      this._uiRenderer(this._providers.config.parameters)
     );
 
     const chainId = await this._getChainId();
-    deployment.setChainId(chainId);
-    deployment.setNetworkName(options.networkName);
+    await deployment.setChainId(chainId);
+    await deployment.setNetworkName(options.networkName);
 
     const { result: constructResult, moduleOutputs } =
       await this._constructExecutionGraphFrom(deployment, ignitionModule);
@@ -66,7 +82,7 @@ export class Ignition {
       return [constructResult, {}];
     }
 
-    deployment.transformComplete(constructResult.executionGraph);
+    await deployment.transformComplete(constructResult.executionGraph);
 
     log("Execute based on execution graph");
     const executionResult = await execute(deployment, {
@@ -146,14 +162,14 @@ export class Ignition {
         chainId: deployment.state.details.chainId,
       });
 
-    deployment.startValidation();
+    await deployment.startValidation();
     const validationResult = await validateDeploymentGraph(
       deploymentGraph,
       deployment.services
     );
 
     if (validationResult._kind === "failure") {
-      deployment.failValidation(validationResult.failures[1]);
+      await deployment.failValidation(validationResult.failures[1]);
 
       return { result: validationResult, moduleOutputs };
     }

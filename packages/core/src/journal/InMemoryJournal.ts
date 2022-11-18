@@ -1,6 +1,6 @@
 import setupDebug from "debug";
 
-import { Journal, JournalEntry } from "./types";
+import { Journal, JournalEntry } from "../types/journal";
 
 export class InMemoryJournal implements Journal {
   private _log: debug.IDebugger = setupDebug(
