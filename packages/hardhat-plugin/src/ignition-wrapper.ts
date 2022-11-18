@@ -1,26 +1,41 @@
 import {
-  Ignition,
+  Ignition as IgnitionCore,
   IgnitionDeployOptions,
   Providers,
   ExternalParamValue,
   Module,
   ModuleDict,
 } from "@ignored/ignition-core";
+import { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { renderToCli } from "./ui/renderToCli";
 
 type HardhatEthers = HardhatRuntimeEnvironment["ethers"];
 
-export class IgnitionWrapper {
-  private _ignition: Ignition;
+interface Ignition {
+  deploy<T extends ModuleDict>(
+    ignitionModule: Module<T>,
+    deployParams?: {
+      parameters?: { [key: string]: ExternalParamValue };
+      ui?: boolean;
+    }
+  ): Promise<DeployResult>;
+}
+
+interface DeployResult {
+  [key: string]: string | number | Contract;
+}
+
+export class IgnitionWrapper implements Ignition {
+  private _ignition: IgnitionCore;
 
   constructor(
     private _providers: Providers,
     private _ethers: HardhatEthers,
     private _deployOptions: Omit<IgnitionDeployOptions, keyof { ui?: boolean }>
   ) {
-    this._ignition = new Ignition(_providers, renderToCli);
+    this._ignition = new IgnitionCore(_providers, renderToCli);
   }
 
   public async deploy<T extends ModuleDict>(
@@ -29,7 +44,7 @@ export class IgnitionWrapper {
       parameters?: { [key: string]: ExternalParamValue };
       ui?: boolean;
     }
-  ) {
+  ): Promise<DeployResult> {
     const showUi = deployParams?.ui ?? false;
 
     if (deployParams?.parameters !== undefined) {
@@ -63,15 +78,15 @@ export class IgnitionWrapper {
       }
     }
 
-    const resolvedOutput: any = {};
-    for (const [key, serializedFutureResult] of Object.entries<any>(
+    const resolvedOutput: { [key: string]: string | number | Contract } = {};
+    for (const [key, serializedFutureResult] of Object.entries(
       deploymentResult.result
     )) {
       if (
         serializedFutureResult._kind === "string" ||
         serializedFutureResult._kind === "number"
       ) {
-        resolvedOutput[key] = serializedFutureResult;
+        resolvedOutput[key] = serializedFutureResult.value;
       } else if (serializedFutureResult._kind === "tx") {
         resolvedOutput[key] = serializedFutureResult.value.hash;
       } else {
