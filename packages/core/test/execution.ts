@@ -67,6 +67,7 @@ describe("Execution", () => {
     );
 
     assert.isDefined(response);
+
     if (response._kind === "failure") {
       return assert.fail("deploy failed");
     }

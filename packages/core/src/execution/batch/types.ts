@@ -17,10 +17,3 @@ export type ExecutionVertexDispatcher = (
   resultAccumulator: ResultsAccumulator,
   context: ExecutionContext
 ) => Promise<VertexVisitResult>;
-
-export interface ExecuteBatchResult {
-  completed: Set<number>;
-  onhold: Set<number>;
-  errored: Set<number>;
-  resultsAccumulator: Map<number, VertexVisitResult>;
-}

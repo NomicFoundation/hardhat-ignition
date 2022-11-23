@@ -1,21 +1,23 @@
 import setupDebug from "debug";
 
 import { ExecutionGraph } from "execution/ExecutionGraph";
-import { ExecuteBatchResult } from "execution/batch/types";
 import { InMemoryJournal } from "journal/InMemoryJournal";
 import { createServices } from "services/createServices";
 import { Services } from "services/types";
-import { DeployState, UpdateUiAction } from "types/deployment";
+import {
+  DeployState,
+  UpdateUiAction,
+  DeployStateCommand,
+} from "types/deployment";
 import { VertexVisitResult, VertexVisitResultFailure } from "types/graph";
 import { ICommandJournal } from "types/journal";
 import { Providers } from "types/providers";
 
 import {
-  DeployStateCommand,
-  deployStateReducer,
   initializeDeployState,
-  isDeployStateExecutionCommand,
+  deployStateReducer,
 } from "./deployStateReducer";
+import { isDeployStateExecutionCommand } from "./utils";
 
 const log = setupDebug("ignition:deployment");
 
@@ -96,28 +98,17 @@ export class Deployment {
     );
   }
 
-  public startExecutionPhase(executionGraph: ExecutionGraph) {
+  public startExecutionPhase() {
     return this._runDeploymentCommand("Starting Execution", {
-      type: "START_EXECUTION_PHASE",
-      executionGraph,
+      type: "EXECUTION::START",
     });
   }
 
-  public updateExecutionWithNewBatch(batch: Set<number>) {
+  public updateExecutionWithNewBatch(batch: number[]) {
     return this._runDeploymentCommand("Update execution with new batch", {
-      type: "UPDATE_EXECUTION_WITH_NEW_BATCH",
+      type: "EXECUTION::SET_BATCH",
       batch,
     });
-  }
-
-  public updateExecutionWithBatchResults(batchResult: ExecuteBatchResult) {
-    return this._runDeploymentCommand(
-      [`Update execution with batch results`, [batchResult]],
-      {
-        type: "UPDATE_EXECUTION_WITH_BATCH_RESULTS",
-        batchResult,
-      }
-    );
   }
 
   public async updateCurrentBatchWithResult(
@@ -127,7 +118,7 @@ export class Deployment {
     return this._runDeploymentCommand(
       [`Update current with batch result for ${vertexId}`, [result]],
       {
-        type: "UPDATE_CURRENT_BATCH_WITH_RESULT",
+        type: "EXECUTION::SET_VERTEX_RESULT",
         vertexId,
         result,
       }
@@ -135,34 +126,41 @@ export class Deployment {
   }
 
   public readExecutionErrors() {
-    const errors = [...this.state.execution.errored].reduce(
-      (acc: { [key: number]: VertexVisitResultFailure }, id) => {
-        const result = this.state.execution.resultsAccumulator.get(id);
+    const errors = [...Object.entries(this.state.execution.vertexes)]
+      .filter(([_id, value]) => value.status === "FAILED")
+      .reduce(
+        (
+          acc: { [key: number]: VertexVisitResultFailure },
+          [id, { result }]
+        ) => {
+          if (
+            result === undefined ||
+            result === null ||
+            result._kind === "success"
+          ) {
+            return acc;
+          }
 
-        if (
-          result === undefined ||
-          result === null ||
-          result._kind === "success"
-        ) {
+          acc[parseInt(id, 10)] = result;
+
           return acc;
-        }
-
-        acc[id] = result;
-
-        return acc;
-      },
-      {}
-    );
+        },
+        {}
+      );
 
     return errors;
   }
 
   public hasUnstarted(): boolean {
-    return this.state.execution.unstarted.size > 0;
+    return Object.values(this.state.execution.vertexes).some(
+      (v) => v.status === "UNSTARTED"
+    );
   }
 
   public hasErrors(): boolean {
-    return this.state.execution.errored.size > 0;
+    return Object.values(this.state.execution.vertexes).some(
+      (v) => v.status === "FAILED"
+    );
   }
 
   private async _runDeploymentCommand(
@@ -171,11 +169,11 @@ export class Deployment {
   ): Promise<void> {
     log.apply(this, typeof logMessage === "string" ? [logMessage] : logMessage);
 
-    this.state = deployStateReducer(this.state, command);
-
     if (isDeployStateExecutionCommand(command)) {
       await this.commandJournal.record(command);
     }
+
+    this.state = deployStateReducer(this.state, command);
 
     this._renderToUi(this.state);
   }

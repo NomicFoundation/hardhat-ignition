@@ -1,4 +1,4 @@
-import { DeployStateExecutionCommand } from "deployment/deployStateReducer";
+import type { DeployStateExecutionCommand } from "types/deployment";
 
 export interface JournalEntry {
   txHash: string;
@@ -32,4 +32,6 @@ export interface Journal {
 
 export interface ICommandJournal {
   record(command: DeployStateExecutionCommand): Promise<void>;
+
+  read(): AsyncGenerator<DeployStateExecutionCommand, void, unknown>;
 }

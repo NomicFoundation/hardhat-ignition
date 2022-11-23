@@ -1,19 +1,17 @@
 import { Deployment } from "deployment/Deployment";
+import { viewExecutionResults } from "deployment/utils";
 import { Services } from "services/types";
 import { ExecutionState, ExecutionOptions } from "types/deployment";
 import { ExecutionVertex } from "types/executionGraph";
 import {
   ResultsAccumulator,
   VertexVisitResult,
-  VertexVisitResultFailure,
-  VertexVisitResultSuccess,
   VisitResult,
 } from "types/graph";
-import { union } from "utils/sets";
 
 import { ExecutionGraph } from "../ExecutionGraph";
 
-import { ExecutionVertexDispatcher, ExecuteBatchResult } from "./types";
+import { ExecutionVertexDispatcher } from "./types";
 import { allDependenciesCompleted } from "./utils";
 
 export async function visitInBatches(
@@ -22,7 +20,7 @@ export async function visitInBatches(
   executionVertexDispatcher: ExecutionVertexDispatcher,
   options: ExecutionOptions
 ): Promise<VisitResult> {
-  await deployment.startExecutionPhase(executionGraph);
+  await deployment.startExecutionPhase();
 
   while (deployment.hasUnstarted()) {
     const batch = calculateNextBatch(
@@ -32,17 +30,15 @@ export async function visitInBatches(
 
     await deployment.updateExecutionWithNewBatch(batch);
 
-    const executeBatchResult = await executeBatch(
+    await executeBatch(
       batch,
       executionGraph,
-      deployment.state.execution.resultsAccumulator,
+      viewExecutionResults(deployment.state),
       deployment.updateCurrentBatchWithResult.bind(deployment),
       { services: deployment.services },
       executionVertexDispatcher,
       options
     );
-
-    await deployment.updateExecutionWithBatchResults(executeBatchResult);
 
     if (deployment.hasErrors()) {
       const errors = deployment.readExecutionErrors();
@@ -59,37 +55,48 @@ export async function visitInBatches(
 
   return {
     _kind: "success",
-    result: deployment.state.execution.resultsAccumulator,
+    result: viewExecutionResults(deployment.state),
   };
 }
 
 function calculateNextBatch(
   executionState: ExecutionState,
   executionGraph: ExecutionGraph
-): Set<number> {
-  const potentials = union(executionState.unstarted, executionState.onHold);
-
-  const batch = [...potentials].filter((vertexId) =>
-    allDependenciesCompleted(vertexId, executionGraph, executionState.completed)
+): number[] {
+  const potentials = new Set<number>(
+    Object.entries(executionState.vertexes)
+      .filter(([_id, v]) => v.status === "UNSTARTED")
+      .map(([id]) => parseInt(id, 10))
   );
 
-  return new Set<number>(batch);
+  const alreadyCompleted = new Set<number>(
+    Object.entries(executionState.vertexes)
+      .filter(([_id, v]) => v.status === "COMPLETED")
+      .map(([id]) => parseInt(id, 10))
+  );
+
+  return [...potentials].filter((vertexId) =>
+    allDependenciesCompleted(vertexId, executionGraph, alreadyCompleted)
+  );
 }
 
 async function executeBatch(
-  batch: Set<number>,
+  batch: number[],
   executionGraph: ExecutionGraph,
   resultsAccumulator: ResultsAccumulator,
-  uiUpdate: (vertexId: number, result: VertexVisitResult) => void,
+  deploymentStateUpdate: (
+    vertexId: number,
+    result: VertexVisitResult
+  ) => Promise<void>,
   { services }: { services: Services },
   executionVertexDispatcher: ExecutionVertexDispatcher,
   options: ExecutionOptions
-): Promise<ExecuteBatchResult> {
+): Promise<void> {
   const batchVertexes = [...batch]
     .map((vertexId) => executionGraph.vertexes.get(vertexId))
     .filter((v): v is ExecutionVertex => v !== undefined);
 
-  if (batchVertexes.length !== batch.size) {
+  if (batchVertexes.length !== batch.length) {
     throw new Error("Unable to retrieve all vertexes while executing batch");
   }
 
@@ -99,43 +106,10 @@ async function executeBatch(
       options,
     });
 
-    uiUpdate(vertex.id, result);
+    await deploymentStateUpdate(vertex.id, result);
 
     return { vertexId: vertex.id, result };
   });
 
-  const results = await Promise.all(promises);
-
-  const successes = results.filter(
-    (
-      executionResult
-    ): executionResult is {
-      vertexId: number;
-      result: VertexVisitResultSuccess;
-    } => executionResult.result._kind === "success"
-  );
-
-  const errored = results.filter(
-    (
-      executionResult
-    ): executionResult is {
-      vertexId: number;
-      result: VertexVisitResultFailure;
-    } => executionResult.result._kind === "failure"
-  );
-
-  const updatedResultsAccumulator = [...successes, ...errored].reduce(
-    (acc, success) => {
-      acc.set(success.vertexId, success.result);
-      return acc;
-    },
-    new Map<number, VertexVisitResult>()
-  );
-
-  return {
-    completed: new Set<number>(successes.map(({ vertexId }) => vertexId)),
-    onhold: new Set<number>(),
-    errored: new Set<number>(errored.map(({ vertexId }) => vertexId)),
-    resultsAccumulator: updatedResultsAccumulator,
-  };
+  await Promise.all(promises);
 }

@@ -1,4 +1,8 @@
-import { DeployState, ExecutionVertex } from "@ignored/ignition-core";
+import {
+  DeployState,
+  ExecutionVertex,
+  viewExecutionResults,
+} from "@ignored/ignition-core";
 import { Box, Text } from "ink";
 
 import { DeploymentError, AddressMap } from "ui/types";
@@ -10,7 +14,7 @@ export const FinalStatus = ({ deployState }: { deployState: DeployState }) => {
   if (deployState.phase === "complete") {
     const addressMap: AddressMap = {};
 
-    for (const value of deployState.execution.resultsAccumulator.values()) {
+    for (const value of viewExecutionResults(deployState).values()) {
       if (
         value !== null &&
         value._kind === "success" &&
@@ -73,9 +77,13 @@ export const FinalStatus = ({ deployState }: { deployState: DeployState }) => {
 };
 
 const getDeploymentErrors = (deployState: DeployState): DeploymentError[] => {
-  return [...deployState.execution.errored]
+  const executionResults = viewExecutionResults(deployState);
+
+  return Object.entries(deployState.execution.vertexes)
+    .filter(([_id, v]) => v.status === "FAILED")
+    .map(([id]) => parseInt(id, 10))
     .map((id) => {
-      const vertexResult = deployState.execution.resultsAccumulator.get(id);
+      const vertexResult = executionResults.get(id);
 
       if (
         vertexResult === undefined ||

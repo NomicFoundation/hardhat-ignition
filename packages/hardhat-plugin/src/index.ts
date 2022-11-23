@@ -166,7 +166,8 @@ task("deploy")
         parameters = resolveParametersString(parametersInput);
       }
 
-      const isHardhatNetwork = hre.network.name === "hardhat";
+      // TODO: bring this back
+      const isHardhatNetwork = hre.network.name !== "hardhat";
       const journalPath = isHardhatNetwork
         ? undefined
         : resolveJournalPath(userModule.name, hre.config.paths.ignition);
@@ -174,7 +175,7 @@ task("deploy")
       await hre.ignition.deploy(userModule, {
         parameters,
         journalPath,
-        ui: true,
+        ui: false,
       });
     }
   );

@@ -149,7 +149,7 @@ function resolveVertexColors(vertex: UiVertex): {
 
 const resolveBatchesFrom = (deployState: DeployState): UiBatch[] => {
   const stateBatches =
-    deployState.execution.batch.size > 0
+    deployState.execution.batch !== null
       ? [
           ...deployState.execution.previousBatches,
           deployState.execution.batch.keys(),
@@ -187,29 +187,15 @@ const determineStatusOf = (
 ): UiVertexStatus => {
   const execution = deployState.execution;
 
-  if (execution.batch.has(vertexId)) {
-    const entry = execution.batch.get(vertexId);
-
-    if (entry === null) {
-      return "RUNNING";
-    }
-
-    if (entry?._kind === "success") {
-      return "COMPELETED";
-    }
-
-    if (entry?._kind === "failure") {
-      return "ERRORED";
-    }
-
-    throw new Error(`Unable to determine current batch status ${entry}`);
+  if (execution.vertexes[vertexId]?.status === "RUNNING") {
+    return "RUNNING";
   }
 
-  if (execution.errored.has(vertexId)) {
+  if (execution.vertexes[vertexId]?.status === "FAILED") {
     return "ERRORED";
   }
 
-  if (execution.completed.has(vertexId)) {
+  if (execution.vertexes[vertexId]?.status === "COMPLETED") {
     return "COMPELETED";
   }
 

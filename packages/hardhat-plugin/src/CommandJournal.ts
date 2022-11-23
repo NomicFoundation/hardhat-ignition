@@ -3,6 +3,7 @@ import {
   ICommandJournal,
 } from "@ignored/ignition-core";
 import fs from "fs";
+import ndjson from "ndjson";
 
 export class CommandJournal implements ICommandJournal {
   constructor(private _path: string) {}
@@ -12,6 +13,10 @@ export class CommandJournal implements ICommandJournal {
       this._path,
       `${JSON.stringify(command, this._serializeReplacer)}\n`
     );
+  }
+
+  public read(): AsyncGenerator<DeployStateExecutionCommand, void, unknown> {
+    return readFromNdjsonFile(this._path);
   }
 
   private _serializeReplacer(_key: string, value: unknown) {
@@ -24,5 +29,17 @@ export class CommandJournal implements ICommandJournal {
     }
 
     return value;
+  }
+}
+
+async function* readFromNdjsonFile(ndjsonFilePath: string) {
+  if (!fs.existsSync(ndjsonFilePath)) {
+    return;
+  }
+
+  const stream = fs.createReadStream(ndjsonFilePath).pipe(ndjson.parse());
+
+  for await (const chunk of stream) {
+    yield chunk as DeployStateExecutionCommand;
   }
 }
