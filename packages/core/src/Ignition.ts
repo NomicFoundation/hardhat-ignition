@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 
 import { Deployment } from "deployment/Deployment";
 import { execute } from "execution/execute";
+import { loadJournalInto } from "execution/loadJournalInto";
 import { InMemoryJournal } from "journal/InMemoryJournal";
 import { NoopCommandJournal } from "journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
@@ -11,7 +12,7 @@ import { createServices } from "services/createServices";
 import { Services } from "services/types";
 import { DeploymentResult, UiParamsClosure } from "types/deployment";
 import { DependableFuture, FutureDict } from "types/future";
-import { ResultsAccumulator } from "types/graph";
+import { ResultsAccumulator, VisitResult } from "types/graph";
 import { ICommandJournal } from "types/journal";
 import { Module, ModuleDict } from "types/module";
 import { IgnitionPlan } from "types/plan";
@@ -85,6 +86,10 @@ export class Ignition {
     await deployment.transformComplete(constructResult.executionGraph);
 
     log("Execute based on execution graph");
+
+    // rebuild previous execution state based on journal
+    await loadJournalInto(deployment, this._journal);
+
     const executionResult = await execute(deployment, {
       maxRetries: options.maxRetries,
       gasIncrementPerRetry: options.gasIncrementPerRetry,
@@ -92,16 +97,7 @@ export class Ignition {
       awaitEventDuration: options.awaitEventDuration,
     });
 
-    if (executionResult._kind === "failure") {
-      return [executionResult, {}];
-    }
-
-    const serializedDeploymentResult = this._serialize(
-      moduleOutputs,
-      executionResult.result
-    );
-
-    return [{ _kind: "success", result: serializedDeploymentResult }, {}];
+    return this._buildOutputFrom(executionResult, moduleOutputs);
   }
 
   public async plan<T extends ModuleDict>(
@@ -189,6 +185,22 @@ export class Ignition {
     });
 
     return Number(result);
+  }
+
+  private _buildOutputFrom(
+    executionResult: VisitResult,
+    moduleOutputs: FutureDict
+  ): [DeploymentResult, ModuleOutputs] {
+    if (executionResult._kind === "failure") {
+      return [executionResult, {}];
+    }
+
+    const serializedDeploymentResult = this._serialize(
+      moduleOutputs,
+      executionResult.result
+    );
+
+    return [{ _kind: "success", result: serializedDeploymentResult }, {}];
   }
 
   private _serialize(moduleOutputs: FutureDict, result: ResultsAccumulator) {

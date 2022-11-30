@@ -25,6 +25,7 @@ export function initializeDeployState(moduleName: string): DeployState {
       executionGraph: null,
     },
     execution: {
+      run: 0,
       vertexes: {},
       batch: null,
       previousBatches: [],
@@ -77,13 +78,18 @@ export function deployStateReducer(
         return state;
       }
 
+      const executionStateForRun = deployExecutionStateReducer(
+        initialiseExecutionStateFrom(
+          state.transform.executionGraph,
+          state.execution
+        ),
+        action
+      );
+
       return {
         ...state,
-        phase: "execution",
-        execution: deployExecutionStateReducer(
-          initialiseExecutionStateFrom(state.transform.executionGraph),
-          action
-        ),
+        phase: resolvePhaseFrom(executionStateForRun),
+        execution: executionStateForRun,
       };
     case "EXECUTION::SET_BATCH":
       return {
@@ -108,16 +114,22 @@ export function deployStateReducer(
 }
 
 function initialiseExecutionStateFrom(
-  executionGraph: ExecutionGraph
+  executionGraph: ExecutionGraph,
+  previousExecutionState: ExecutionState
 ): ExecutionState {
   const vertexes = Array.from(executionGraph.vertexes.keys()).reduce<{
     [key: number]: VertexExecutionState;
-  }>(
-    (acc, id) => ({ ...acc, [id]: { status: "UNSTARTED", result: null } }),
-    {}
-  );
+  }>((acc, id) => {
+    if (previousExecutionState.vertexes[id]?.status === "COMPLETED") {
+      return { ...acc, [id]: previousExecutionState.vertexes[id] };
+    }
+
+    return { ...acc, [id]: { status: "UNSTARTED", result: null } };
+  }, {});
 
   const executionState: ExecutionState = {
+    ...previousExecutionState,
+    run: previousExecutionState.run + 1,
     vertexes,
     batch: null,
     previousBatches: [],

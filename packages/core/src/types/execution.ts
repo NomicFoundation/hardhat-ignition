@@ -1,6 +1,6 @@
-import { ExecutionContext } from "types/deployment";
-import { ExecutionVertex } from "types/executionGraph";
-import { ResultsAccumulator, VertexVisitResult } from "types/graph";
+import { ExecutionContext } from "./deployment";
+import { ExecutionVertex } from "./executionGraph";
+import { ResultsAccumulator, VertexVisitResult } from "./graph";
 
 export type BatcherResult =
   | {

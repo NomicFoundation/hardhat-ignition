@@ -175,7 +175,7 @@ task("deploy")
       await hre.ignition.deploy(userModule, {
         parameters,
         journalPath,
-        ui: false,
+        ui: true,
       });
     }
   );

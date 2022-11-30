@@ -8,6 +8,7 @@ import {
   DeployState,
   UpdateUiAction,
   DeployStateCommand,
+  DeployStateExecutionCommand,
 } from "types/deployment";
 import { VertexVisitResult, VertexVisitResultFailure } from "types/graph";
 import { ICommandJournal } from "types/journal";
@@ -53,6 +54,16 @@ export class Deployment {
     );
 
     return services;
+  }
+
+  public async load(
+    commandStream: AsyncGenerator<DeployStateExecutionCommand, void, unknown>
+  ) {
+    log("Loading from journal");
+
+    for await (const command of commandStream) {
+      this.state = deployStateReducer(this.state, command);
+    }
   }
 
   public setChainId(chainId: number) {

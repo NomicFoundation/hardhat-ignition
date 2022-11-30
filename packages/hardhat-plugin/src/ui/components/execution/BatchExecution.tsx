@@ -13,6 +13,10 @@ export const BatchExecution = ({
 }) => {
   const batches = resolveBatchesFrom(deployState);
 
+  if (batches.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <Divider />

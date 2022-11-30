@@ -111,6 +111,7 @@ export type VertexExecutionState =
   | VertexExecutionStateFailed;
 
 export interface ExecutionState {
+  run: number;
   vertexes: { [key: number]: VertexExecutionState };
   batch: Set<number> | null;
   previousBatches: Array<Set<number>>;

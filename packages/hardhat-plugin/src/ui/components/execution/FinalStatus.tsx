@@ -5,33 +5,33 @@ import {
 } from "@ignored/ignition-core";
 import { Box, Text } from "ink";
 
-import { DeploymentError, AddressMap } from "ui/types";
+import { DeploymentError } from "ui/types";
 
 import { AddressResults } from "./AddressResults";
 import { Divider } from "./Divider";
+import { viewEverthingExecutedAlready } from "./views";
 
 export const FinalStatus = ({ deployState }: { deployState: DeployState }) => {
   if (deployState.phase === "complete") {
-    const addressMap: AddressMap = {};
+    if (viewEverthingExecutedAlready(deployState)) {
+      return (
+        <Box margin={0} flexDirection="column">
+          <Divider />
 
-    for (const value of viewExecutionResults(deployState).values()) {
-      if (
-        value !== null &&
-        value._kind === "success" &&
-        "name" in value.result &&
-        "address" in value.result
-      ) {
-        addressMap[value.result.name] = value.result.address;
-      }
+          <Text>
+            Nothing new to deploy, everything deployed on a previous run of{" "}
+            <Text italic={true}>{deployState.details.moduleName}</Text>
+          </Text>
+
+          <Divider />
+          <AddressResults deployState={deployState} />
+          <Text> </Text>
+        </Box>
+      );
     }
 
-    const networkInfo = {
-      chainId: deployState.details.chainId,
-      networkName: deployState.details.networkName,
-    };
-
     return (
-      <Box flexDirection="column">
+      <Box margin={0} flexDirection="column">
         <Divider />
 
         <Text>
@@ -40,7 +40,7 @@ export const FinalStatus = ({ deployState }: { deployState: DeployState }) => {
         </Text>
 
         <Divider />
-        <AddressResults addressMap={addressMap} networkInfo={networkInfo} />
+        <AddressResults deployState={deployState} />
         <Text> </Text>
       </Box>
     );

@@ -11,12 +11,12 @@ import { ExecutionVertex } from "types/executionGraph";
 import { Artifact } from "types/hardhat";
 import { ICommandJournal } from "types/journal";
 
-import { buildAdjacencyListFrom } from "./graph/helpers";
-import { getMockServices } from "./helpers";
+import { buildAdjacencyListFrom } from "../graph/helpers";
+import { getMockServices } from "../helpers";
 
 const ACCOUNT_0 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-describe("Execution", () => {
+describe("Execution - dispatch", () => {
   afterEach(() => {
     sinon.restore();
   });
@@ -492,7 +492,10 @@ async function assertExecuteSingleVertex(
   executionGraph.vertexes.set(0, executionVertex);
 
   const mockUpdateUiAction = () => {};
-  const mockJournal: ICommandJournal = { record: async () => {} };
+  const mockJournal: ICommandJournal = {
+    record: async () => {},
+    read: () => null,
+  };
 
   const deployment = new Deployment(
     "MyModule",
@@ -524,7 +527,10 @@ async function assertDependentVertex(
   });
 
   const mockUpdateUiAction = () => {};
-  const mockJournal: ICommandJournal = { record: async () => {} };
+  const mockJournal: ICommandJournal = {
+    record: async () => {},
+    read: () => null,
+  };
 
   const deployment = new Deployment(
     "MyModule",
