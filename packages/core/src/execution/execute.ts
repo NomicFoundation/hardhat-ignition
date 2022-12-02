@@ -68,6 +68,12 @@ export async function executeInBatches(
         ],
       };
     }
+
+    if (deployment.hasHolds()) {
+      return {
+        _kind: "hold",
+      };
+    }
   }
 
   return {

@@ -88,7 +88,8 @@ const getDeploymentErrors = (deployState: DeployState): DeploymentError[] => {
       if (
         vertexResult === undefined ||
         vertexResult === null ||
-        vertexResult._kind === "success"
+        vertexResult._kind === "success" ||
+        vertexResult._kind === "hold"
       ) {
         return null;
       }

@@ -77,12 +77,14 @@ export type VertexExecutionStatusUnstarted = "UNSTARTED";
 export type VertexExecutionStatusRunning = "RUNNING";
 export type VertexExecutionStatusCompleted = "COMPLETED";
 export type VertexExecutionStatusFailed = "FAILED";
+export type VertexExecutionStatusHold = "HOLD";
 
 export type VertexExecutionStatus =
   | VertexExecutionStatusUnstarted
   | VertexExecutionStatusRunning
   | VertexExecutionStatusCompleted
-  | VertexExecutionStatusFailed;
+  | VertexExecutionStatusFailed
+  | VertexExecutionStatusHold;
 
 export interface VertexExecutionStateRunning {
   status: VertexExecutionStatusUnstarted;
@@ -104,11 +106,17 @@ export interface VertexExecutionStateFailed {
   result: VertexVisitResultFailure;
 }
 
+export interface VertexExecutionStateHold {
+  status: VertexExecutionStatusHold;
+  result: null;
+}
+
 export type VertexExecutionState =
   | VertexExecutionStateUnstarted
   | VertexExecutionStateRunning
   | VertexExecutionStateCompleted
-  | VertexExecutionStateFailed;
+  | VertexExecutionStateFailed
+  | VertexExecutionStateHold;
 
 export interface ExecutionState {
   run: number;

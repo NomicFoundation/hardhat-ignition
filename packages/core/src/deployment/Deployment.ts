@@ -174,6 +174,12 @@ export class Deployment {
     );
   }
 
+  public hasHolds(): boolean {
+    return Object.values(this.state.execution.vertexes).some(
+      (v) => v.status === "HOLD"
+    );
+  }
+
   private async _runDeploymentCommand(
     logMessage: string | [string, any[]],
     command: DeployStateCommand
