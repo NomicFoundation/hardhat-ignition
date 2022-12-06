@@ -5,6 +5,7 @@ import {
   Module,
   ModuleDict,
   ModuleParams,
+  createServices,
 } from "@ignored/ignition-core";
 import { Contract, ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -36,8 +37,10 @@ export class IgnitionWrapper {
     const showUi = deployParams?.ui ?? false;
 
     const ignition = new Ignition({
-      providers: this._providers,
-      uiRenderer: showUi ? renderToCli : undefined,
+      services: createServices(this._providers),
+      uiRenderer: showUi
+        ? renderToCli(this._providers.config.parameters)
+        : undefined,
       journal:
         deployParams?.journalPath !== undefined
           ? new CommandJournal(deployParams?.journalPath)
@@ -103,7 +106,9 @@ export class IgnitionWrapper {
   }
 
   public async plan<T extends ModuleDict>(ignitionModule: Module<T>) {
-    const ignition = new Ignition({ providers: this._providers });
+    const ignition = new Ignition({
+      services: createServices(this._providers),
+    });
 
     return ignition.plan(ignitionModule);
   }

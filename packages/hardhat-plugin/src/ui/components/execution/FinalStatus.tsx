@@ -5,7 +5,7 @@ import {
 } from "@ignored/ignition-core";
 import { Box, Text } from "ink";
 
-import { DeploymentError } from "ui/types";
+import { DeploymentError, DeploymentHold } from "ui/types";
 
 import { AddressResults } from "./AddressResults";
 import { Divider } from "./Divider";
@@ -42,6 +42,32 @@ export const FinalStatus = ({ deployState }: { deployState: DeployState }) => {
         <Divider />
         <AddressResults deployState={deployState} />
         <Text> </Text>
+      </Box>
+    );
+  }
+
+  if (deployState.phase === "hold") {
+    const deploymentHolds: DeploymentHold[] = getDeploymentHolds(deployState);
+
+    return (
+      <Box flexDirection="column">
+        <Divider />
+
+        <Box>
+          <Text>
+            🟡 <Text italic={true}>{deployState.details.moduleName}</Text>{" "}
+            deployment{" "}
+            <Text bold color="yellow">
+              on hold
+            </Text>
+          </Text>
+        </Box>
+
+        <Box flexDirection="column">
+          {deploymentHolds.map((dh) => (
+            <DepHold key={`hold-${dh.id}`} deploymentHold={dh} />
+          ))}
+        </Box>
       </Box>
     );
   }
@@ -109,6 +135,24 @@ const getDeploymentErrors = (deployState: DeployState): DeploymentError[] => {
     .filter((x): x is DeploymentError => x !== null);
 };
 
+const getDeploymentHolds = (deployState: DeployState): DeploymentHold[] => {
+  return Object.entries(deployState.execution.vertexes)
+    .filter(([_id, v]) => v.status === "HOLD")
+    .map(([id]) => parseInt(id, 10))
+    .map((id) => {
+      const vertex = deployState.transform.executionGraph?.vertexes.get(id);
+
+      if (vertex === undefined) {
+        return null;
+      }
+
+      const holdDescription = buildHoldDescriptionFrom(vertex);
+
+      return holdDescription;
+    })
+    .filter((x): x is DeploymentError => x !== null);
+};
+
 const buildErrorDescriptionFrom = (
   error: Error,
   vertex: ExecutionVertex
@@ -120,6 +164,14 @@ const buildErrorDescriptionFrom = (
     vertex: vertex.label,
     message,
     failureType: resolveFailureTypeFrom(vertex),
+  };
+};
+
+const buildHoldDescriptionFrom = (vertex: ExecutionVertex): DeploymentHold => {
+  return {
+    id: vertex.id,
+    vertex: vertex.label,
+    event: vertex.type === "AwaitedEvent" ? vertex.event : undefined,
   };
 };
 
@@ -157,6 +209,25 @@ const DepError = ({
         {deploymentError.failureType} - {deploymentError.vertex}
       </Text>
       <Text>{deploymentError.message}</Text>
+    </Box>
+  );
+};
+
+const DepHold = ({ deploymentHold }: { deploymentHold: DeploymentHold }) => {
+  if (deploymentHold.event === undefined) {
+    return (
+      <Box flexDirection="column" margin={1}>
+        <Text bold={true}>{deploymentHold.vertex}</Text>
+      </Box>
+    );
+  }
+
+  return (
+    <Box flexDirection="column" margin={1}>
+      <Text>
+        <Text bold={true}>{deploymentHold.vertex}</Text> waiting on event{" "}
+        <Text bold={true}>{deploymentHold.event}</Text>
+      </Text>
     </Box>
   );
 };

@@ -1,8 +1,6 @@
 import setupDebug from "debug";
 
 import { ExecutionGraph } from "execution/ExecutionGraph";
-import { InMemoryJournal } from "journal/InMemoryJournal";
-import { createServices } from "services/createServices";
 import { Services } from "services/types";
 import {
   DeployState,
@@ -12,7 +10,6 @@ import {
 } from "types/deployment";
 import { VertexVisitResult, VertexVisitResultFailure } from "types/graph";
 import { ICommandJournal } from "types/journal";
-import { Providers } from "types/providers";
 
 import {
   initializeDeployState,
@@ -38,22 +35,6 @@ export class Deployment {
     this.services = services;
     this.commandJournal = journal;
     this.ui = ui;
-  }
-
-  public static setupServices(providers: Providers): Services {
-    const journal = new InMemoryJournal();
-    const serviceOptions = {
-      providers,
-      journal,
-    };
-
-    const services: Services = createServices(
-      "moduleIdEXECUTE",
-      "executorIdEXECUTE",
-      serviceOptions
-    );
-
-    return services;
   }
 
   public async load(

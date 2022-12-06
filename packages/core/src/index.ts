@@ -2,6 +2,7 @@ export { Ignition, IgnitionDeployOptions } from "./Ignition";
 export { buildModule } from "dsl/buildModule";
 export { buildSubgraph } from "dsl/buildSubgraph";
 export { viewExecutionResults } from "deployment/utils";
+export { createServices } from "services/createServices";
 
 export type {
   SerializedDeploymentResult,

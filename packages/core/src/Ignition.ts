@@ -4,19 +4,16 @@ import { BigNumber } from "ethers";
 import { Deployment } from "deployment/Deployment";
 import { execute } from "execution/execute";
 import { loadJournalInto } from "execution/loadJournalInto";
-import { InMemoryJournal } from "journal/InMemoryJournal";
 import { NoopCommandJournal } from "journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "process/transformDeploymentGraphToExecutionGraph";
-import { createServices } from "services/createServices";
 import { Services } from "services/types";
-import { DeploymentResult, UiParamsClosure } from "types/deployment";
+import { DeploymentResult, UpdateUiAction } from "types/deployment";
 import { DependableFuture, FutureDict } from "types/future";
 import { ResultsAccumulator, VisitResult } from "types/graph";
 import { ICommandJournal } from "types/journal";
 import { Module, ModuleDict } from "types/module";
 import { IgnitionPlan } from "types/plan";
-import { Providers } from "types/providers";
 import { SerializedFutureResult } from "types/serialization";
 import { isDependable } from "utils/guards";
 import { resolveProxyValue } from "utils/proxy";
@@ -37,25 +34,21 @@ export interface IgnitionDeployOptions {
 type ModuleOutputs = Record<string, any>;
 
 export class Ignition {
-  private _providers: Providers;
-  private _uiRenderer: UiParamsClosure;
+  private _services: Services;
+  private _uiRenderer: UpdateUiAction;
   private _journal: ICommandJournal;
 
   constructor({
-    providers,
+    services,
     uiRenderer,
     journal,
   }: {
-    providers: Providers;
-    uiRenderer?: UiParamsClosure;
+    services: Services;
+    uiRenderer?: UpdateUiAction;
     journal?: ICommandJournal;
   }) {
-    this._providers = providers;
-    this._uiRenderer =
-      uiRenderer ??
-      (() => {
-        return () => {};
-      });
+    this._services = services;
+    this._uiRenderer = uiRenderer ?? (() => {});
     this._journal = journal ?? new NoopCommandJournal();
   }
 
@@ -67,12 +60,12 @@ export class Ignition {
 
     const deployment = new Deployment(
       ignitionModule.name,
-      Deployment.setupServices(this._providers),
+      this._services,
       this._journal,
-      this._uiRenderer(this._providers.config.parameters)
+      this._uiRenderer
     );
 
-    const chainId = await this._getChainId();
+    const chainId = await this._services.network.getChainId();
     await deployment.setChainId(chainId);
     await deployment.setNetworkName(options.networkName);
 
@@ -105,18 +98,7 @@ export class Ignition {
   ): Promise<IgnitionPlan> {
     log(`Start plan`);
 
-    const serviceOptions = {
-      providers: this._providers,
-      journal: new InMemoryJournal(),
-    };
-
-    const services: Services = createServices(
-      "moduleIdEXECUTE",
-      "executorIdEXECUTE",
-      serviceOptions
-    );
-
-    const chainId = await this._getChainId();
+    const chainId = await this._services.network.getChainId();
 
     const { graph: deploymentGraph } = generateDeploymentGraphFrom(
       deploymentModule,
@@ -127,7 +109,7 @@ export class Ignition {
 
     const validationResult = await validateDeploymentGraph(
       deploymentGraph,
-      services
+      this._services
     );
 
     if (validationResult._kind === "failure") {
@@ -136,7 +118,7 @@ export class Ignition {
 
     const transformResult = await transformDeploymentGraphToExecutionGraph(
       deploymentGraph,
-      services
+      this._services
     );
 
     if (transformResult._kind === "failure") {
@@ -177,14 +159,6 @@ export class Ignition {
     );
 
     return { result: transformResult, moduleOutputs };
-  }
-
-  private async _getChainId(): Promise<number> {
-    const result = await this._providers.ethereumProvider.request({
-      method: "eth_chainId",
-    });
-
-    return Number(result);
   }
 
   private _buildOutputFrom(

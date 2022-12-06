@@ -40,7 +40,7 @@ export function deployExecutionStateReducer(
         return {
           ...state,
           batch: null,
-          previousBatches: [state.batch, ...state.previousBatches],
+          previousBatches: [...state.previousBatches, state.batch],
           vertexes: updatedVertexes,
         };
       }
