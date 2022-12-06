@@ -145,6 +145,10 @@ function resolvePhaseFrom(executionState: ExecutionState): DeployPhase {
     return "failed";
   }
 
+  if (Object.values(executionState.vertexes).some((v) => v.status === "HOLD")) {
+    return "hold";
+  }
+
   if (
     Object.values(executionState.vertexes).every(
       (v) => v.status !== "UNSTARTED"

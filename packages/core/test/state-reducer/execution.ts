@@ -240,4 +240,104 @@ describe("deployment state reducer", () => {
       );
     });
   });
+
+  describe("stopping on an on hold state", () => {
+    beforeEach(() => {
+      state = applyActions(state, [
+        {
+          type: "EXECUTION::START",
+        },
+
+        {
+          type: "EXECUTION::SET_BATCH",
+          batch: [0],
+        },
+        {
+          type: "EXECUTION::SET_VERTEX_RESULT",
+          vertexId: 0,
+          result: {
+            _kind: "success",
+            result: { someValue: "example" },
+          },
+        },
+
+        {
+          type: "EXECUTION::SET_BATCH",
+          batch: [1],
+        },
+        {
+          type: "EXECUTION::SET_VERTEX_RESULT",
+          vertexId: 1,
+          result: {
+            _kind: "hold",
+          },
+        },
+      ]);
+    });
+
+    it("should be in the complete phase", () => {
+      assert.equal(state.phase, "hold");
+    });
+
+    it("should show the vertexes as complete", () => {
+      assert.equal(state.execution.batch, null);
+
+      assert.deepStrictEqual(state.execution.vertexes[1], {
+        status: "HOLD",
+        result: null,
+      });
+    });
+  });
+
+  describe("stopping on an failed state", () => {
+    beforeEach(() => {
+      state = applyActions(state, [
+        {
+          type: "EXECUTION::START",
+        },
+
+        {
+          type: "EXECUTION::SET_BATCH",
+          batch: [0],
+        },
+        {
+          type: "EXECUTION::SET_VERTEX_RESULT",
+          vertexId: 0,
+          result: {
+            _kind: "success",
+            result: { someValue: "example" },
+          },
+        },
+
+        {
+          type: "EXECUTION::SET_BATCH",
+          batch: [1],
+        },
+        {
+          type: "EXECUTION::SET_VERTEX_RESULT",
+          vertexId: 1,
+          result: {
+            _kind: "failure",
+            failure: new Error("No connection"),
+          },
+        },
+      ]);
+    });
+
+    it("should be in the complete phase", () => {
+      assert.equal(state.phase, "failed");
+    });
+
+    it("should show the vertexes as complete", () => {
+      assert.equal(state.execution.batch, null);
+
+      assert.deepStrictEqual(state.execution.vertexes[1], {
+        status: "FAILED",
+        result: {
+          _kind: "failure",
+          failure: new Error("No connection"),
+        },
+      });
+    });
+  });
 });

@@ -51,7 +51,7 @@ export async function executeInBatches(
       batch,
       executionGraph,
       viewExecutionResults(deployment.state),
-      deployment.updateCurrentBatchWithResult.bind(deployment),
+      deployment.updateVertexResult.bind(deployment),
       { services: deployment.services },
       executionVertexDispatcher,
       options

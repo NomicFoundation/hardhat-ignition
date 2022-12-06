@@ -37,6 +37,7 @@ export type DeployPhase =
   | "execution"
   | "complete"
   | "failed"
+  | "hold"
   | "validation-failed";
 
 export type DeployStateExecutionCommand =

@@ -122,10 +122,7 @@ export class Deployment {
     });
   }
 
-  public async updateCurrentBatchWithResult(
-    vertexId: number,
-    result: VertexVisitResult
-  ) {
+  public async updateVertexResult(vertexId: number, result: VertexVisitResult) {
     return this._runDeploymentCommand(
       [`Update current with batch result for ${vertexId}`, [result]],
       {
