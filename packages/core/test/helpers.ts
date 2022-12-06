@@ -42,6 +42,13 @@ class MockTransactionService implements ITransactionsService {
   public wait(_txHash: string): Promise<ethers.providers.TransactionReceipt> {
     return {} as any;
   }
+
+  public waitForEvent(
+    _filter: ethers.EventFilter,
+    _durationMs: number
+  ): Promise<ethers.providers.Log> {
+    throw new Error("Method not implemented.");
+  }
 }
 
 class MockConfigService implements IConfigService {

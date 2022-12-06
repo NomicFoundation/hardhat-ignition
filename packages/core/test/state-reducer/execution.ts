@@ -91,7 +91,7 @@ describe("deployment state reducer", () => {
         },
         {
           type: "EXECUTION::SET_BATCH",
-          batch: new Set<number>([0]),
+          batch: [0],
         },
       ]);
     });
@@ -110,7 +110,7 @@ describe("deployment state reducer", () => {
         },
         {
           type: "EXECUTION::SET_BATCH",
-          batch: new Set<number>([0]),
+          batch: [0],
         },
         {
           type: "EXECUTION::SET_VERTEX_RESULT",
@@ -144,7 +144,7 @@ describe("deployment state reducer", () => {
         },
         {
           type: "EXECUTION::SET_BATCH",
-          batch: new Set<number>([0]),
+          batch: [0],
         },
         {
           type: "EXECUTION::SET_VERTEX_RESULT",
@@ -178,7 +178,7 @@ describe("deployment state reducer", () => {
 
         {
           type: "EXECUTION::SET_BATCH",
-          batch: new Set<number>([0]),
+          batch: [0],
         },
         {
           type: "EXECUTION::SET_VERTEX_RESULT",
@@ -191,7 +191,7 @@ describe("deployment state reducer", () => {
 
         {
           type: "EXECUTION::SET_BATCH",
-          batch: new Set<number>([1, 2]),
+          batch: [1, 2],
         },
         {
           type: "EXECUTION::SET_VERTEX_RESULT",
@@ -212,7 +212,7 @@ describe("deployment state reducer", () => {
 
         {
           type: "EXECUTION::SET_BATCH",
-          batch: new Set<number>([3]),
+          batch: [3],
         },
         {
           type: "EXECUTION::SET_VERTEX_RESULT",

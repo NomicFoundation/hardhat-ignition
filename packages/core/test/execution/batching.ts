@@ -51,11 +51,7 @@ describe("Execution - batching", () => {
       async (): Promise<VertexVisitResult> => {
         return { _kind: "success", result: true };
       },
-      {
-        maxRetries: 4,
-        gasIncrementPerRetry: null,
-        pollingInterval: 300,
-      }
+      {} as any
     );
 
     assert.isDefined(result);

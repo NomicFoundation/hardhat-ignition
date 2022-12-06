@@ -1,10 +1,7 @@
-import {
-  DeployStateCommand,
-  deployStateReducer,
-} from "deployment/deployStateReducer";
+import { deployStateReducer } from "deployment/deployStateReducer";
 import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "process/transformDeploymentGraphToExecutionGraph";
-import { DeployState } from "types/deployment";
+import { DeployState, DeployStateCommand } from "types/deployment";
 import { Module } from "types/module";
 import { validateDeploymentGraph } from "validation/validateDeploymentGraph";
 
