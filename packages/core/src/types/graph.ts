@@ -45,6 +45,7 @@ export type VisitResult =
     }
   | {
       _kind: "hold";
+      holds: VertexDescriptor[];
     };
 
 export type ResultsAccumulator = Map<number, VertexVisitResult | null>;

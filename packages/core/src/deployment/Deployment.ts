@@ -8,7 +8,11 @@ import {
   DeployStateCommand,
   DeployStateExecutionCommand,
 } from "types/deployment";
-import { VertexVisitResult, VertexVisitResultFailure } from "types/graph";
+import {
+  VertexDescriptor,
+  VertexVisitResult,
+  VertexVisitResultFailure,
+} from "types/graph";
 import { ICommandJournal } from "types/journal";
 
 import {
@@ -115,7 +119,7 @@ export class Deployment {
   }
 
   public readExecutionErrors() {
-    const errors = [...Object.entries(this.state.execution.vertexes)]
+    return [...Object.entries(this.state.execution.vertexes)]
       .filter(([_id, value]) => value.status === "FAILED")
       .reduce(
         (
@@ -125,7 +129,7 @@ export class Deployment {
           if (
             result === undefined ||
             result === null ||
-            result._kind === "success"
+            result._kind !== "failure"
           ) {
             return acc;
           }
@@ -136,8 +140,33 @@ export class Deployment {
         },
         {}
       );
+  }
 
-    return errors;
+  public readExecutionHolds(): VertexDescriptor[] {
+    const executionGraph = this.state.transform.executionGraph;
+
+    if (executionGraph === null) {
+      throw new Error("Cannot read from unset execution graph");
+    }
+
+    return [...Object.entries(this.state.execution.vertexes)]
+      .filter(([_id, value]) => value.status === "HOLD")
+      .map(([id]) => {
+        const vertex = executionGraph.vertexes.get(parseInt(id, 10));
+
+        if (vertex === undefined) {
+          return null;
+        }
+
+        const descriptor: VertexDescriptor = {
+          id: vertex.id,
+          label: vertex.label,
+          type: vertex.type,
+        };
+
+        return descriptor;
+      })
+      .filter((x): x is VertexDescriptor => Boolean(x));
   }
 
   public hasUnstarted(): boolean {

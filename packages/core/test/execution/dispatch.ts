@@ -252,6 +252,8 @@ describe("Execution - dispatch", () => {
         contractName: "Test",
         abi: [
           {
+            type: "event",
+            name: "SomeEvent",
             anonymous: false,
             inputs: [
               {
@@ -261,8 +263,6 @@ describe("Execution - dispatch", () => {
                 type: "address",
               },
             ],
-            name: "SomeEvent",
-            type: "event",
           },
           {
             inputs: [],

@@ -70,8 +70,11 @@ export async function executeInBatches(
     }
 
     if (deployment.hasHolds()) {
+      const holds = deployment.readExecutionHolds();
+
       return {
         _kind: "hold",
+        holds,
       };
     }
   }

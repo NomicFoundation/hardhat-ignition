@@ -82,7 +82,7 @@ const StatusBadge = ({ vertex }: { vertex: UiVertex }) => {
       badge = <Text>❌</Text>;
       break;
     case "HELD":
-      badge = <Text>⚠</Text>;
+      badge = <Text>🔶</Text>;
       break;
     case "RUNNING":
       badge = <Spinner />;
@@ -107,6 +107,10 @@ function resolveBatchBorderColor(vertexes: UiVertex[]) {
 
   if (vertexes.some((v) => v.status === "ERRORED")) {
     return "red";
+  }
+
+  if (vertexes.some((v) => v.status === "HELD")) {
+    return "yellow";
   }
 
   if (vertexes.every((v) => v.status === "COMPELETED")) {
@@ -136,7 +140,7 @@ function resolveVertexColors(vertex: UiVertex): {
       };
     case "HELD":
       return {
-        borderColor: "darkgray",
+        borderColor: "yellow",
         borderStyle: "bold",
         textColor: "white",
       };
@@ -197,6 +201,10 @@ const determineStatusOf = (
 
   if (execution.vertexes[vertexId]?.status === "FAILED") {
     return "ERRORED";
+  }
+
+  if (execution.vertexes[vertexId]?.status === "HOLD") {
+    return "HELD";
   }
 
   if (execution.vertexes[vertexId]?.status === "COMPLETED") {

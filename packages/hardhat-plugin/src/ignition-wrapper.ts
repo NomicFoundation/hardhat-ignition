@@ -6,6 +6,7 @@ import {
   ModuleDict,
   ModuleParams,
   createServices,
+  ICommandJournal,
 } from "@ignored/ignition-core";
 import { Contract, ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -32,6 +33,7 @@ export class IgnitionWrapper {
       parameters?: ModuleParams;
       journalPath?: string | undefined;
       ui?: boolean;
+      journal?: ICommandJournal;
     }
   ): Promise<DeployResult> {
     const showUi = deployParams?.ui ?? false;
@@ -41,10 +43,11 @@ export class IgnitionWrapper {
       uiRenderer: showUi
         ? renderToCli(this._providers.config.parameters)
         : undefined,
-      journal:
-        deployParams?.journalPath !== undefined
-          ? new CommandJournal(deployParams?.journalPath)
-          : undefined,
+      journal: deployParams?.journal
+        ? deployParams?.journal
+        : deployParams?.journalPath !== undefined
+        ? new CommandJournal(deployParams?.journalPath)
+        : undefined,
     });
 
     if (deployParams?.parameters !== undefined) {
@@ -57,8 +60,16 @@ export class IgnitionWrapper {
     );
 
     if (deploymentResult._kind === "hold") {
-      const [moduleId, holdReason] = deploymentResult.holds;
-      throw new Error(`Execution held for module '${moduleId}': ${holdReason}`);
+      const heldVertexes = deploymentResult.holds;
+
+      let heldMessage = "";
+      for (const vertex of heldVertexes) {
+        heldMessage += `  - ${vertex.label}\n`;
+      }
+
+      throw new Error(
+        `Execution held for module '${ignitionModule.name}':\n\n${heldMessage}`
+      );
     }
 
     if (deploymentResult._kind === "failure") {
@@ -69,13 +80,9 @@ export class IgnitionWrapper {
         failuresMessage += `  - ${failure.message}\n`;
       }
 
-      if (showUi) {
-        return process.exit(1);
-      } else {
-        throw new Error(
-          `Execution failed for module '${moduleId}':\n\n${failuresMessage}`
-        );
-      }
+      throw new Error(
+        `Execution failed for module '${moduleId}':\n\n${failuresMessage}`
+      );
     }
 
     const resolvedOutput: {

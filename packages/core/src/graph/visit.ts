@@ -45,6 +45,7 @@ export async function visit<T, C>(
     if (vertexVisitResult._kind === "hold") {
       return {
         _kind: "hold",
+        holds: [vertex as any],
       };
     }
 

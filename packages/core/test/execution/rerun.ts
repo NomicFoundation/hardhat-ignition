@@ -1,6 +1,7 @@
 /* eslint-disable import/no-unused-modules */
 
 import { assert } from "chai";
+import { ethers } from "ethers";
 
 import { buildModule } from "dsl/buildModule";
 import { Artifact } from "types/hardhat";
@@ -14,6 +15,19 @@ describe("Reruning execution", () => {
     contractName: "Token",
     abi: [
       {
+        name: "ConfigComplete",
+        type: "event",
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "name",
+            type: "address",
+          },
+        ],
+      },
+      {
         inputs: [
           {
             internalType: "uint256",
@@ -25,12 +39,6 @@ describe("Reruning execution", () => {
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",
-      },
-      {
-        name: "ConfigComplete",
-        type: "event",
-        anonymous: false,
-        inputs: [],
       },
     ],
     bytecode: "0x0000000001",
@@ -137,17 +145,24 @@ describe("Reruning execution", () => {
       eventQueryCount = 0;
 
       myModule = buildModule("MyModule", (m) => {
-        const token = m.contract("Token");
+        const token = m.contract("Token", tokenArtifact);
 
         const configureCall = m.call(token, "configure", { args: [100] });
 
-        m.awaitEvent(token, "ConfigComplete", {
+        m.awaitEvent(token as any, "ConfigComplete", {
           after: [configureCall],
           args: [],
         });
 
         return { token };
       });
+
+      const iface = new ethers.utils.Interface(tokenArtifact.abi);
+
+      const fakeLog = iface.encodeEventLog(
+        ethers.utils.EventFragment.from(tokenArtifact.abi[0]),
+        ["0x0000000000000000000000000000000000000003"]
+      );
 
       ignition = new Ignition({
         services: {
@@ -178,7 +193,7 @@ describe("Reruning execution", () => {
               if (eventQueryCount === 1) {
                 return null;
               } else if (eventQueryCount === 2) {
-                return { _testLog: true };
+                return fakeLog;
               } else {
                 throw new Error("Unexpected query call");
               }
@@ -221,7 +236,6 @@ describe("Reruning execution", () => {
       // additional query call on second run
       assert.equal(eventQueryCount, 2, "Wrong number of on-chain queries");
 
-      assert.equal(redeployResult._kind, "success");
       if (redeployResult._kind !== "success") {
         return assert.fail("Not a successful deploy");
       }

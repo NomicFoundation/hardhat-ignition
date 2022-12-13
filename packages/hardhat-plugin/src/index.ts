@@ -127,11 +127,17 @@ task("deploy")
         ? undefined
         : resolveJournalPath(userModule.name, hre.config.paths.ignition);
 
-      await hre.ignition.deploy(userModule, {
-        parameters,
-        journalPath,
-        ui: true,
-      });
+      try {
+        await hre.ignition.deploy(userModule, {
+          parameters,
+          journalPath,
+          ui: true,
+        });
+      } catch {
+        // display of error or on hold is done
+        // based on state, thrown error can be ignored
+        process.exit(1);
+      }
     }
   );
 

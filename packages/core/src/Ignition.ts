@@ -170,7 +170,7 @@ export class Ignition {
     }
 
     if (executionResult._kind === "hold") {
-      return [{ _kind: "hold", holds: ["TBD", []] }, {}];
+      return [executionResult, {}];
     }
 
     const serializedDeploymentResult = this._serialize(

@@ -5,6 +5,7 @@ import { Services } from "services/types";
 import { ExecutionVertex } from "./executionGraph";
 import {
   IGraph,
+  VertexDescriptor,
   VertexVisitResult,
   VertexVisitResultFailure,
   VertexVisitResultSuccess,
@@ -28,7 +29,7 @@ export interface IgnitionModuleResults {
 
 export type DeploymentResult =
   | { _kind: "failure"; failures: [string, Error[]] }
-  | { _kind: "hold"; holds: [string, string[]] }
+  | { _kind: "hold"; holds: VertexDescriptor[] }
   | { _kind: "success"; result: SerializedDeploymentResult };
 
 export type DeployPhase =
