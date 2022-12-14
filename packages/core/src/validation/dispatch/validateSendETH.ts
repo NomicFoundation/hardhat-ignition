@@ -12,7 +12,7 @@ export async function validateSendETH(
   if (!BigNumber.isBigNumber(vertex.value) && !isParameter(vertex.value)) {
     return {
       _kind: "failure",
-      failure: new IgnitionError(`For call 'value' must be a BigNumber`),
+      failure: new IgnitionError(`For send 'value' must be a BigNumber`),
     };
   }
 
