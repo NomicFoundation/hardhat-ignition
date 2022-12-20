@@ -26,7 +26,7 @@ A module is built by calling the `buildModule` function and passing it a unique 
 module.exports = buildModule("CounterModule", (m) => {
   const intialCounterValue = 123;
 
-  const counter = m.contract("Counter", { args: [initialCounterValue]});
+  const counter = m.contract("Counter", { args: [initialCounterValue] });
 
   return { counter };
 });
@@ -44,7 +44,7 @@ In the above example, when we call `m.contract`, we create a contract deployment
 module.exports = buildModule("ContractWithInitModule", (m) => {
   const c = m.contract("ContractWithInitModule");
 
-  m.call(c, "init", {args: [123]});
+  m.call(c, "init", { args: [123] });
 
   return { c };
 });
@@ -123,10 +123,6 @@ The tracking and reconciling of `Actions` in previous runs is done automatically
 - Only get one result per module.
 - Using the same module twice gives you the same set of contracts. Doesn’t deploy twice.
 - If an action depends on another module’s future, it won’t be executed until the entire module gets successfully executed. -->
-
-
-
-
 
 ---
 
