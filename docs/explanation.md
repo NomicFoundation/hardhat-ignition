@@ -38,7 +38,7 @@ The `moduleDefinition` callback receives a `moduleBuilder` object, which is used
 
 In the above example, when we call `m.contract`, we create a contract deployment `Action`, and get a `Future` that represents its eventual result, the address the contract is deployed to.
 
-`Action`s can depend on other `Action`'s results. We do this by using an `Action`'s `Future`s as an argument to a subsequent `moduleBuidler` method invocation. For example, here we define two `Action`s. One that deploys a contract, and another one that initializes it.
+`Actions` can depend on other `Action`'s results. We do this by using an `Action`'s `Future` as an argument to a subsequent `moduleBuidler` method. For example, here we define two `Actions`. One that deploys a contract, and another one that initializes it.
 
 ```tsx
 module.exports = buildModule("ContractWithInitModule", (m) => {
@@ -50,7 +50,7 @@ module.exports = buildModule("ContractWithInitModule", (m) => {
 });
 ```
 
-You can create complex graphs of `Action`s like this.
+You can create complex graphs of `Actions` like this.
 
 ## How modules get executed
 
@@ -69,15 +69,15 @@ flowchart LR
   2 --> 3
 ```
 
-Ignition first runs checks on the module to increase the likelyhood that it will execute on-chain (e.g. that any contract calls match methods available on the contracts abi).
+Ignition first runs validation checks on the module to increase the likelyhood that it will execute on-chain (e.g. that all contract calls match methods available on the contracts abi).
 
 A valid module is then analysed to build a graph of `Actions` to be executed. Tracing the flow of `Futures` between `Actions` in the module, allows Ignition to understand each `Action`'s dependencies, which in turn will control the order of execution.
 
-The graph of `Actions` is then run by the execution engine, which proceeds through the dependencies of the graph batching those `Actions` whose dependencies have successfully completed. `Actions` in a batch are run in parallel.
+The graph of `Actions` is then run by Ignition's execution engine, which proceeds through the dependencies of the graph, batching those `Actions` whose dependencies have successfully completed. `Actions` in a batch are run in parallel.
 
 Most actions get executed by submitting a transaction; though not every action results in a transaction. An action may lead to the submission of multiple transactions because of errors or gas management. The retrying of transactions is handled by the Ignition execution engine and is transparent to the user.
 
-Executing an Action successfully makes its associated `Future` _resolved_. Because an action is not run until all its dependencies have completed, any `Futures` it depends upon will have been resolved to an appropriate value (e.g. the address of a newly deployed contract) before it itself is run.
+Executing an Action successfully _resolves_ its associated `Future`. Because an action is not run until all its dependencies have completed, any `Futures` it depends upon will have been resolved to an appropriate value (e.g. the address of a newly deployed contract) before it is run.
 
 The execution is complete when all actions have been run successfully.
 
