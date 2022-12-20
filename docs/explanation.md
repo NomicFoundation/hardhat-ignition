@@ -81,3 +81,9 @@ You can create complex graphs of `Action`s like this.
 - To be able to do this, Ignition needs to be able to uniquely identify each Action, even in the presence of changes
 - Ignition won’t try to execute successfully executed Actions unless you explicitly ask for it.
 - Ignition assigns an id to each Action. It can do it automatically in most cases, but sometimes it will ask the user to do it instead.
+
+---
+
+Next, dig deeper into defining modules:
+
+[Creating modules for deployment](./creating-modules-for-deployment.md)
