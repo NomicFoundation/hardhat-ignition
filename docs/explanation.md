@@ -2,15 +2,21 @@
 
 > This document explains what Ignition is, what it is used for, and the building blocks that make it.
 
-# Introduction
-
-Ignition is an infrastructure-as-code system to deploy and distribute smart contract systems.
+Ignition is an infrastructure-as-code system to both deploy and distribute smart contract systems.
 
 When working with Ignition you define how your smart contracts should be deployed, and let it be in charge of the execution. This means that Ignition will be responsible for sending your transactions, managing gas, handling errors and restarts, and other situations that can appear when deploying a complex system.
 
-*This document focuses on deploying your local contracts, and not on distributing them.*
+Ignition can be used to deploy a complex smart contract system and will support the deployment with: planning tools, visualisations of the running deployment and the capability to restart partial deployments.
 
-## What is a Module?
+Specifying a deployment through Ignition provides the option to leverage that specification in Hardhat tests, simplifying test setup. It is a goal of Ignition to enable to distribution of Ignition deployments to allow Solidity developers to quickly create complex on-chain scenarios (e.g. testing your contracts interaction with [Maker during an emergency shutdown](https://docs.makerdao.com/smart-contract-modules/shutdown)), that are not currently possible through forking tests.
+
+> NOTE: This document focuses on deploying your local contracts, and not on distributing them. Deployment distribution is not part of the initial prototype.
+
+## Understanding the Module API
+
+Ignition achieves this separation of responsibilites through a `Future`-orientated declarative api, as opposed to the procedural api used in deployment scripts. This allows Ignition to statically analyse the deployment without running it. That analysis supports: improved validation, resuming partial deployments and efficient grouping and processing of transactions.
+
+### What is a Module?
 
 Deployments in Ignition are organized by modules. A module is a set of related smart contracts to be deployed and potentially some actions that need to be run on them (e.g. calling an `initialize()` function).
 
@@ -46,7 +52,7 @@ module.exports = buildModule("ContractWithInitModule", (m) => {
 
 You can create complex graphs of `Action`s like this.
 
-## How modules get executed
+### How modules get executed
 
 - Modules are only run once, like JavaScript modules.
 - Ignition takes a Module, creates the graph of actions, and then executes it.
@@ -59,12 +65,12 @@ You can create complex graphs of `Action`s like this.
 - Actions aren’t run until all the Future’s it depends on have been resolved.
 - Ignition executes Actions in batches, running as many actions as it can in parallel.
 
-## Using a Module from another Module
+<!-- ## Using a Module from another Module
 
 - How to use a Module from another one.
 - Only get one result per module.
 - Using the same module twice gives you the same set of contracts. Doesn’t deploy twice.
-- If an action depends on another module’s future, it won’t be executed until the entire module gets successfully executed.
+- If an action depends on another module’s future, it won’t be executed until the entire module gets successfully executed. -->
 
 ## Handling errors and restarting
 
