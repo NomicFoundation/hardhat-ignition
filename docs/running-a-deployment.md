@@ -60,7 +60,7 @@ There are currently some configurable options you can add to your Hardhat config
 ```tsx
 interface IgnitionConfig {
   maxRetries: number;
-  gasIncrementPerRetry: BigNumber | null;
+  gasPriceIncrementPerRetry: BigNumber | null;
   pollingInterval: number; // milliseconds
   eventDuration: number; // milliseconds
 }
@@ -74,7 +74,7 @@ const { ethers } = require("ethers");
 module.exports = {
   ignition: {
     maxRetries: 10,
-    gasIncrementPerRetry: ethers.utils.parseUnits("5", "gwei"),
+    gasPriceIncrementPerRetry: ethers.utils.parseUnits("5", "gwei"),
     pollingInterval: 300,
     eventDuration: 10000,
   },
@@ -89,9 +89,9 @@ The value of `maxRetries` is the number of times an unconfirmed transaction will
 
 ---
 
-#### `gasIncrementPerRetry`
+#### `gasPriceIncrementPerRetry`
 
-The value of `gasIncrementPerRetry` must be an `ethers.BigNumber` and is assumed to be in wei units. This value will be added to the previous transactions gas price on each subsequent retry. However, if not given or if the given value is `null`, then the default logic will run which adds 10% of the previous transactions gas price on each retry.
+The value of `gasPriceIncrementPerRetry` must be an `ethers.BigNumber` and is assumed to be in wei units. This value will be added to the previous transactions gas price on each subsequent retry. However, if not given or if the given value is `null`, then the default logic will run which adds 10% of the previous transactions gas price on each retry.
 
 ---
 
