@@ -8,21 +8,37 @@ import { useEnvironment } from "./useEnvironment";
 describe("loadModule", function () {
   useEnvironment("user-modules");
 
-  it("should return a user module from a given path", () => {
-    const module = loadModule("ignition", "TestModule.js");
+  it("should return the module given the module name", () => {
+    const module = loadModule("ignition", "TestModule");
 
     assert.isDefined(module);
+    assert.equal(module.name, "testing123");
   });
 
-  it("should return modules for names with file extension", () => {
+  it("should return the module given the module name and extension", () => {
     const module = loadModule("ignition", "TestModule.js");
 
     assert.isDefined(module);
     assert.equal(module.name, "testing123");
   });
 
-  it("should throw if given a file that does not exist", () => {
+  it("should throw if the module name does not exist", () => {
+    assert.throws(() => loadModule("ignition", "Fake"));
+  });
+
+  it("should throw if the module name with extension does not exist", () => {
     assert.throws(() => loadModule("ignition", "Fake.js"));
+  });
+
+  it("should throw if the full path to the module does not exist", () => {
+    assert.throws(() => loadModule("ignition", "./ignition/Fake.js"));
+  });
+
+  it("should throw if the full path to the module is outside the module directory", () => {
+    assert.throws(
+      () => loadModule("contracts", "./ignition/TestModule.js"),
+      `The referenced module ./ignition/TestModule.js is outside the module directory contracts`
+    );
   });
 
   it("should throw if given a user module directory that does not exist", async () => {

@@ -1,4 +1,4 @@
-import { Module, ModuleDict } from "@ignored/ignition-core";
+import { IgnitionError, Module, ModuleDict } from "@ignored/ignition-core";
 import setupDebug from "debug";
 import fsExtra from "fs-extra";
 import path from "path";
@@ -15,23 +15,71 @@ export function loadModule(
     throw new Error(`Directory ${modulesDirectory} not found.`);
   }
 
-  const resolvedModulePath = path.resolve(modulesDirectory, moduleNameOrPath);
+  const fullpathToModule = resolveFullPathToModule(
+    modulesDirectory,
+    moduleNameOrPath
+  );
 
-  return getUserModulesFromPaths(resolvedModulePath);
-}
-
-function getUserModulesFromPaths(fullModulePath: string): Module<ModuleDict> {
-  debug(`Loading '${fullModulePath}' module file`);
-
-  const fileExists = fsExtra.pathExistsSync(fullModulePath);
-
-  if (!fileExists) {
-    throw new Error(`Module ${fullModulePath} doesn't exist`);
+  if (fullpathToModule === undefined) {
+    throw new IgnitionError(`Could not find module ${moduleNameOrPath}`);
   }
 
-  debug(`Loading module file '${fullModulePath}'`);
+  if (!isInModuleDirectory(modulesDirectory, fullpathToModule)) {
+    throw new IgnitionError(
+      `The referenced module ${moduleNameOrPath} is outside the module directory ${modulesDirectory}`
+    );
+  }
 
-  const userModule = require(fullModulePath);
+  debug(`Loading module file '${fullpathToModule}'`);
 
-  return userModule;
+  const module = require(fullpathToModule);
+
+  return module;
+}
+
+function resolveFullPathToModule(
+  modulesDirectory: string,
+  moduleNameOrPath: string
+): string | undefined {
+  const pathToModule = path.resolve(moduleNameOrPath);
+  if (fsExtra.pathExistsSync(pathToModule)) {
+    return pathToModule;
+  }
+
+  const relativeToModules = path.resolve(modulesDirectory, moduleNameOrPath);
+  if (fsExtra.pathExistsSync(relativeToModules)) {
+    return relativeToModules;
+  }
+
+  const relativeToModulesWithJsExtension = path.resolve(
+    modulesDirectory,
+    `${moduleNameOrPath}.js`
+  );
+  if (fsExtra.pathExistsSync(relativeToModulesWithJsExtension)) {
+    return relativeToModulesWithJsExtension;
+  }
+
+  const relativeToModulesWithTsExtension = path.resolve(
+    modulesDirectory,
+    `${moduleNameOrPath}.ts`
+  );
+  if (fsExtra.pathExistsSync(relativeToModulesWithTsExtension)) {
+    return relativeToModulesWithTsExtension;
+  }
+
+  return undefined;
+}
+
+function isInModuleDirectory(modulesDirectory: string, modulePath: string) {
+  const resolvedModulesDirectory = path.resolve(modulesDirectory);
+  const moduleRelativeToModuleDir = path.relative(
+    resolvedModulesDirectory,
+    modulePath
+  );
+
+  return (
+    Boolean(moduleRelativeToModuleDir) &&
+    !moduleRelativeToModuleDir.startsWith("..") &&
+    !path.isAbsolute(moduleRelativeToModuleDir)
+  );
 }
