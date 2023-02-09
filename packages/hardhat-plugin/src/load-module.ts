@@ -12,7 +12,7 @@ export function loadModule(
   debug(`Loading user modules from '${modulesDirectory}'`);
 
   if (!fsExtra.existsSync(modulesDirectory)) {
-    throw new Error(`Directory ${modulesDirectory} not found.`);
+    throw new IgnitionError(`Directory ${modulesDirectory} not found.`);
   }
 
   const fullpathToModule = resolveFullPathToModule(
