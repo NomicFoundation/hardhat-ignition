@@ -23,7 +23,7 @@ An overview of the [design of the deploy process is explained here](./docs/desig
 
 Ignition is a `typescript` project managed by `npm`.
 
-The install the dependencies, run `npm` in the project root:
+To install the dependencies, run `npm` in the project root:
 
 ```shell
 npm install
