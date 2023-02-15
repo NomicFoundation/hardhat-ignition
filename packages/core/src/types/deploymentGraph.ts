@@ -175,56 +175,58 @@ export interface IDeploymentBuilder {
   chainId: number;
   graph: IDeploymentGraph;
 
-  contract: (
+  contract(contractName: string, options?: ContractOptions): HardhatContract;
+  contract(
     contractName: string,
-    artifactOrOptions?: Artifact | ContractOptions,
+    artifact: Artifact,
     options?: ContractOptions
-  ) => HardhatContract | ArtifactContract;
+  ): ArtifactContract;
 
-  contractAt: (
+  contractAt(
     contractName: string,
     address: string | EventParamFuture,
     abi: any[],
     options?: { after?: DeploymentGraphFuture[] }
-  ) => DeployedContract;
+  ): DeployedContract;
 
-  library: (
+  library(
     contractName: string,
     artifactOrOptions?: Artifact | ContractOptions,
     options?: ContractOptions
-  ) => HardhatLibrary | ArtifactLibrary;
+  ): HardhatLibrary | ArtifactLibrary;
 
-  call: (
+  call(
     contractFuture: DeploymentGraphFuture,
     functionName: string,
     options: CallOptions
-  ) => ContractCall;
+  ): ContractCall;
 
-  event: (
+  event(
     contractFuture: ArtifactFuture,
     eventName: string,
     options: AwaitOptions
-  ) => EventFuture;
+  ): EventFuture;
 
-  sendETH: (sendTo: AddressResolvable, options: SendOptions) => SendFuture;
+  sendETH(sendTo: AddressResolvable, options: SendOptions): SendFuture;
 
-  getParam: (paramName: string) => RequiredParameter;
+  getParam(paramName: string): RequiredParameter;
 
-  getOptionalParam: (
+  getOptionalParam(
     paramName: string,
     defaultValue: ParameterValue
-  ) => OptionalParameter;
+  ): OptionalParameter;
 
-  getBytesForArtifact: (artifactName: string) => BytesFuture;
+  getBytesForArtifact(artifactName: string): BytesFuture;
 
-  useSubgraph: <T extends FutureDict>(
+  useSubgraph<T extends FutureDict>(
     subgraph: Subgraph<T>,
     options?: UseSubgraphOptions
-  ) => Virtual & T;
-  useModule: <T extends ModuleDict>(
+  ): Virtual & T;
+
+  useModule<T extends ModuleDict>(
     module: Subgraph<T>,
     options?: UseSubgraphOptions
-  ) => Virtual & T;
+  ): Virtual & T;
 }
 
 export interface Subgraph<T extends FutureDict> {

@@ -153,6 +153,15 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
   public contract(
     contractName: string,
+    options?: ContractOptions
+  ): HardhatContract;
+  public contract(
+    contractName: string,
+    artifact: Artifact,
+    options?: ContractOptions
+  ): ArtifactContract;
+  public contract(
+    contractName: string,
     artifactOrOptions?: Artifact | ContractOptions,
     givenOptions?: ContractOptions
   ): HardhatContract | ArtifactContract {
