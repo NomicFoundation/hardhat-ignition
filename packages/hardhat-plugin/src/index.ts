@@ -95,17 +95,17 @@ task("deploy")
       }: { moduleNameOrPath: string; parameters?: string; force: boolean },
       hre
     ) => {
-      const chainId = await hre.network.provider.request({
-        method: "eth_chainId",
-      });
+      const chainId = Number(
+        await hre.network.provider.request({
+          method: "eth_chainId",
+        })
+      );
 
-      if (Number(chainId) !== 31337) {
+      if (chainId !== 31337) {
         const prompt = await prompts({
           type: "confirm",
           name: "networkConfirmation",
-          message: `Confirm deploy to network ${hre.network.name} (${Number(
-            chainId
-          )})?`,
+          message: `Confirm deploy to network ${hre.network.name} (${chainId})?`,
           initial: false,
         });
 
