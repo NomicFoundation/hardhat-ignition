@@ -1,6 +1,10 @@
 import { Services } from "services/types";
 import { DeployedContract } from "types/executionGraph";
-import { ResultsAccumulator, VertexVisitResult } from "types/graph";
+import {
+  ResultsAccumulator,
+  VertexVisitResult,
+  VertexResultEnum,
+} from "types/graph";
 
 import { resolveFrom, toAddress } from "./utils";
 
@@ -14,7 +18,7 @@ export async function executeDeployedContract(
   const resolvedAddress = toAddress(resolve(address));
 
   return {
-    _kind: "success",
+    _kind: VertexResultEnum.SUCCESS,
     result: {
       name: label,
       abi,

@@ -10,27 +10,16 @@ import {
   VertexVisitResultFailure,
   VertexVisitResultSuccess,
 } from "./graph";
-import { ModuleParams } from "./module";
-import {
-  SerializedDeploymentResult,
-  SerializedFutureResult,
-} from "./serialization";
+import { ModuleDict, ModuleParams } from "./module";
+import { SerializedDeploymentResult } from "./serialization";
 
 export type UpdateUiAction = (deployState: DeployState) => void;
 export type UiParamsClosure = (moduleParams?: ModuleParams) => UpdateUiAction;
 
-export interface IgnitionModuleResults {
-  load: (moduleId: string) => Promise<SerializedFutureResult | undefined>;
-  save: (
-    moduleId: string,
-    moduleResult: SerializedFutureResult
-  ) => Promise<void>;
-}
-
-export type DeploymentResult =
+export type DeploymentResult<T extends ModuleDict = ModuleDict> =
   | { _kind: "failure"; failures: [string, Error[]] }
   | { _kind: "hold"; holds: VertexDescriptor[] }
-  | { _kind: "success"; result: SerializedDeploymentResult };
+  | { _kind: "success"; result: SerializedDeploymentResult<T> };
 
 export type DeployPhase =
   | "uninitialized"

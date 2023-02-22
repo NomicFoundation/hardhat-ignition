@@ -2,7 +2,11 @@ import { ContractFactory, ethers } from "ethers";
 
 import { ExecutionContext } from "types/deployment";
 import { ContractDeploy } from "types/executionGraph";
-import { ResultsAccumulator, VertexVisitResult } from "types/graph";
+import {
+  ResultsAccumulator,
+  VertexVisitResult,
+  VertexResultEnum,
+} from "types/graph";
 import { collectLibrariesAndLink } from "utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
@@ -39,7 +43,7 @@ export async function executeContractDeploy(
     txHash = await services.contracts.sendTx(deployTransaction, options);
   } catch (err) {
     return {
-      _kind: "failure",
+      _kind: VertexResultEnum.FAILURE,
       failure: err as any,
     };
   }
@@ -49,12 +53,12 @@ export async function executeContractDeploy(
     receipt = await services.transactions.wait(txHash);
   } catch {
     return {
-      _kind: "hold",
+      _kind: VertexResultEnum.HOLD,
     };
   }
 
   return {
-    _kind: "success",
+    _kind: VertexResultEnum.SUCCESS,
     result: {
       name: artifact.contractName,
       abi: artifact.abi,

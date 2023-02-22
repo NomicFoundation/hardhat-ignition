@@ -1,3 +1,5 @@
+import { ethers } from "ethers";
+
 export interface VertexDescriptor {
   id: number;
   label: string;
@@ -15,18 +17,77 @@ export interface IGraph<T> {
 
 export type VertexGraph = IGraph<VertexDescriptor>;
 
-export interface VertexVisitResultSuccess {
-  _kind: "success";
-  result: any;
+export enum VertexResultEnum {
+  SUCCESS = "success",
+  FAILURE = "failure",
+  HOLD = "hold",
 }
 
+export interface VertexVisitSuccess {
+  _kind: VertexResultEnum.SUCCESS;
+}
+
+export interface ContractDeploySuccess extends VertexVisitSuccess {
+  result: {
+    name: string;
+    abi: any[];
+    bytecode: string;
+    address: string;
+    value: ethers.BigNumber;
+  };
+}
+
+export interface DeployedContractSuccess extends VertexVisitSuccess {
+  result: {
+    name: string;
+    abi: any[];
+    address: string;
+  };
+}
+
+export interface LibraryDeploySuccess extends VertexVisitSuccess {
+  result: {
+    name: string;
+    abi: any[];
+    bytecode: string;
+    address: string;
+  };
+}
+
+export interface AwaitedEventSuccess extends VertexVisitSuccess {
+  result: {
+    topics: ethers.utils.Result;
+  };
+}
+
+export interface ContractCallSuccess extends VertexVisitSuccess {
+  result: {
+    hash: string;
+  };
+}
+
+export interface SendETHSuccess extends VertexVisitSuccess {
+  result: {
+    hash: string;
+    value: ethers.BigNumber;
+  };
+}
+
+export type VertexVisitResultSuccess =
+  | ContractDeploySuccess
+  | DeployedContractSuccess
+  | LibraryDeploySuccess
+  | AwaitedEventSuccess
+  | ContractCallSuccess
+  | SendETHSuccess;
+
 export interface VertexVisitResultFailure {
-  _kind: "failure";
+  _kind: VertexResultEnum.FAILURE;
   failure: Error;
 }
 
 export interface VertexVisitResultHold {
-  _kind: "hold";
+  _kind: VertexResultEnum.HOLD;
 }
 
 export type VertexVisitResult =

@@ -10,16 +10,13 @@ import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom
 import { transformDeploymentGraphToExecutionGraph } from "process/transformDeploymentGraphToExecutionGraph";
 import { Services } from "services/types";
 import { DeploymentResult, UpdateUiAction } from "types/deployment";
-import { DependableFuture, FutureDict } from "types/future";
 import { ResultsAccumulator, VisitResult } from "types/graph";
 import { ICommandJournal } from "types/journal";
 import { Module, ModuleDict } from "types/module";
 import { IgnitionPlan } from "types/plan";
-import { SerializedFutureResult } from "types/serialization";
+import { ContractInfo, SerializedDeploymentResult } from "types/serialization";
 import { IgnitionError } from "utils/errors";
-import { isDependable } from "utils/guards";
 import { resolveProxyValue } from "utils/proxy";
-import { serializeFutureOutput } from "utils/serialize";
 import { validateDeploymentGraph } from "validation/validateDeploymentGraph";
 
 const log = setupDebug("ignition:main");
@@ -33,8 +30,6 @@ export interface IgnitionDeployOptions {
   eventDuration: number;
   force: boolean;
 }
-
-type ModuleOutputs = Record<string, any>;
 
 export class Ignition {
   private _services: Services;
@@ -58,7 +53,7 @@ export class Ignition {
   public async deploy<T extends ModuleDict>(
     ignitionModule: Module<T>,
     options: IgnitionDeployOptions
-  ): Promise<[DeploymentResult, ModuleOutputs]> {
+  ): Promise<DeploymentResult<T>> {
     log(`Start deploy`);
 
     const deployment = new Deployment(
@@ -78,7 +73,7 @@ export class Ignition {
 
       if (constructResult._kind === "failure") {
         log("Failed to construct execution graph");
-        return [constructResult, {}];
+        return constructResult;
       }
 
       log("Execution graph constructed");
@@ -96,7 +91,7 @@ export class Ignition {
         log("Failed to reconcile");
         await deployment.failReconciliation();
 
-        return [moduleChangeResult, {}];
+        return moduleChangeResult;
       }
 
       log("Execute based on execution graph");
@@ -114,23 +109,17 @@ export class Ignition {
         const unexpectedError = new IgnitionError("Unexpected error");
 
         await deployment.failUnexpected([unexpectedError]);
-        return [
-          {
-            _kind: "failure",
-            failures: ["Unexpected error", [unexpectedError]],
-          },
-          {},
-        ];
+        return {
+          _kind: "failure",
+          failures: ["Unexpected error", [unexpectedError]],
+        };
       }
 
       await deployment.failUnexpected([err]);
-      return [
-        {
-          _kind: "failure",
-          failures: ["Unexpected error", [err]],
-        },
-        {},
-      ];
+      return {
+        _kind: "failure",
+        failures: ["Unexpected error", [err]],
+      };
     }
   }
 
@@ -174,7 +163,7 @@ export class Ignition {
   private async _constructExecutionGraphFrom<T extends ModuleDict>(
     deployment: Deployment,
     ignitionModule: Module<T>
-  ): Promise<{ result: any; moduleOutputs: FutureDict }> {
+  ): Promise<{ result: any; moduleOutputs: T }> {
     log("Generate deployment graph from module");
     const { graph: deploymentGraph, moduleOutputs } =
       generateDeploymentGraphFrom(ignitionModule, {
@@ -208,16 +197,16 @@ export class Ignition {
     return { result: transformResult, moduleOutputs };
   }
 
-  private _buildOutputFrom(
+  private _buildOutputFrom<T extends ModuleDict>(
     executionResult: VisitResult,
-    moduleOutputs: FutureDict
-  ): [DeploymentResult, ModuleOutputs] {
+    moduleOutputs: T
+  ): DeploymentResult<T> {
     if (executionResult._kind === "failure") {
-      return [executionResult, {}];
+      return executionResult;
     }
 
     if (executionResult._kind === "hold") {
-      return [executionResult, {}];
+      return executionResult;
     }
 
     const serializedDeploymentResult = this._serialize(
@@ -225,38 +214,34 @@ export class Ignition {
       executionResult.result
     );
 
-    return [{ _kind: "success", result: serializedDeploymentResult }, {}];
+    return { _kind: "success", result: serializedDeploymentResult };
   }
 
-  private _serialize(moduleOutputs: FutureDict, result: ResultsAccumulator) {
-    const entries = Object.entries(moduleOutputs).filter(
-      (entry): entry is [string, DependableFuture] => isDependable(entry[1])
-    );
+  private _serialize<T extends ModuleDict>(
+    moduleOutputs: T,
+    result: ResultsAccumulator
+  ): SerializedDeploymentResult<T> {
+    const entries = Object.entries(moduleOutputs);
 
-    const convertedEntries: Array<[string, SerializedFutureResult]> = entries
-      .map(([name, givenFuture]): [string, SerializedFutureResult] | null => {
-        const future = resolveProxyValue(givenFuture);
+    const serializedResult: { [k: string]: ContractInfo } = {};
+    for (const [key, value] of entries) {
+      const future = resolveProxyValue(value);
 
-        const executionResultValue = result.get(future.vertexId);
+      const executionResultValue = result.get(future.vertexId);
 
-        if (
-          executionResultValue === undefined ||
-          executionResultValue === null ||
-          executionResultValue._kind === "failure" ||
-          executionResultValue._kind === "hold"
-        ) {
-          return null;
-        }
+      if (
+        executionResultValue === undefined ||
+        executionResultValue === null ||
+        executionResultValue._kind === "failure" ||
+        executionResultValue._kind === "hold"
+      ) {
+        continue;
+      }
 
-        const serializedOutput: SerializedFutureResult = serializeFutureOutput(
-          executionResultValue.result
-        );
+      serializedResult[key] = executionResultValue.result as ContractInfo;
+    }
 
-        return [name, serializedOutput];
-      })
-      .filter((x): x is [string, SerializedFutureResult] => x !== null);
-
-    return Object.fromEntries(convertedEntries);
+    return serializedResult as SerializedDeploymentResult<T>;
   }
 
   private _checkSafeDeployment(

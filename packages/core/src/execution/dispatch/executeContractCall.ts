@@ -2,7 +2,7 @@ import { Contract } from "ethers";
 
 import { ExecutionContext } from "types/deployment";
 import { ContractCall } from "types/executionGraph";
-import { VertexVisitResult } from "types/graph";
+import { VertexVisitResult, VertexResultEnum } from "types/graph";
 
 import { resolveFrom, toAddress } from "./utils";
 
@@ -29,7 +29,7 @@ export async function executeContractCall(
     txHash = await services.contracts.sendTx(unsignedTx, options);
   } catch (err) {
     return {
-      _kind: "failure",
+      _kind: VertexResultEnum.FAILURE,
       failure: err as any,
     };
   }
@@ -38,12 +38,12 @@ export async function executeContractCall(
     await services.transactions.wait(txHash);
   } catch {
     return {
-      _kind: "hold",
+      _kind: VertexResultEnum.HOLD,
     };
   }
 
   return {
-    _kind: "success",
+    _kind: VertexResultEnum.SUCCESS,
     result: {
       hash: txHash,
     },

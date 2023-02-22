@@ -8,7 +8,6 @@ import {
   InternalParamValue,
   IDeploymentGraph,
   IDeploymentBuilder,
-  Subgraph,
   DeploymentBuilderOptions,
   DeploymentGraphVertex,
   UseSubgraphOptions,
@@ -42,9 +41,10 @@ import type {
   AddressResolvable,
 } from "types/future";
 import type { Artifact } from "types/hardhat";
-import type { ModuleCache, ModuleDict } from "types/module";
+import type { ModuleCache, ModuleDict, Subgraph } from "types/module";
 import { IgnitionError } from "utils/errors";
 import {
+  assertModuleReturnTypes,
   assertUnknownDeploymentVertexType,
   isArtifact,
   isCallable,
@@ -477,16 +477,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
     const { result, after } = this._useSubscope(module, options);
 
-    // type casting here so that typescript lets us validate against js users bypassing typeguards
-    for (const future of Object.values(result)) {
-      if (isCallable(future)) {
-        continue;
-      }
-
-      throw new IgnitionError(
-        `Cannot return Future of type "${future.type}" from a module`
-      );
-    }
+    assertModuleReturnTypes(result);
 
     const moduleResult = { ...this._enhance(result, after), ...after };
 

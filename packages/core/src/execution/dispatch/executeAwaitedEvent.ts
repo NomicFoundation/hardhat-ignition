@@ -2,7 +2,7 @@ import { Contract, ethers } from "ethers";
 
 import { ExecutionContext } from "types/deployment";
 import { AwaitedEvent } from "types/executionGraph";
-import { VertexVisitResult } from "types/graph";
+import { VertexVisitResult, VertexResultEnum } from "types/graph";
 
 import { resolveFrom, toAddress } from "./utils";
 
@@ -30,20 +30,20 @@ export async function executeAwaitedEvent(
 
     if (eventResult === null) {
       return {
-        _kind: "hold",
+        _kind: VertexResultEnum.HOLD,
       };
     }
 
     topics = contractInstance.interface.parseLog(eventResult).args;
   } catch (err) {
     return {
-      _kind: "failure",
+      _kind: VertexResultEnum.FAILURE,
       failure: err as any,
     };
   }
 
   return {
-    _kind: "success",
+    _kind: VertexResultEnum.SUCCESS,
     result: {
       topics,
     },

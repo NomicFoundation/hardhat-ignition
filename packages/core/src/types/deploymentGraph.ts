@@ -24,7 +24,7 @@ import {
 } from "./future";
 import { AdjacencyList, VertexDescriptor } from "./graph";
 import { Artifact } from "./hardhat";
-import { ModuleDict } from "./module";
+import { ModuleDict, Subgraph } from "./module";
 
 export interface ScopeData {
   before: Virtual;
@@ -227,11 +227,6 @@ export interface IDeploymentBuilder {
     module: Subgraph<T>,
     options?: UseSubgraphOptions
   ): Virtual & T;
-}
-
-export interface Subgraph<T extends FutureDict> {
-  name: string;
-  action: (builder: IDeploymentBuilder) => T;
 }
 
 export interface DeploymentBuilderOptions {

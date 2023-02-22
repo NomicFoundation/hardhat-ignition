@@ -20,7 +20,9 @@ const LockModule = buildModule("LockModule", (m) => {
     value: lockedAmount,
   });
 
-  const event = m.event(lock, "Withdrawal", { args: [] });
+  const c = m.call(lock, "test", { args: [] });
+
+  const event = m.event(lock, "Withdrawal", { args: [], after: [c] });
 
   return { lock, event };
 });

@@ -2,7 +2,7 @@ import type { PopulatedTransaction } from "ethers";
 
 import { ExecutionContext } from "types/deployment";
 import { SentETH } from "types/executionGraph";
-import { VertexVisitResult } from "types/graph";
+import { VertexVisitResult, VertexResultEnum } from "types/graph";
 
 import { resolveFrom, toAddress } from "./utils";
 
@@ -22,7 +22,7 @@ export async function executeSendETH(
     txHash = await services.contracts.sendTx(tx, options);
   } catch (err) {
     return {
-      _kind: "failure",
+      _kind: VertexResultEnum.FAILURE,
       failure: err as any,
     };
   }
@@ -31,14 +31,15 @@ export async function executeSendETH(
     await services.transactions.wait(txHash);
   } catch {
     return {
-      _kind: "hold",
+      _kind: VertexResultEnum.HOLD,
     };
   }
 
   return {
-    _kind: "success",
+    _kind: VertexResultEnum.SUCCESS,
     result: {
       hash: txHash,
+      value,
     },
   };
 }
