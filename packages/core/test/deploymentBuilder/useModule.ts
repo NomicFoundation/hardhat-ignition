@@ -491,6 +491,7 @@ describe("deployment builder - useModule", () => {
   });
 
   describe("returning non contract/library futures from within a module", () => {
+    // @ts-ignore
     let returnsWrongFutureTypeModule: Module<{
       token: CallableFuture | Virtual | ProxyFuture | EventFuture;
     }>;
@@ -526,6 +527,7 @@ describe("deployment builder - useModule", () => {
     it("should throw", () => {
       assert.throws(
         () =>
+          // @ts-ignore
           generateDeploymentGraphFrom(returnsWrongFutureTypeModule, {
             chainId: 31,
           }),

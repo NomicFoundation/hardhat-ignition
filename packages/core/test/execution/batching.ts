@@ -6,7 +6,7 @@ import { Deployment } from "deployment/Deployment";
 import { ExecutionGraph } from "execution/ExecutionGraph";
 import { executeInBatches } from "execution/execute";
 import { ContractDeploy, ExecutionVertex } from "types/executionGraph";
-import { VertexVisitResult } from "types/graph";
+import { VertexResultEnum, VertexVisitResult } from "types/graph";
 import { ICommandJournal } from "types/journal";
 
 import { buildAdjacencyListFrom } from "../graph/helpers";
@@ -49,7 +49,7 @@ describe("Execution - batching", () => {
       deployment,
       executionGraph,
       async (): Promise<VertexVisitResult> => {
-        return { _kind: "success", result: true };
+        return { _kind: VertexResultEnum.SUCCESS, result: {} as any };
       },
       {} as any
     );
