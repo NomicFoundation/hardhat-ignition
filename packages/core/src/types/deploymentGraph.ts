@@ -189,11 +189,12 @@ export interface IDeploymentBuilder {
     options?: { after?: DeploymentGraphFuture[] }
   ): DeployedContract;
 
+  library(contractName: string, options?: ContractOptions): HardhatLibrary;
   library(
     contractName: string,
-    artifactOrOptions?: Artifact | ContractOptions,
+    artifact: Artifact,
     options?: ContractOptions
-  ): HardhatLibrary | ArtifactLibrary;
+  ): ArtifactLibrary;
 
   call(
     contractFuture: DeploymentGraphFuture,

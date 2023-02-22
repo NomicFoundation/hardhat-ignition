@@ -95,11 +95,19 @@ export class DeploymentBuilder implements IDeploymentBuilder {
   constructor(options: DeploymentBuilderOptions) {
     this.chainId = options.chainId;
   }
-
   public library(
     libraryName: string,
-    artifactOrOptions?: ContractOptions | Artifact | undefined,
-    givenOptions?: ContractOptions | undefined
+    options?: ContractOptions
+  ): HardhatLibrary;
+  public library(
+    libraryName: string,
+    artifact: Artifact,
+    options?: ContractOptions
+  ): ArtifactLibrary;
+  public library(
+    libraryName: string,
+    artifactOrOptions?: ContractOptions | Artifact,
+    givenOptions?: ContractOptions
   ): HardhatLibrary | ArtifactLibrary {
     if (isArtifact(artifactOrOptions)) {
       const artifact = artifactOrOptions;
