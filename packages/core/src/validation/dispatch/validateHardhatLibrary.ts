@@ -2,8 +2,12 @@ import { ethers } from "ethers";
 
 import { Services } from "services/types";
 import { HardhatLibraryDeploymentVertex } from "types/deploymentGraph";
-import { ResultsAccumulator, VertexVisitResult } from "types/graph";
-import { InvalidArtifactError } from "utils/errors";
+import {
+  ResultsAccumulator,
+  VertexResultEnum,
+  VertexVisitResult,
+} from "types/graph";
+import { IgnitionError, InvalidArtifactError } from "utils/errors";
 
 import { validateBytesForArtifact } from "./helpers";
 
@@ -24,7 +28,7 @@ export async function validateHardhatLibrary(
 
   if (!artifactExists) {
     return {
-      _kind: "failure",
+      _kind: VertexResultEnum.FAILURE,
       failure: new InvalidArtifactError(vertex.libraryName),
     };
   }
@@ -37,15 +41,15 @@ export async function validateHardhatLibrary(
 
   if (argsLength !== expectedArgsLength) {
     return {
-      _kind: "failure",
-      failure: new Error(
+      _kind: VertexResultEnum.FAILURE,
+      failure: new IgnitionError(
         `The constructor of the library '${vertex.libraryName}' expects ${expectedArgsLength} arguments but ${argsLength} were given`
       ),
     };
   }
 
   return {
-    _kind: "success",
-    result: undefined,
+    _kind: VertexResultEnum.SUCCESS,
+    result: undefined as any,
   };
 }

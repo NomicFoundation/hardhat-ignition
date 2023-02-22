@@ -35,7 +35,7 @@ describe("deployment builder - libraries", () => {
             },
           });
 
-          return { safeMath, contract };
+          return { contract };
         }
       );
 

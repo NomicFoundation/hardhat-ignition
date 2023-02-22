@@ -44,7 +44,7 @@ function resolveFromContext(context: ResultsAccumulator, arg: ArgValue): any {
     );
   }
 
-  if (isEventParam(arg)) {
+  if (isEventParam(arg) && "topics" in entry.result) {
     return entry.result.topics[arg.label];
   }
 

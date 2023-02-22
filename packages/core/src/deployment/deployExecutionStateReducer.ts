@@ -7,7 +7,7 @@ import type {
   VertexExecutionStatusCompleted,
   VertexExecutionStatusHold,
 } from "types/deployment";
-import { VertexVisitResult } from "types/graph";
+import { VertexResultEnum, VertexVisitResult } from "types/graph";
 import { IgnitionError } from "utils/errors";
 
 import { assertNeverMessageType } from "./utils";
@@ -81,17 +81,17 @@ function updateExecutionStateWithNewBatch(
 
 function convertTo(vertexVisitResult: VertexVisitResult): VertexExecutionState {
   switch (vertexVisitResult._kind) {
-    case "success":
+    case VertexResultEnum.SUCCESS:
       return {
         status: "COMPLETED" as VertexExecutionStatusCompleted,
         result: vertexVisitResult,
       };
-    case "failure":
+    case VertexResultEnum.FAILURE:
       return {
         status: "FAILED" as VertexExecutionStatusFailed,
         result: vertexVisitResult,
       };
-    case "hold":
+    case VertexResultEnum.HOLD:
       return {
         status: "HOLD" as VertexExecutionStatusHold,
         result: null,

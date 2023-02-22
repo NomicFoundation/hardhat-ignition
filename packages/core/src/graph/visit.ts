@@ -50,7 +50,7 @@ export async function visit<T, C>(
       };
     }
 
-    resultAccumulator.set(vertexId, vertexVisitResult.result);
+    resultAccumulator.set(vertexId, vertexVisitResult);
 
     if (afterAction !== undefined) {
       afterAction(vertex, "success");
