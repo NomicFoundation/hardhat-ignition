@@ -150,7 +150,7 @@ describe("Reruning execution", () => {
       await ignition.deploy(myModule, {} as any);
 
       // Act
-      const [redeployResult] = await ignition.deploy(myModule, {
+      const redeployResult = await ignition.deploy(myModule, {
         force: true,
       } as any);
 
