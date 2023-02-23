@@ -10,12 +10,10 @@ const TEN_YEARS_IN_FUTURE = currentTimestampInSeconds + TEN_YEAR_IN_SECS;
 const ONE_GWEI = hre.ethers.utils.parseUnits("1", "gwei").toString();
 
 const LockModule = buildModule("LockModule", (m) => {
-  const artifact = require("../artifacts/contracts/Lock.sol/Lock.json");
-
   const unlockTime = m.getOptionalParam("unlockTime", TEN_YEARS_IN_FUTURE);
   const lockedAmount = m.getOptionalParam("lockedAmount", ONE_GWEI);
 
-  const lock = m.contract("Lock", artifact, {
+  const lock = m.contract("Lock", {
     args: [unlockTime],
     value: lockedAmount,
   });
