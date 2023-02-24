@@ -1,5 +1,3 @@
-import { ethers } from "ethers";
-
 export interface VertexDescriptor {
   id: number;
   label: string;
@@ -23,63 +21,10 @@ export enum VertexResultEnum {
   HOLD = "hold",
 }
 
-export interface VertexVisitSuccess {
+export interface VertexVisitResultSuccess<T> {
   _kind: VertexResultEnum.SUCCESS;
+  result: T;
 }
-
-export interface ContractDeploySuccess extends VertexVisitSuccess {
-  result: {
-    name: string;
-    abi: any[];
-    bytecode: string;
-    address: string;
-    value: ethers.BigNumber;
-  };
-}
-
-export interface DeployedContractSuccess extends VertexVisitSuccess {
-  result: {
-    name: string;
-    abi: any[];
-    address: string;
-  };
-}
-
-export interface LibraryDeploySuccess extends VertexVisitSuccess {
-  result: {
-    name: string;
-    abi: any[];
-    bytecode: string;
-    address: string;
-  };
-}
-
-export interface AwaitedEventSuccess extends VertexVisitSuccess {
-  result: {
-    topics: ethers.utils.Result;
-  };
-}
-
-export interface ContractCallSuccess extends VertexVisitSuccess {
-  result: {
-    hash: string;
-  };
-}
-
-export interface SendETHSuccess extends VertexVisitSuccess {
-  result: {
-    hash: string;
-    value: ethers.BigNumber;
-  };
-}
-
-export type VertexVisitResultSuccess =
-  | ContractDeploySuccess
-  | DeployedContractSuccess
-  | LibraryDeploySuccess
-  | AwaitedEventSuccess
-  | ContractCallSuccess
-  | SendETHSuccess;
 
 export interface VertexVisitResultFailure {
   _kind: VertexResultEnum.FAILURE;
@@ -90,15 +35,15 @@ export interface VertexVisitResultHold {
   _kind: VertexResultEnum.HOLD;
 }
 
-export type VertexVisitResult =
-  | VertexVisitResultSuccess
+export type VertexVisitResult<T> =
+  | VertexVisitResultSuccess<T>
   | VertexVisitResultFailure
   | VertexVisitResultHold;
 
-export type VisitResult =
+export type VisitResult<T> =
   | {
       _kind: "success";
-      result: ResultsAccumulator;
+      result: ResultsAccumulator<T>;
     }
   | {
       _kind: "failure";
@@ -109,4 +54,4 @@ export type VisitResult =
       holds: VertexDescriptor[];
     };
 
-export type ResultsAccumulator = Map<number, VertexVisitResult | null>;
+export type ResultsAccumulator<T> = Map<number, VertexVisitResult<T> | null>;

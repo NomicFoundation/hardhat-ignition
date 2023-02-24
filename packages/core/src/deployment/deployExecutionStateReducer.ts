@@ -7,7 +7,8 @@ import type {
   VertexExecutionStatusCompleted,
   VertexExecutionStatusHold,
 } from "types/deployment";
-import { VertexResultEnum, VertexVisitResult } from "types/graph";
+import type { ExecutionVertexVisitResult } from "types/executionGraph";
+import { VertexResultEnum } from "types/graph";
 import { IgnitionError } from "utils/errors";
 
 import { assertNeverMessageType } from "./utils";
@@ -79,7 +80,9 @@ function updateExecutionStateWithNewBatch(
   };
 }
 
-function convertTo(vertexVisitResult: VertexVisitResult): VertexExecutionState {
+function convertTo(
+  vertexVisitResult: ExecutionVertexVisitResult
+): VertexExecutionState {
   switch (vertexVisitResult._kind) {
     case VertexResultEnum.SUCCESS:
       return {

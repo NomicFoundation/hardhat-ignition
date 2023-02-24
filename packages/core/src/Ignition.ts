@@ -9,12 +9,18 @@ import { NoopCommandJournal } from "journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "process/transformDeploymentGraphToExecutionGraph";
 import { Services } from "services/types";
-import { DeploymentResult, UpdateUiAction } from "types/deployment";
-import { ResultsAccumulator, VisitResult } from "types/graph";
-import { ICommandJournal } from "types/journal";
-import { Module, ModuleDict } from "types/module";
-import { IgnitionPlan } from "types/plan";
-import { ContractInfo, SerializedDeploymentResult } from "types/serialization";
+import type { DeploymentResult, UpdateUiAction } from "types/deployment";
+import type {
+  ExecutionResultsAccumulator,
+  ExecutionVisitResult,
+} from "types/executionGraph";
+import type { ICommandJournal } from "types/journal";
+import type { Module, ModuleDict } from "types/module";
+import type { IgnitionPlan } from "types/plan";
+import type {
+  ContractInfo,
+  SerializedDeploymentResult,
+} from "types/serialization";
 import { IgnitionError } from "utils/errors";
 import { resolveProxyValue } from "utils/proxy";
 import { validateDeploymentGraph } from "validation/validateDeploymentGraph";
@@ -198,7 +204,7 @@ export class Ignition {
   }
 
   private _buildOutputFrom<T extends ModuleDict>(
-    executionResult: VisitResult,
+    executionResult: ExecutionVisitResult,
     moduleOutputs: T
   ): DeploymentResult<T> {
     if (executionResult._kind === "failure") {
@@ -219,7 +225,7 @@ export class Ignition {
 
   private _serialize<T extends ModuleDict>(
     moduleOutputs: T,
-    result: ResultsAccumulator
+    result: ExecutionResultsAccumulator
   ): SerializedDeploymentResult<T> {
     const entries = Object.entries(moduleOutputs);
 

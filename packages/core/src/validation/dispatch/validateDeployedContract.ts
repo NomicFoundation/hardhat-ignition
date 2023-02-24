@@ -2,18 +2,18 @@ import { isAddress } from "@ethersproject/address";
 
 import { Services } from "services/types";
 import { DeployedContractDeploymentVertex } from "types/deploymentGraph";
+import { VertexResultEnum } from "types/graph";
 import {
-  ResultsAccumulator,
-  VertexResultEnum,
-  VertexVisitResult,
-} from "types/graph";
+  ValidationResultsAccumulator,
+  ValidationVertexVisitResult,
+} from "types/validation";
 import { IgnitionError } from "utils/errors";
 
 export async function validateDeployedContract(
   vertex: DeployedContractDeploymentVertex,
-  _resultAccumulator: ResultsAccumulator,
+  _resultAccumulator: ValidationResultsAccumulator,
   _context: { services: Services }
-): Promise<VertexVisitResult> {
+): Promise<ValidationVertexVisitResult> {
   if (typeof vertex.address === "string" && !isAddress(vertex.address)) {
     return {
       _kind: VertexResultEnum.FAILURE,

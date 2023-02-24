@@ -2,20 +2,20 @@ import { ethers } from "ethers";
 
 import { Services } from "services/types";
 import { HardhatLibraryDeploymentVertex } from "types/deploymentGraph";
+import { VertexResultEnum } from "types/graph";
 import {
-  ResultsAccumulator,
-  VertexResultEnum,
-  VertexVisitResult,
-} from "types/graph";
+  ValidationResultsAccumulator,
+  ValidationVertexVisitResult,
+} from "types/validation";
 import { IgnitionError, InvalidArtifactError } from "utils/errors";
 
 import { validateBytesForArtifact } from "./helpers";
 
 export async function validateHardhatLibrary(
   vertex: HardhatLibraryDeploymentVertex,
-  _resultAccumulator: ResultsAccumulator,
+  _resultAccumulator: ValidationResultsAccumulator,
   { services }: { services: Services }
-): Promise<VertexVisitResult> {
+): Promise<ValidationVertexVisitResult> {
   const invalidBytes = await validateBytesForArtifact(vertex.args, services);
 
   if (invalidBytes !== null) {

@@ -2,11 +2,11 @@ import { ethers, BigNumber } from "ethers";
 
 import { Services } from "services/types";
 import { CallDeploymentVertex } from "types/deploymentGraph";
+import { VertexResultEnum } from "types/graph";
 import {
-  ResultsAccumulator,
-  VertexResultEnum,
-  VertexVisitResult,
-} from "types/graph";
+  ValidationResultsAccumulator,
+  ValidationVertexVisitResult,
+} from "types/validation";
 import { IgnitionError, InvalidArtifactError } from "utils/errors";
 import { isParameter } from "utils/guards";
 
@@ -17,9 +17,9 @@ import {
 
 export async function validateCall(
   vertex: CallDeploymentVertex,
-  _resultAccumulator: ResultsAccumulator,
+  _resultAccumulator: ValidationResultsAccumulator,
   context: { services: Services }
-): Promise<VertexVisitResult> {
+): Promise<ValidationVertexVisitResult> {
   if (!BigNumber.isBigNumber(vertex.value) && !isParameter(vertex.value)) {
     return {
       _kind: VertexResultEnum.FAILURE,

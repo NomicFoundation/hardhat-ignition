@@ -1,21 +1,21 @@
 import { ContractFactory, ethers } from "ethers";
 
-import { ExecutionContext } from "types/deployment";
-import { LibraryDeploy } from "types/executionGraph";
-import {
-  ResultsAccumulator,
-  VertexVisitResult,
-  VertexResultEnum,
-} from "types/graph";
+import type { ExecutionContext } from "types/deployment";
+import type {
+  ExecutionResultsAccumulator,
+  ExecutionVertexVisitResult,
+  LibraryDeploy,
+} from "types/executionGraph";
+import { VertexResultEnum } from "types/graph";
 import { collectLibrariesAndLink } from "utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
 
 export async function executeLibraryDeploy(
   { artifact, args }: LibraryDeploy,
-  resultAccumulator: ResultsAccumulator,
+  resultAccumulator: ExecutionResultsAccumulator,
   { services, options }: ExecutionContext
-): Promise<VertexVisitResult> {
+): Promise<ExecutionVertexVisitResult> {
   let txHash: string;
   try {
     const resolvedArgs = args

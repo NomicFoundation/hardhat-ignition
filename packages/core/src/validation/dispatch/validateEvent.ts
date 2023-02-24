@@ -2,11 +2,11 @@ import { ethers } from "ethers";
 
 import { Services } from "services/types";
 import { EventVertex } from "types/deploymentGraph";
+import { VertexResultEnum } from "types/graph";
 import {
-  ResultsAccumulator,
-  VertexResultEnum,
-  VertexVisitResult,
-} from "types/graph";
+  ValidationResultsAccumulator,
+  ValidationVertexVisitResult,
+} from "types/validation";
 import { IgnitionError } from "utils/errors";
 
 import {
@@ -16,9 +16,9 @@ import {
 
 export async function validateEvent(
   vertex: EventVertex,
-  _resultAccumulator: ResultsAccumulator,
+  _resultAccumulator: ValidationResultsAccumulator,
   context: { services: Services }
-): Promise<VertexVisitResult> {
+): Promise<ValidationVertexVisitResult> {
   const invalidBytes = await validateBytesForArtifact(
     vertex.args,
     context.services

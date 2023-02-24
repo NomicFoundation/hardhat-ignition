@@ -1,18 +1,18 @@
 import { ethers, BigNumber } from "ethers";
 
 import { SendVertex } from "types/deploymentGraph";
+import { VertexResultEnum } from "types/graph";
 import {
-  ResultsAccumulator,
-  VertexResultEnum,
-  VertexVisitResult,
-} from "types/graph";
+  ValidationResultsAccumulator,
+  ValidationVertexVisitResult,
+} from "types/validation";
 import { IgnitionError } from "utils/errors";
 import { isParameter } from "utils/guards";
 
 export async function validateSendETH(
   vertex: SendVertex,
-  _resultAccumulator: ResultsAccumulator
-): Promise<VertexVisitResult> {
+  _resultAccumulator: ValidationResultsAccumulator
+): Promise<ValidationVertexVisitResult> {
   if (!BigNumber.isBigNumber(vertex.value) && !isParameter(vertex.value)) {
     return {
       _kind: VertexResultEnum.FAILURE,
