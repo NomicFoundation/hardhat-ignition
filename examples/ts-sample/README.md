@@ -1,6 +1,6 @@
 # Hardhat Sample for Ignition
 
-This hardhat project is a variant of Hardhat's javascript sample project.
+This hardhat project is a variant of Hardhat's typescript sample project.
 
 ## Deploying
 
