@@ -103,6 +103,6 @@ export async function validateEvent(
 
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }

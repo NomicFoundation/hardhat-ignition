@@ -25,6 +25,6 @@ export async function validateDeployedContract(
 
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }

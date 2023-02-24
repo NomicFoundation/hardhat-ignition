@@ -58,6 +58,6 @@ export async function validateArtifactContract(
 
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }

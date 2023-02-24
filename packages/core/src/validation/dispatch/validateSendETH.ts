@@ -32,6 +32,6 @@ export async function validateSendETH(
 
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }

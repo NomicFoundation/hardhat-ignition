@@ -13,6 +13,6 @@ export async function validateVirtual(
 ): Promise<ValidationVertexVisitResult> {
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }

@@ -95,6 +95,6 @@ export async function validateCall(
 
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }

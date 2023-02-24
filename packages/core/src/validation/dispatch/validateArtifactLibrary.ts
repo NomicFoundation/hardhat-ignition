@@ -53,6 +53,6 @@ export async function validateArtifactLibrary(
 
   return {
     _kind: VertexResultEnum.SUCCESS,
-    result: undefined as any,
+    result: undefined,
   };
 }
