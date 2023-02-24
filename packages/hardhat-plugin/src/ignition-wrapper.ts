@@ -8,6 +8,7 @@ import {
   createServices,
   ICommandJournal,
   IgnitionError,
+  SerializedDeploymentResult,
 } from "@ignored/ignition-core";
 import type { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -94,17 +95,7 @@ export class IgnitionWrapper {
       );
     }
 
-    const resolvedOutput: { [k: string]: Contract } = {};
-    for (const [key, contractInfo] of Object.entries(deploymentResult.result)) {
-      const { abi, address } = contractInfo;
-
-      const contract: any = await this._ethers.getContractAt(abi, address);
-      contract.abi = abi;
-
-      resolvedOutput[key] = contract as Contract;
-    }
-
-    return resolvedOutput as DeployResult<T>;
+    return this._toDeploymentResult(deploymentResult.result);
   }
 
   public async plan<T extends ModuleDict>(ignitionModule: Module<T>) {
@@ -113,5 +104,19 @@ export class IgnitionWrapper {
     });
 
     return ignition.plan(ignitionModule);
+  }
+
+  private async _toDeploymentResult<T extends ModuleDict>(
+    serializedDeploymentResult: SerializedDeploymentResult<T>
+  ): Promise<DeployResult<T>> {
+    const resolvedOutput: { [k: string]: Contract } = {};
+
+    for (const [key, { abi, address }] of Object.entries(
+      serializedDeploymentResult
+    )) {
+      resolvedOutput[key] = await this._ethers.getContractAt(abi, address);
+    }
+
+    return resolvedOutput as DeployResult<T>;
   }
 }
