@@ -147,9 +147,19 @@ export function isContract(
   return future.type === "contract";
 }
 
+export function isLibrary(
+  future: DeploymentGraphFuture
+): future is ContractFuture {
+  if (isProxy(future)) {
+    return isLibrary(future.value);
+  }
+
+  return future.type === "library";
+}
+
 export function assertModuleReturnTypes<T extends ModuleDict>(moduleResult: T) {
   for (const future of Object.values(moduleResult)) {
-    if (isContract(future)) {
+    if (isContract(future) || isLibrary(future)) {
       continue;
     }
 

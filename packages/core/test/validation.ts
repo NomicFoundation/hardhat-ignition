@@ -163,9 +163,9 @@ describe("Validation", () => {
   describe("artifact library deploy", () => {
     it("should validate a correct artifact library deploy", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
-        m.library("Example", exampleArtifact);
+        const example = m.library("Example", exampleArtifact);
 
-        return {};
+        return { example };
       });
 
       const { graph } = generateDeploymentGraphFrom(singleModule, {
@@ -186,11 +186,11 @@ describe("Validation", () => {
 
     it("should not validate a artifact library deploy with the wrong number of args", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
-        m.library("Example", exampleArtifact, {
+        const example = m.library("Example", exampleArtifact, {
           args: [1, 2, 3],
         });
 
-        return {};
+        return { example };
       });
 
       const { graph } = generateDeploymentGraphFrom(singleModule, {
@@ -223,11 +223,11 @@ describe("Validation", () => {
 
     it("should not validate a artifact library deploy with a non-existent bytes artifact arg", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
-        m.library("Example", exampleArtifact, {
+        const example = m.library("Example", exampleArtifact, {
           args: [1, 2, m.getBytesForArtifact("Nonexistant")],
         });
 
-        return {};
+        return { example };
       });
 
       const { graph } = generateDeploymentGraphFrom(singleModule, {
@@ -1104,9 +1104,9 @@ describe("Validation", () => {
   describe("hardhat library deploy", () => {
     it("should validate a correct deploy", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
-        m.library("Example");
+        const example = m.library("Example");
 
-        return {};
+        return { example };
       });
 
       const { graph } = generateDeploymentGraphFrom(singleModule, {
@@ -1131,9 +1131,9 @@ describe("Validation", () => {
 
     it("should not validate a library deploy on a non-existant hardhat library", async () => {
       const singleModule = buildModule("single", (m: IDeploymentBuilder) => {
-        m.library("Nonexistant");
+        const nonexistant = m.library("Nonexistant");
 
-        return {};
+        return { nonexistant };
       });
 
       const { graph } = generateDeploymentGraphFrom(singleModule, {

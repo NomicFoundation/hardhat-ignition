@@ -2,11 +2,16 @@ import type { ExternalParamValue, IDeploymentBuilder } from "./deploymentGraph";
 import type {
   ContractFuture,
   FutureDict,
+  LibraryFuture,
   ProxyFuture,
   Virtual,
 } from "./future";
 
-export type ModuleReturnValue = ContractFuture | Virtual | ProxyFuture;
+export type ModuleReturnValue =
+  | ContractFuture
+  | LibraryFuture
+  | Virtual
+  | ProxyFuture;
 
 export interface ModuleDict {
   [key: string]: ModuleReturnValue;

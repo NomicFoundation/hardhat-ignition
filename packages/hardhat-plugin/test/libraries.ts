@@ -18,7 +18,7 @@ describe("libraries", () => {
         },
       });
 
-      return { dependsOnLib };
+      return { rubbishMath, dependsOnLib };
     });
 
     assert.isDefined(result);
@@ -48,7 +48,7 @@ describe("libraries", () => {
         },
       });
 
-      return { dependsOnLib };
+      return { rubbishMath, dependsOnLib };
     });
 
     assert.isDefined(result);
