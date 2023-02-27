@@ -1,8 +1,18 @@
 import type { Services } from "services/types";
-import { InternalParamValue } from "types/deploymentGraph";
+import {
+  ArtifactContractDeploymentVertex,
+  ArtifactLibraryDeploymentVertex,
+  CallDeploymentVertex,
+  CallPoints,
+  DeployedContractDeploymentVertex,
+  EventVertex,
+  HardhatContractDeploymentVertex,
+  HardhatLibraryDeploymentVertex,
+  SendVertex,
+} from "types/deploymentGraph";
 import type { CallableFuture } from "types/future";
 import { VertexResultEnum, VertexVisitResultFailure } from "types/graph";
-import { IgnitionError, InvalidArtifactError } from "utils/errors";
+import { IgnitionError } from "utils/errors";
 import { isBytesArg } from "utils/guards";
 import { resolveProxyValue } from "utils/proxy";
 
@@ -52,11 +62,22 @@ export async function resolveArtifactForCallableFuture(
   }
 }
 
-export async function validateBytesForArtifact(
-  args: InternalParamValue[],
-  services: Services
-): Promise<VertexVisitResultFailure | null> {
-  const bytesArgs = args.filter(isBytesArg);
+export async function validateBytesForArtifact({
+  vertex,
+  callPoints,
+  services,
+}: {
+  vertex:
+    | ArtifactContractDeploymentVertex
+    | HardhatContractDeploymentVertex
+    | EventVertex
+    | CallDeploymentVertex
+    | ArtifactLibraryDeploymentVertex
+    | HardhatLibraryDeploymentVertex;
+  callPoints: CallPoints;
+  services: Services;
+}): Promise<VertexVisitResultFailure | null> {
+  const bytesArgs = vertex.args.filter(isBytesArg);
 
   const bytesExists = await Promise.all(
     bytesArgs.map((v) => services.artifacts.hasArtifact(v.label))
@@ -68,9 +89,33 @@ export async function validateBytesForArtifact(
     return null;
   }
 
+  return buildValidationError(
+    vertex,
+    `Artifact with name '${bytesArgs[bytesDoesNotExistIndex].label}' doesn't exist`,
+    callPoints
+  );
+}
+
+export function buildValidationError(
+  vertex:
+    | ArtifactContractDeploymentVertex
+    | HardhatContractDeploymentVertex
+    | EventVertex
+    | CallDeploymentVertex
+    | ArtifactLibraryDeploymentVertex
+    | HardhatLibraryDeploymentVertex
+    | DeployedContractDeploymentVertex
+    | SendVertex,
+  message: string,
+  callPoints: CallPoints
+): VertexVisitResultFailure {
+  const failure = callPoints[vertex.id] ?? new IgnitionError("-");
+
+  failure.message = message;
+
   return {
     _kind: VertexResultEnum.FAILURE,
-    failure: new InvalidArtifactError(bytesArgs[bytesDoesNotExistIndex].label),
+    failure,
   };
 }
 

@@ -1,15 +1,38 @@
 import { BigNumber } from "ethers";
 import { HardhatPluginError } from "hardhat/plugins";
 
-export class InvalidArtifactError extends HardhatPluginError {
-  constructor(name: string) {
-    super("ignition", `Artifact with name '${name}' doesn't exist`);
-  }
-}
-
 export class IgnitionError extends HardhatPluginError {
   constructor(message: string) {
     super("ignition", message);
+  }
+}
+
+export class IgnitionValidationError extends HardhatPluginError {
+  constructor(message: string) {
+    super("ignition", message);
+
+    // This is required to allow calls to `resetStackFrom`,
+    // otherwise the function is not available on the
+    // error instance
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  /**
+   * Reset the stack hiding parts that are bellow the given function.
+   * The intention is the function should be part of the user callable
+   * api, so that the stack leads directly to the line in the module
+   * the user called (i.e. `m.contract(...)`)
+   *
+   * This is a hack to workaround the stack manipulation
+   * that `HardhatPluginError` does.
+   *
+   * @param f the function to hide all of the stacktrace above
+   */
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  public resetStackFrom(f: Function) {
+    Error.captureStackTrace(this, f);
+    // @ts-ignore
+    this._stack = this.stack ?? "";
   }
 }
 
