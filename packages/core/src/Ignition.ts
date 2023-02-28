@@ -239,7 +239,8 @@ export class Ignition {
         executionResultValue === undefined ||
         executionResultValue === null ||
         executionResultValue._kind === "failure" ||
-        executionResultValue._kind === "hold"
+        executionResultValue._kind === "hold" ||
+        future.type !== "contract"
       ) {
         continue;
       }
