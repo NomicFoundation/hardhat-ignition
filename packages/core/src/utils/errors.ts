@@ -28,11 +28,13 @@ export class IgnitionValidationError extends HardhatPluginError {
    *
    * @param f the function to hide all of the stacktrace above
    */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  public resetStackFrom(f: Function) {
+  public resetStackFrom(f: () => any) {
     Error.captureStackTrace(this, f);
-    // @ts-ignore
-    this._stack = this.stack ?? "";
+
+    // the base custom error from HH stores off the stack
+    // it uses to `_stack`, so we need to override this
+    // as well ... even though it is private.
+    (this as any)._stack = this.stack ?? "";
   }
 }
 

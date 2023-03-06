@@ -58,6 +58,15 @@ import { resolveProxyDependency } from "utils/proxy";
 import { DeploymentGraph } from "./DeploymentGraph";
 import { ScopeStack } from "./ScopeStack";
 
+type DeploymentApiPublicFunctions =
+  | InstanceType<typeof DeploymentBuilder>["contract"]
+  | InstanceType<typeof DeploymentBuilder>["library"]
+  | InstanceType<typeof DeploymentBuilder>["contractAt"]
+  | InstanceType<typeof DeploymentBuilder>["call"]
+  | InstanceType<typeof DeploymentBuilder>["event"]
+  | InstanceType<typeof DeploymentBuilder>["sendETH"]
+  | InstanceType<typeof DeploymentBuilder>["useModule"];
+
 const DEFAULT_VALUE = ethers.utils.parseUnits("0");
 
 function parseEventParams(
@@ -575,20 +584,18 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
   private static _captureCallPoint(
     callPoints: CallPoints,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    f: Function,
+    f: DeploymentApiPublicFunctions,
     vertexId: number
   ) {
     const potentialValidationError = new IgnitionValidationError("");
-    potentialValidationError.resetStackFrom(f);
+    potentialValidationError.resetStackFrom(f as any);
     callPoints[vertexId] = potentialValidationError;
   }
 
   private static _addVertex(
     graph: DeploymentGraph,
     callPoints: CallPoints,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    f: Function,
+    f: DeploymentApiPublicFunctions,
     depNode: DeploymentGraphVertex
   ) {
     DeploymentBuilder._captureCallPoint(callPoints, f, depNode.id);
