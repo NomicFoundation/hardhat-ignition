@@ -1,14 +1,8 @@
 import type { Services } from "services/types";
 import {
-  ArtifactContractDeploymentVertex,
-  ArtifactLibraryDeploymentVertex,
-  CallDeploymentVertex,
   CallPoints,
-  DeployedContractDeploymentVertex,
-  EventVertex,
-  HardhatContractDeploymentVertex,
-  HardhatLibraryDeploymentVertex,
-  SendVertex,
+  DeploymentGraphVertex,
+  InternalParamValue,
 } from "types/deploymentGraph";
 import type { CallableFuture } from "types/future";
 import { VertexResultEnum, VertexVisitResultFailure } from "types/graph";
@@ -67,13 +61,7 @@ export async function validateBytesForArtifact({
   callPoints,
   services,
 }: {
-  vertex:
-    | ArtifactContractDeploymentVertex
-    | HardhatContractDeploymentVertex
-    | EventVertex
-    | CallDeploymentVertex
-    | ArtifactLibraryDeploymentVertex
-    | HardhatLibraryDeploymentVertex;
+  vertex: DeploymentGraphVertex & { args: InternalParamValue[] };
   callPoints: CallPoints;
   services: Services;
 }): Promise<VertexVisitResultFailure | null> {
@@ -97,15 +85,7 @@ export async function validateBytesForArtifact({
 }
 
 export function buildValidationError(
-  vertex:
-    | ArtifactContractDeploymentVertex
-    | HardhatContractDeploymentVertex
-    | EventVertex
-    | CallDeploymentVertex
-    | ArtifactLibraryDeploymentVertex
-    | HardhatLibraryDeploymentVertex
-    | DeployedContractDeploymentVertex
-    | SendVertex,
+  vertex: DeploymentGraphVertex,
   message: string,
   callPoints: CallPoints
 ): VertexVisitResultFailure {
