@@ -10,7 +10,7 @@ import type {
   ArtifactLibraryDeploymentVertex,
   EventVertex,
   InternalParamValue,
-} from "types/deploymentGraph";
+} from "../types/deploymentGraph";
 import type {
   CallableFuture,
   DependableFuture,
@@ -22,9 +22,9 @@ import type {
   BytesFuture,
   EventParamFuture,
   ContractFuture,
-} from "types/future";
-import { Artifact } from "types/hardhat";
-import { ModuleDict } from "types/module";
+} from "../types/future";
+import { Artifact } from "../types/hardhat";
+import { ModuleDict } from "../types/module";
 
 import { IgnitionError } from "./errors";
 

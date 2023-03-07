@@ -1,12 +1,12 @@
 /* eslint-disable import/no-unused-modules */
 import { assert } from "chai";
 
-import { buildModule } from "dsl/buildModule";
-import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
+import { buildModule } from "../../src/dsl/buildModule";
+import { generateDeploymentGraphFrom } from "../../src/process/generateDeploymentGraphFrom";
 import type {
   IDeploymentGraph,
   IDeploymentBuilder,
-} from "types/deploymentGraph";
+} from "../../src/types/deploymentGraph";
 import {
   ArtifactContract,
   CallableFuture,
@@ -14,8 +14,8 @@ import {
   HardhatContract,
   ProxyFuture,
   Virtual,
-} from "types/future";
-import { Module } from "types/module";
+} from "../../src/types/future";
+import { Module } from "../../src/types/module";
 
 import {
   getDependenciesForVertex,

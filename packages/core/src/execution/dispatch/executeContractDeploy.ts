@@ -1,13 +1,13 @@
 import { ContractFactory, ethers } from "ethers";
 
-import type { ExecutionContext } from "types/deployment";
+import type { ExecutionContext } from "../../types/deployment";
 import type {
   ContractDeploy,
   ExecutionResultsAccumulator,
   ExecutionVertexVisitResult,
-} from "types/executionGraph";
-import { VertexResultEnum } from "types/graph";
-import { collectLibrariesAndLink } from "utils/collectLibrariesAndLink";
+} from "../../types/executionGraph";
+import { VertexResultEnum } from "../../types/graph";
+import { collectLibrariesAndLink } from "../../utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
 

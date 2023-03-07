@@ -5,7 +5,6 @@
     "composite": true,
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "src",
     "jsx": "react-jsx",
     "lib": ["es2021", "DOM", "DOM.Iterable"],
     "skipLibCheck": true

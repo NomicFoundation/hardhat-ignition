@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 
-import { Services } from "services/types";
+import { Services } from "../../services/types";
 import {
   ArtifactContractDeploymentVertex,
   ArtifactLibraryDeploymentVertex,
@@ -13,7 +13,7 @@ import {
   ExternalParamValue,
   EventVertex,
   SendVertex,
-} from "types/deploymentGraph";
+} from "../../types/deploymentGraph";
 import {
   AwaitedEvent,
   ContractCall,
@@ -22,15 +22,15 @@ import {
   ExecutionVertex,
   LibraryDeploy,
   SentETH,
-} from "types/executionGraph";
+} from "../../types/executionGraph";
 import {
   BytesFuture,
   DeploymentGraphFuture,
   EventParamFuture,
-} from "types/future";
-import { Artifact } from "types/hardhat";
-import { IgnitionError } from "utils/errors";
-import { isBytesArg, isFuture } from "utils/guards";
+} from "../../types/future";
+import { Artifact } from "../../types/hardhat";
+import { IgnitionError } from "../../utils/errors";
+import { isBytesArg, isFuture } from "../../utils/guards";
 
 interface TransformContext {
   services: Services;

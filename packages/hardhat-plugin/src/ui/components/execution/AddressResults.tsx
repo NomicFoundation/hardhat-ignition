@@ -1,7 +1,7 @@
 import { DeployState, viewExecutionResults } from "@ignored/ignition-core";
 import { Box, Spacer, Text } from "ink";
 
-import { AddressMap } from "ui/types";
+import { AddressMap } from "../../types";
 
 import { NetworkInfo } from "./NetworkInfo";
 

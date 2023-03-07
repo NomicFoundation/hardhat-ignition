@@ -1,6 +1,6 @@
 import type { ethers } from "ethers";
 
-import type { Providers } from "types/providers";
+import type { Providers } from "../types/providers";
 
 export interface IAccountsService {
   getAccounts(): Promise<string[]>;

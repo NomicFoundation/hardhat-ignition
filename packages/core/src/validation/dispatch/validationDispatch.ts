@@ -1,10 +1,10 @@
-import { DeploymentGraphVertex } from "types/deploymentGraph";
+import { DeploymentGraphVertex } from "../../types/deploymentGraph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
-} from "types/validation";
-import { assertUnknownDeploymentVertexType } from "utils/guards";
+} from "../../types/validation";
+import { assertUnknownDeploymentVertexType } from "../../utils/guards";
 
 import { validateArtifactContract } from "./validateArtifactContract";
 import { validateArtifactLibrary } from "./validateArtifactLibrary";

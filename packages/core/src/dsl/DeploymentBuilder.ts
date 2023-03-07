@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import hash from "object-hash";
 
-import { addEdge, ensureVertex } from "graph/adjacencyList";
+import { addEdge, ensureVertex } from "../graph/adjacencyList";
 import {
   CallOptions,
   ContractOptions,
@@ -15,7 +15,7 @@ import {
   AwaitOptions,
   SendOptions,
   CallPoints,
-} from "types/deploymentGraph";
+} from "../types/deploymentGraph";
 import type {
   DeploymentGraphFuture,
   HardhatContract,
@@ -40,10 +40,10 @@ import type {
   SendFuture,
   ContractFuture,
   AddressResolvable,
-} from "types/future";
-import type { Artifact } from "types/hardhat";
-import type { ModuleCache, ModuleDict, Subgraph } from "types/module";
-import { IgnitionError, IgnitionValidationError } from "utils/errors";
+} from "../types/future";
+import type { Artifact } from "../types/hardhat";
+import type { ModuleCache, ModuleDict, Subgraph } from "../types/module";
+import { IgnitionError, IgnitionValidationError } from "../utils/errors";
 import {
   assertModuleReturnTypes,
   assertUnknownDeploymentVertexType,
@@ -52,8 +52,8 @@ import {
   isContract,
   isDependable,
   isParameter,
-} from "utils/guards";
-import { resolveProxyDependency } from "utils/proxy";
+} from "../utils/guards";
+import { resolveProxyDependency } from "../utils/proxy";
 
 import { DeploymentGraph } from "./DeploymentGraph";
 import { ScopeStack } from "./ScopeStack";

@@ -1,10 +1,10 @@
-import type { ExecutionContext } from "types/deployment";
+import type { ExecutionContext } from "../../types/deployment";
 import type {
   ExecutionResultsAccumulator,
   ExecutionVertex,
   ExecutionVertexVisitResult,
-} from "types/executionGraph";
-import { IgnitionError } from "utils/errors";
+} from "../../types/executionGraph";
+import { IgnitionError } from "../../utils/errors";
 
 import { executeAwaitedEvent } from "./executeAwaitedEvent";
 import { executeContractCall } from "./executeContractCall";

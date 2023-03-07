@@ -1,8 +1,11 @@
 import type { PopulatedTransaction } from "ethers";
 
-import type { ExecutionContext } from "types/deployment";
-import type { ExecutionVertexVisitResult, SentETH } from "types/executionGraph";
-import { VertexResultEnum } from "types/graph";
+import type { ExecutionContext } from "../../types/deployment";
+import type {
+  ExecutionVertexVisitResult,
+  SentETH,
+} from "../../types/executionGraph";
+import { VertexResultEnum } from "../../types/graph";
 
 import { resolveFrom, toAddress } from "./utils";
 

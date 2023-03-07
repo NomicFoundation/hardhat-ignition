@@ -2,17 +2,16 @@
 import { assert } from "chai";
 import { BigNumber } from "ethers";
 
-import { Deployment } from "deployment/Deployment";
-import { ExecutionGraph } from "execution/ExecutionGraph";
-import { executeInBatches } from "execution/execute";
+import { Deployment } from "../../src/deployment/Deployment";
+import { ExecutionGraph } from "../../src/execution/ExecutionGraph";
+import { executeInBatches } from "../../src/execution/execute";
 import type {
   ContractDeploy,
   ExecutionVertex,
   ExecutionVertexVisitResult,
-} from "types/executionGraph";
-import { VertexResultEnum } from "types/graph";
-import { ICommandJournal } from "types/journal";
-
+} from "../../src/types/executionGraph";
+import { VertexResultEnum } from "../../src/types/graph";
+import { ICommandJournal } from "../../src/types/journal";
 import { buildAdjacencyListFrom } from "../graph/helpers";
 
 describe("Execution - batching", () => {

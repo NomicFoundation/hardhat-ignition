@@ -4,10 +4,10 @@ import { assert } from "chai";
 import {
   deployStateReducer,
   initializeDeployState,
-} from "deployment/deployStateReducer";
-import { buildModule } from "dsl/buildModule";
-import { DeployState } from "types/deployment";
-import { VertexResultEnum } from "types/graph";
+} from "../../src/deployment/deployStateReducer";
+import { buildModule } from "../../src/dsl/buildModule";
+import { DeployState } from "../../src/types/deployment";
+import { VertexResultEnum } from "../../src/types/graph";
 
 import { applyActions, resolveExecutionGraphFor } from "./utils";
 

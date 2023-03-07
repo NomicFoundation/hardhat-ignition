@@ -2,12 +2,12 @@ import type {
   DeployState,
   DeployStateCommand,
   DeployStateExecutionCommand,
-} from "types/deployment";
+} from "../types/deployment";
 import type {
   ExecutionResultsAccumulator,
   ExecutionVertexVisitResult,
-} from "types/executionGraph";
-import { IgnitionError } from "utils/errors";
+} from "../types/executionGraph";
+import { IgnitionError } from "../utils/errors";
 
 export function isDeployStateExecutionCommand(
   command: DeployStateCommand

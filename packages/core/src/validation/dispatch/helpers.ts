@@ -1,14 +1,14 @@
-import type { Services } from "services/types";
+import type { Services } from "../../services/types";
 import {
   CallPoints,
   DeploymentGraphVertex,
   InternalParamValue,
-} from "types/deploymentGraph";
-import type { CallableFuture } from "types/future";
-import { VertexResultEnum, VertexVisitResultFailure } from "types/graph";
-import { IgnitionError } from "utils/errors";
-import { isBytesArg } from "utils/guards";
-import { resolveProxyValue } from "utils/proxy";
+} from "../../types/deploymentGraph";
+import type { CallableFuture } from "../../types/future";
+import { VertexResultEnum, VertexVisitResultFailure } from "../../types/graph";
+import { IgnitionError } from "../../utils/errors";
+import { isBytesArg } from "../../utils/guards";
+import { resolveProxyValue } from "../../utils/proxy";
 
 export async function resolveArtifactForCallableFuture(
   givenFuture: CallableFuture,

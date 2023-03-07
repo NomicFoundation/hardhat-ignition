@@ -5,8 +5,8 @@ import { ethers } from "ethers";
 import {
   ContractsService,
   ContractsServiceProviders,
-} from "services/ContractsService";
-import type { TxSender } from "utils/tx-sender";
+} from "../src/services/ContractsService";
+import type { TxSender } from "../src/utils/tx-sender";
 
 const txSender: TxSender = {
   async send(..._) {

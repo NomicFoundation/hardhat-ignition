@@ -3,12 +3,11 @@
 import { assert } from "chai";
 import { ethers } from "ethers";
 
-import { buildModule } from "dsl/buildModule";
-import { TransactionsService } from "services/TransactionsService";
-import { Artifact } from "types/hardhat";
-import { Providers } from "types/providers";
-
 import { Ignition } from "../../src/Ignition";
+import { buildModule } from "../../src/dsl/buildModule";
+import { TransactionsService } from "../../src/services/TransactionsService";
+import { Artifact } from "../../src/types/hardhat";
+import { Providers } from "../../src/types/providers";
 import { getMockServices } from "../helpers";
 import { MemoryCommandJournal } from "../util/MemoryCommandJournal";
 

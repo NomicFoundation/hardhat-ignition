@@ -6,7 +6,7 @@ import {
 } from "@ignored/ignition-core";
 import { Box, Text } from "ink";
 
-import { DeploymentError, DeploymentHold } from "ui/types";
+import { DeploymentError, DeploymentHold } from "../../types";
 
 import { AddressResults } from "./AddressResults";
 import { Divider } from "./Divider";

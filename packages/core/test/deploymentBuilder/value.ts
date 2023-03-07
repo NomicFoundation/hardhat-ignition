@@ -2,14 +2,18 @@
 import { assert } from "chai";
 import { ethers } from "ethers";
 
-import { buildModule } from "dsl/buildModule";
-import { generateDeploymentGraphFrom } from "process/generateDeploymentGraphFrom";
+import { buildModule } from "../../src/dsl/buildModule";
+import { generateDeploymentGraphFrom } from "../../src/process/generateDeploymentGraphFrom";
 import type {
   IDeploymentGraph,
   IDeploymentBuilder,
-} from "types/deploymentGraph";
-import type { Artifact } from "types/hardhat";
-import { isArtifactContract, isHardhatContract, isCall } from "utils/guards";
+} from "../../src/types/deploymentGraph";
+import type { Artifact } from "../../src/types/hardhat";
+import {
+  isArtifactContract,
+  isHardhatContract,
+  isCall,
+} from "../../src/utils/guards";
 
 import { getDeploymentVertexByLabel } from "./helpers";
 

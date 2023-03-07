@@ -1,10 +1,10 @@
 import setupDebug from "debug";
 import { ethers } from "ethers";
 
-import { GasProvider, TransactionsProvider } from "types/providers";
-import { IgnitionError } from "utils/errors";
-import { sleep } from "utils/sleep";
-import { TxSender } from "utils/tx-sender";
+import { GasProvider, TransactionsProvider } from "../types/providers";
+import { IgnitionError } from "../utils/errors";
+import { sleep } from "../utils/sleep";
+import { TxSender } from "../utils/tx-sender";
 
 import type { TransactionOptions } from "./types";
 

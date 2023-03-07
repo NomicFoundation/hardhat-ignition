@@ -4,10 +4,10 @@ import { assert } from "chai";
 import {
   deployStateReducer,
   initializeDeployState,
-} from "deployment/deployStateReducer";
-import { buildModule } from "dsl/buildModule";
-import { DeployState } from "types/deployment";
-import { IExecutionGraph } from "types/executionGraph";
+} from "../../src/deployment/deployStateReducer";
+import { buildModule } from "../../src/dsl/buildModule";
+import { DeployState } from "../../src/types/deployment";
+import { IExecutionGraph } from "../../src/types/executionGraph";
 
 import { applyActions, resolveExecutionGraphFor } from "./utils";
 

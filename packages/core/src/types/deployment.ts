@@ -1,6 +1,6 @@
 import type { BigNumber } from "ethers";
 
-import type { Services } from "services/types";
+import type { Services } from "../services/types";
 
 import type {
   ExecutionVertex,
