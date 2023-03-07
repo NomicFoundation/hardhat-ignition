@@ -123,7 +123,10 @@ describe("deployment state reducer", () => {
       });
 
       it("should set the execution graph", () => {
-        assert.isDefined(state.transform.executionGraph);
+        if (state.transform.executionGraph === null) {
+          assert.fail();
+        }
+
         assert.equal(state.transform.executionGraph.vertexes.size, 1);
       });
     });

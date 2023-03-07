@@ -19,6 +19,25 @@ const txSender: TxSender = {
 } as TxSender;
 
 const providersFake = {
+  signersProvider: {
+    async getDefaultSigner() {
+      return {
+        async sendTransaction(_: {}) {
+          return {
+            hash: "",
+            blockHash: "",
+            blockNumber: 0,
+            nonce: 0,
+            gasLimit: 100,
+            confirmations: 0,
+            chainId: 0,
+            data: "",
+            from: "",
+          } as unknown as ethers.providers.TransactionResponse;
+        },
+      };
+    },
+  },
   web3Provider: {
     n: 0,
     async getBlockNumber() {
@@ -35,15 +54,15 @@ const providersFake = {
     },
   },
   transactionsProvider: {
-    async isConfirmed(_) {
+    async isConfirmed(_: {}) {
       return false;
     },
-    async isMined(_) {
+    async isMined(_: {}) {
       return false;
     },
   },
   gasProvider: {
-    async estimateGasLimit(_) {
+    async estimateGasLimit(_: {}) {
       return ethers.BigNumber.from(0);
     },
     async estimateGasPrice() {

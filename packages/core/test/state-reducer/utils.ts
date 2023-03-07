@@ -1,3 +1,5 @@
+import { ethers } from "ethers";
+
 import { deployStateReducer } from "../../src/deployment/deployStateReducer";
 import { generateDeploymentGraphFrom } from "../../src/process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "../../src/process/transformDeploymentGraphToExecutionGraph";

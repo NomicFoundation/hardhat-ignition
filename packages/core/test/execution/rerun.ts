@@ -70,7 +70,7 @@ describe("Rerunning execution", () => {
             getArtifact: () => tokenArtifact,
           },
           transactions: {
-            wait: (tx) => {
+            wait: (tx: string) => {
               sentTransactionCount++;
 
               if (tx === "0x00001") {
@@ -204,7 +204,7 @@ describe("Rerunning execution", () => {
             getArtifact: () => tokenArtifact,
           },
           transactions: {
-            wait: (tx) => {
+            wait: (tx: string) => {
               sentTransactionCount++;
 
               if (tx === "0x00001") {
@@ -324,7 +324,7 @@ describe("Rerunning execution", () => {
   });
 
   describe("when a deployment fails", () => {
-    let sentTransactionCount;
+    let sentTransactionCount: number;
     let ignition: Ignition;
     let myModule: any;
 
@@ -357,11 +357,11 @@ describe("Rerunning execution", () => {
                   configureCallErroredBefore = true;
                   throw new Error("Revert: All the apes have gone!");
                 } else {
-                  return `0x0000${this.contractCount}`;
+                  return `0x0000${this.transactionCount}`;
                 }
               }
 
-              return `0x0000${this.contractCount}`;
+              return `0x0000${this.transactionCount}`;
             },
           },
           transactions: {

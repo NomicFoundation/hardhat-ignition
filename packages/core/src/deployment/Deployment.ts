@@ -89,10 +89,13 @@ export class Deployment {
   }
 
   public setForceFlag(force: boolean) {
-    return this._runDeploymentCommand(`Force resolved as '${force}'`, {
-      type: "SET_FORCE_FLAG",
-      force,
-    });
+    return this._runDeploymentCommand(
+      `Force resolved as '${force.toString()}'`,
+      {
+        type: "SET_FORCE_FLAG",
+        force,
+      }
+    );
   }
 
   public startValidation() {

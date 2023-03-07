@@ -3,14 +3,13 @@ import type {
   IDeploymentGraph,
   IDeploymentBuilder,
 } from "../../src/types/deploymentGraph";
-
 import { assert } from "chai";
 import { ethers } from "ethers";
 
-import { getDeploymentVertexByLabel } from "./helpers";
 import { buildModule } from "../../src/dsl/buildModule";
 import { generateDeploymentGraphFrom } from "../../src/process/generateDeploymentGraphFrom";
 import { isCall, isHardhatContract } from "../../src/utils/guards";
+import { getDeploymentVertexByLabel } from "./helpers";
 
 describe("deployment builder - accounts", () => {
   let deploymentGraph: IDeploymentGraph;
@@ -46,7 +45,7 @@ describe("deployment builder - accounts", () => {
     const depNode = getDeploymentVertexByLabel(deploymentGraph, "Token");
 
     if (depNode === undefined) {
-      assert.fail("depNode not returned");
+      return assert.fail("depNode not retrieved");
     }
 
     if (!isHardhatContract(depNode)) {
@@ -60,7 +59,7 @@ describe("deployment builder - accounts", () => {
     const depNode = getDeploymentVertexByLabel(deploymentGraph, "Exchange");
 
     if (depNode === undefined) {
-      assert.fail("depNode not returned");
+      return assert.fail("depNode not retrieved");
     }
 
     if (!isHardhatContract(depNode)) {
@@ -77,7 +76,7 @@ describe("deployment builder - accounts", () => {
     );
 
     if (depNode === undefined) {
-      assert.fail("depNode not returned");
+      return assert.fail("depNode not retrieved");
     }
 
     if (!isCall(depNode)) {

@@ -481,7 +481,7 @@ async function runExecuteOnDependentVertex(
   vertexes: ExecutionVertex[],
   mockServices: Services
 ) {
-  const obj = {};
+  const obj: { [key: number]: number[] } = {};
   const len = vertexes.length;
   for (let i = 0; i < len; i++) {
     obj[i] = i === len - 1 ? [] : [i + 1];
