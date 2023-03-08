@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.10",
   "scripts": {
-    "test:examples": "hardhat test",
+    "test": "hardhat test",
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix",
     "eslint": "eslint \"ignition/**/*.{js,jsx,ts,tsx}\" \"test/**/*.{js,jsx,ts,tsx}\"",
