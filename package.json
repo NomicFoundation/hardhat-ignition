@@ -12,9 +12,9 @@
   "scripts": {
     "build": "npm run build -w packages/core -w packages/hardhat-plugin",
     "lint": "npm run lint --workspaces",
-    "postlint": "prettier --check ./docs/*.md ./config/eslint/.eslintrc.js",
+    "postlint": "prettier --check *.{md,json} ./docs/*.md ./config/**/*.{js,json}",
     "lint:fix": "npm run lint:fix --workspaces",
-    "postlint:fix": "prettier --write ./docs/*.md ./config/eslint/.eslintrc.js",
+    "postlint:fix": "prettier --write *.{md,json} ./docs/*.md ./config/**/*.{js,json}",
     "test": "npm run test -w packages/core -w packages/hardhat-plugin",
     "test:coverage": "npm run test:coverage -w packages/core -w packages/hardhat-plugin",
     "test:examples": "npm run test:examples --workspaces --if-present",

@@ -25,7 +25,7 @@
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix",
     "eslint": "eslint \"src/**/*.{ts,tsx}\" \"test/**/*.{ts,tsx}\"",
-    "prettier": "prettier \"**/*.{js,md,json}\"",
+    "prettier": "prettier \"**/*.{js,ts,md,json}\"",
     "test": "mocha --recursive \"test/**/*.ts\"",
     "test:debug": "DEBUG='hardhat-ignition:*,ignition:*' npm run test",
     "test:coverage": "nyc mocha \"test/**/*.ts\"",
