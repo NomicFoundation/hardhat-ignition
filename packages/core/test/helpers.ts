@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 
+import { IAccountsService } from "../src/services/AccountsService";
 import { IArtifactsService } from "../src/services/ArtifactsService";
 import { IConfigService } from "../src/services/ConfigService";
 import { IContractsService } from "../src/services/ContractsService";

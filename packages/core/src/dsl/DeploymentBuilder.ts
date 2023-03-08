@@ -1,21 +1,3 @@
-import { BigNumber, ethers } from "ethers";
-import hash from "object-hash";
-
-import { addEdge, ensureVertex } from "../graph/adjacencyList";
-import {
-  CallOptions,
-  ContractOptions,
-  InternalParamValue,
-  IDeploymentGraph,
-  IDeploymentBuilder,
-  DeploymentBuilderOptions,
-  DeploymentGraphVertex,
-  UseSubgraphOptions,
-  ScopeData,
-  AwaitOptions,
-  SendOptions,
-  CallPoints,
-} from "../types/deploymentGraph";
 import type {
   DeploymentGraphFuture,
   HardhatContract,
@@ -43,6 +25,25 @@ import type {
 } from "../types/future";
 import type { Artifact } from "../types/hardhat";
 import type { ModuleCache, ModuleDict, Subgraph } from "../types/module";
+
+import { BigNumber, ethers } from "ethers";
+import hash from "object-hash";
+
+import { addEdge, ensureVertex } from "../graph/adjacencyList";
+import {
+  CallOptions,
+  ContractOptions,
+  InternalParamValue,
+  IDeploymentGraph,
+  IDeploymentBuilder,
+  DeploymentBuilderOptions,
+  DeploymentGraphVertex,
+  UseSubgraphOptions,
+  ScopeData,
+  AwaitOptions,
+  SendOptions,
+  CallPoints,
+} from "../types/deploymentGraph";
 import { IgnitionError, IgnitionValidationError } from "../utils/errors";
 import {
   assertModuleReturnTypes,
@@ -77,7 +78,7 @@ function parseEventParams(
 
   const abiEvent = abi.find((v) => v.type === "event" && v.name === eventName);
 
-  if (!abiEvent) {
+  if (abiEvent === undefined) {
     return {};
   }
 

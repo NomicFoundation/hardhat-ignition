@@ -462,7 +462,7 @@ async function runExecuteOnSingleVertex(
   const mockUpdateUiAction = () => {};
   const mockJournal: ICommandJournal = {
     record: async () => {},
-    read: () => null,
+    async *read() {},
   };
 
   const deployment = new Deployment(
@@ -497,7 +497,7 @@ async function runExecuteOnDependentVertex(
   const mockUpdateUiAction = () => {};
   const mockJournal: ICommandJournal = {
     record: async () => {},
-    read: () => null,
+    async *read() {},
   };
 
   const deployment = new Deployment(

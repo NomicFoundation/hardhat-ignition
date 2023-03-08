@@ -1,4 +1,6 @@
 /* eslint-disable import/no-unused-modules */
+import type { TxSender } from "../src/utils/tx-sender";
+
 import { assert } from "chai";
 import { ethers } from "ethers";
 
@@ -6,7 +8,6 @@ import {
   ContractsService,
   ContractsServiceProviders,
 } from "../src/services/ContractsService";
-import type { TxSender } from "../src/utils/tx-sender";
 
 const txSender: TxSender = {
   async send(..._) {

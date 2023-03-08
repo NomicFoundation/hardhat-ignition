@@ -1,5 +1,3 @@
-import { BigNumber } from "ethers";
-
 import type {
   DeploymentGraphVertex,
   HardhatContractDeploymentVertex,
@@ -23,6 +21,9 @@ import type {
   EventParamFuture,
   ContractFuture,
 } from "../types/future";
+
+import { BigNumber } from "ethers";
+
 import { Artifact } from "../types/hardhat";
 import { ModuleDict } from "../types/module";
 

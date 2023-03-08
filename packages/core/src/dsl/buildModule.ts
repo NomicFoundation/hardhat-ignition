@@ -1,5 +1,6 @@
 import type { IDeploymentBuilder } from "../types/deploymentGraph";
 import type { Module, ModuleDict } from "../types/module";
+
 import { assertStringParam, assertFunctionParam } from "../utils/errors";
 
 export function buildModule<T extends ModuleDict>(

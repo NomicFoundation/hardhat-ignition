@@ -7,6 +7,7 @@ import type {
   ExecutionResultsAccumulator,
   ExecutionVertexVisitResult,
 } from "../types/executionGraph";
+
 import { IgnitionError } from "../utils/errors";
 
 export function isDeployStateExecutionCommand(
@@ -20,7 +21,7 @@ export function isDeployStateExecutionCommand(
 }
 
 export function assertNeverMessageType(action: never) {
-  throw new IgnitionError(`Unexpected message type ${action}`);
+  throw new IgnitionError(`Unexpected message type ${action as any}`);
 }
 
 export function viewExecutionResults(

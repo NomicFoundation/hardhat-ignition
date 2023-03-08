@@ -1,15 +1,16 @@
 /* eslint-disable import/no-unused-modules */
+import type {
+  ContractDeploy,
+  ExecutionVertex,
+  ExecutionVertexVisitResult,
+} from "../../src/types/executionGraph";
+
 import { assert } from "chai";
 import { BigNumber } from "ethers";
 
 import { Deployment } from "../../src/deployment/Deployment";
 import { ExecutionGraph } from "../../src/execution/ExecutionGraph";
 import { executeInBatches } from "../../src/execution/execute";
-import type {
-  ContractDeploy,
-  ExecutionVertex,
-  ExecutionVertexVisitResult,
-} from "../../src/types/executionGraph";
 import { VertexResultEnum } from "../../src/types/graph";
 import { ICommandJournal } from "../../src/types/journal";
 import { buildAdjacencyListFrom } from "../graph/helpers";
@@ -37,7 +38,7 @@ describe("Execution - batching", () => {
     const mockServices = {} as any;
     const mockJournal: ICommandJournal = {
       record: async () => {},
-      read: () => null,
+      async *read() {},
     };
     const mockUpdateUiAction = () => {};
 

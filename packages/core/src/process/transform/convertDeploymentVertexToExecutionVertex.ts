@@ -324,5 +324,5 @@ async function resolveBytesForArtifact(
 }
 
 function assertNeverParamResult(hasParamResult: never) {
-  throw new IgnitionError(`Unexpected error code ${hasParamResult}`);
+  throw new IgnitionError(`Unexpected error code ${hasParamResult as any}`);
 }

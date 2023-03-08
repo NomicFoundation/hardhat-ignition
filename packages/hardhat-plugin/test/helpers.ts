@@ -218,5 +218,5 @@ export async function deployModule(
 }
 
 function assertNeverFutureResult(expectedFutureResult: never) {
-  throw new Error(`Unexpected future result ${expectedFutureResult}`);
+  throw new Error(`Unexpected future result ${expectedFutureResult as any}`);
 }

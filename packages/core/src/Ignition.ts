@@ -1,14 +1,3 @@
-import setupDebug from "debug";
-import { BigNumber } from "ethers";
-
-import { Deployment } from "./deployment/Deployment";
-import { execute } from "./execution/execute";
-import { loadJournalInto } from "./execution/loadJournalInto";
-import { hashExecutionGraph } from "./execution/utils";
-import { NoopCommandJournal } from "./journal/NoopCommandJournal";
-import { generateDeploymentGraphFrom } from "./process/generateDeploymentGraphFrom";
-import { transformDeploymentGraphToExecutionGraph } from "./process/transformDeploymentGraphToExecutionGraph";
-import { Services } from "./services/types";
 import type { DeploymentResult, UpdateUiAction } from "./types/deployment";
 import type {
   ExecutionResultsAccumulator,
@@ -21,6 +10,18 @@ import type {
   ContractInfo,
   SerializedDeploymentResult,
 } from "./types/serialization";
+
+import setupDebug from "debug";
+import { BigNumber } from "ethers";
+
+import { Deployment } from "./deployment/Deployment";
+import { execute } from "./execution/execute";
+import { loadJournalInto } from "./execution/loadJournalInto";
+import { hashExecutionGraph } from "./execution/utils";
+import { NoopCommandJournal } from "./journal/NoopCommandJournal";
+import { generateDeploymentGraphFrom } from "./process/generateDeploymentGraphFrom";
+import { transformDeploymentGraphToExecutionGraph } from "./process/transformDeploymentGraphToExecutionGraph";
+import { Services } from "./services/types";
 import { IgnitionError } from "./utils/errors";
 import { resolveProxyValue } from "./utils/proxy";
 import { validateDeploymentGraph } from "./validation/validateDeploymentGraph";

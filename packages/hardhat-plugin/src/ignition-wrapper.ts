@@ -1,3 +1,5 @@
+import type { Contract } from "ethers";
+
 import {
   Ignition,
   IgnitionDeployOptions,
@@ -10,7 +12,6 @@ import {
   IgnitionError,
   SerializedDeploymentResult,
 } from "@ignored/ignition-core";
-import type { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { CommandJournal } from "./CommandJournal";
@@ -53,11 +54,12 @@ export class IgnitionWrapper {
       uiRenderer: showUi
         ? renderToCli(initializeRenderState(), deployParams?.parameters)
         : undefined,
-      journal: deployParams?.journal
-        ? deployParams?.journal
-        : deployParams?.journalPath !== undefined
-        ? new CommandJournal(chainId, deployParams?.journalPath)
-        : undefined,
+      journal:
+        deployParams?.journal !== null
+          ? deployParams?.journal
+          : deployParams?.journalPath !== undefined
+          ? new CommandJournal(chainId, deployParams?.journalPath)
+          : undefined,
     });
 
     if (deployParams?.parameters !== undefined) {

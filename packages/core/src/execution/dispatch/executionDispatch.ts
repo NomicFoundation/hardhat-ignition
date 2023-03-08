@@ -4,6 +4,7 @@ import type {
   ExecutionVertex,
   ExecutionVertexVisitResult,
 } from "../../types/executionGraph";
+
 import { IgnitionError } from "../../utils/errors";
 
 import { executeAwaitedEvent } from "./executeAwaitedEvent";

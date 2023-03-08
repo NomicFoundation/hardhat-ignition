@@ -196,7 +196,7 @@ const resolveFailureTypeFrom = (vertex: ExecutionVertex): string => {
 };
 
 function assertNeverUiVertexType(vertex: never): string {
-  throw new IgnitionError(`Unexpected ui vertex type ${vertex}`);
+  throw new IgnitionError(`Unexpected ui vertex type ${vertex as any}`);
 }
 
 const DepError = ({

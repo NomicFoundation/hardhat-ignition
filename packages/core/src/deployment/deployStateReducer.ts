@@ -1,4 +1,3 @@
-import { ExecutionGraph } from "../execution/ExecutionGraph";
 import type {
   DeployPhase,
   DeployState,
@@ -6,6 +5,8 @@ import type {
   DeployStateCommand,
   VertexExecutionState,
 } from "../types/deployment";
+
+import { ExecutionGraph } from "../execution/ExecutionGraph";
 
 import { deployExecutionStateReducer } from "./deployExecutionStateReducer";
 import { assertNeverMessageType } from "./utils";

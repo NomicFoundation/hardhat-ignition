@@ -194,5 +194,5 @@ export interface AddressMap {
 }
 
 function assertNeverUiVertexType(type: never): string {
-  throw new IgnitionError(`Unexpected ui vertex type ${type}`);
+  throw new IgnitionError(`Unexpected ui vertex type ${type as any}`);
 }

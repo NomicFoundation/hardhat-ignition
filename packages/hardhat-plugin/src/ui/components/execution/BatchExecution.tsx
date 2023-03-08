@@ -215,5 +215,5 @@ const determineStatusOf = (
 };
 
 function assertNeverVertexStatus(status: never): any {
-  throw new IgnitionError(`Unexpected vertex status ${status}`);
+  throw new IgnitionError(`Unexpected vertex status ${status as any}`);
 }

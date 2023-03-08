@@ -51,5 +51,7 @@ export const IgnitionUi = ({
 };
 
 function assertNeverPhase(deployStatePhase: never): null {
-  throw new IgnitionError(`Unknown deploy state phase ${deployStatePhase}`);
+  throw new IgnitionError(
+    `Unknown deploy state phase ${deployStatePhase as any}`
+  );
 }

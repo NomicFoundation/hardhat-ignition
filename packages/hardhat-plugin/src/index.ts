@@ -109,7 +109,7 @@ task("deploy")
           initial: false,
         });
 
-        if (!prompt.networkConfirmation) {
+        if (!Boolean(prompt.networkConfirmation)) {
           console.log("Deploy cancelled");
           return;
         }

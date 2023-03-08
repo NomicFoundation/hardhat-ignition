@@ -1,10 +1,11 @@
-import { Contract } from "ethers";
-
 import type { ExecutionContext } from "../../types/deployment";
 import type {
   ContractCall,
   ExecutionVertexVisitResult,
 } from "../../types/executionGraph";
+
+import { Contract } from "ethers";
+
 import { VertexResultEnum } from "../../types/graph";
 
 import { resolveFrom, toAddress } from "./utils";

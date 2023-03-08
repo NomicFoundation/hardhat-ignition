@@ -1,13 +1,14 @@
 /* eslint-disable import/no-unused-modules */
+import type {
+  IDeploymentGraph,
+  IDeploymentBuilder,
+} from "../../src/types/deploymentGraph";
+
 import { assert } from "chai";
 
 import { buildModule } from "../../src/dsl/buildModule";
 import { buildSubgraph } from "../../src/dsl/buildSubgraph";
 import { generateDeploymentGraphFrom } from "../../src/process/generateDeploymentGraphFrom";
-import type {
-  IDeploymentGraph,
-  IDeploymentBuilder,
-} from "../../src/types/deploymentGraph";
 import { IgnitionError } from "../../src/utils/errors";
 import { isCallable } from "../../src/utils/guards";
 

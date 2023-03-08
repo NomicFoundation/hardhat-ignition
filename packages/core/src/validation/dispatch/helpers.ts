@@ -1,10 +1,11 @@
 import type { Services } from "../../services/types";
+import type { CallableFuture } from "../../types/future";
+
 import {
   CallPoints,
   DeploymentGraphVertex,
   InternalParamValue,
 } from "../../types/deploymentGraph";
-import type { CallableFuture } from "../../types/future";
 import { VertexResultEnum, VertexVisitResultFailure } from "../../types/graph";
 import { IgnitionError } from "../../utils/errors";
 import { isBytesArg } from "../../utils/guards";

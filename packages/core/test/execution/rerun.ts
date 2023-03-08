@@ -142,7 +142,7 @@ describe("Rerunning execution", () => {
         return assert.fail("Not a successful deploy");
       }
 
-      if (!redeployResult.result.token.address) {
+      if (!Boolean(redeployResult.result.token.address)) {
         return assert.fail("Unable to retrieve the token contract result");
       }
 
@@ -280,7 +280,7 @@ describe("Rerunning execution", () => {
         return assert.fail("Not a successful deploy");
       }
 
-      if (!redeployResult.result.token.address) {
+      if (!Boolean(redeployResult.result.token.address)) {
         return assert.fail("Unable to retrieve the token contract result");
       }
 
@@ -425,7 +425,7 @@ describe("Rerunning execution", () => {
         return assert.fail("Not a successful deploy");
       }
 
-      if (!redeployResult.result.token.address) {
+      if (!Boolean(redeployResult.result.token.address)) {
         return assert.fail("Unable to retrieve the token contract result");
       }
 
