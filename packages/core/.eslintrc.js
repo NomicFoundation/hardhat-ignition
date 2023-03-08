@@ -4,4 +4,5 @@ module.exports = {
     project: `${__dirname}/tsconfig.json`,
     sourceType: "module",
   },
+  ignorePatterns: [".eslintrc.js"],
 };
