@@ -29,8 +29,6 @@ export async function resolveArtifactForCallableFuture(
             future.contractName
           );
           return artifact.abi;
-        default:
-          return assertNeverDeploymentFuture(future);
       }
     case "library":
       switch (future.subtype) {
@@ -41,8 +39,6 @@ export async function resolveArtifactForCallableFuture(
             future.libraryName
           );
           return artifact.abi;
-        default:
-          return assertNeverDeploymentFuture(future);
       }
     case "virtual":
       throw new IgnitionError(`Cannot call virtual future`);
@@ -52,8 +48,6 @@ export async function resolveArtifactForCallableFuture(
       throw new IgnitionError(`Cannot call await future`);
     case "send":
       throw new IgnitionError(`Cannot call send future`);
-    default:
-      return assertNeverDeploymentFuture(future);
   }
 }
 
@@ -98,10 +92,4 @@ export function buildValidationError(
     _kind: VertexResultEnum.FAILURE,
     failure,
   };
-}
-
-function assertNeverDeploymentFuture(f: never): undefined {
-  throw new IgnitionError(
-    `Unexpected deployment future type/subtype ${JSON.stringify(f)}`
-  );
 }

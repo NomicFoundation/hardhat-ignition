@@ -9,7 +9,6 @@ import type {
 import { ExecutionGraph } from "../execution/ExecutionGraph";
 
 import { deployExecutionStateReducer } from "./deployExecutionStateReducer";
-import { assertNeverMessageType } from "./utils";
 
 export function initializeDeployState(moduleName: string): DeployState {
   return {
@@ -150,9 +149,6 @@ export function deployStateReducer(
         phase: resolvePhaseFrom(updatedExecution),
         execution: updatedExecution,
       };
-    default:
-      assertNeverMessageType(action);
-      return state;
   }
 }
 

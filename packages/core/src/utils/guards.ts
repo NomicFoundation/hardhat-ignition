@@ -169,13 +169,3 @@ export function assertModuleReturnTypes<T extends ModuleDict>(moduleResult: T) {
     );
   }
 }
-
-export function assertUnknownDeploymentVertexType(
-  deploymentVertex: never
-): never {
-  const vertex = deploymentVertex as any;
-
-  const forReport = "type" in vertex ? vertex.type : vertex;
-
-  throw new IgnitionError(`Unknown deployment vertex type: ${forReport}`);
-}

@@ -4,7 +4,6 @@ import {
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
-import { assertUnknownDeploymentVertexType } from "../../utils/guards";
 
 import { validateArtifactContract } from "./validateArtifactContract";
 import { validateArtifactLibrary } from "./validateArtifactLibrary";
@@ -60,7 +59,5 @@ export function validationDispatch(
       return validateEvent(deploymentVertex, resultAccumulator, context);
     case "SendETH":
       return validateSendETH(deploymentVertex, resultAccumulator, context);
-    default:
-      assertUnknownDeploymentVertexType(deploymentVertex);
   }
 }

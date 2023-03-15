@@ -10,9 +10,6 @@ import type {
 import type { ExecutionVertexVisitResult } from "../types/executionGraph";
 
 import { VertexResultEnum } from "../types/graph";
-import { IgnitionError } from "../utils/errors";
-
-import { assertNeverMessageType } from "./utils";
 
 export function deployExecutionStateReducer(
   state: ExecutionState,
@@ -51,9 +48,6 @@ export function deployExecutionStateReducer(
         ...state,
         vertexes: updatedVertexes,
       };
-    default:
-      assertNeverMessageType(action);
-      return state;
   }
 }
 
@@ -100,13 +94,5 @@ function convertTo(
         status: "HOLD" as VertexExecutionStatusHold,
         result: undefined,
       };
-    default:
-      return assertNeverKind(vertexVisitResult);
   }
-}
-
-function assertNeverKind(kind: never): VertexExecutionState {
-  throw new IgnitionError(
-    `Unknown visit result kind: ${JSON.stringify(kind, null, 2)}`
-  );
 }

@@ -8,8 +8,6 @@ import type {
   ExecutionVertexVisitResult,
 } from "../types/executionGraph";
 
-import { IgnitionError } from "../utils/errors";
-
 export function isDeployStateExecutionCommand(
   command: DeployStateCommand
 ): command is DeployStateExecutionCommand {
@@ -18,10 +16,6 @@ export function isDeployStateExecutionCommand(
     "EXECUTION::SET_BATCH",
     "EXECUTION::SET_VERTEX_RESULT",
   ].includes(command.type);
-}
-
-export function assertNeverMessageType(action: never) {
-  throw new IgnitionError(`Unexpected message type ${action as any}`);
 }
 
 export function viewExecutionResults(

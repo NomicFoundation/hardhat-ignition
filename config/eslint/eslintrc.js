@@ -152,6 +152,7 @@ module.exports = {
         allowAny: false,
       },
     ],
+    "@typescript-eslint/switch-exhaustiveness-check": "error",
     "@typescript-eslint/triple-slash-reference": [
       "error",
       {

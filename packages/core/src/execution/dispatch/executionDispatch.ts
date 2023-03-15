@@ -5,8 +5,6 @@ import type {
   ExecutionVertexVisitResult,
 } from "../../types/executionGraph";
 
-import { IgnitionError } from "../../utils/errors";
-
 import { executeAwaitedEvent } from "./executeAwaitedEvent";
 import { executeContractCall } from "./executeContractCall";
 import { executeContractDeploy } from "./executeContractDeploy";
@@ -36,15 +34,5 @@ export function executionDispatch(
       return executeAwaitedEvent(executionVertex, resultAccumulator, context);
     case "SentETH":
       return executeSendETH(executionVertex, resultAccumulator, context);
-    default:
-      assertUnknownExecutionVertexType(executionVertex);
   }
-}
-
-function assertUnknownExecutionVertexType(executionVertex: never): never {
-  const vertex = executionVertex as any;
-
-  const forReport = "type" in vertex ? vertex.type : vertex;
-
-  throw new IgnitionError(`Unknown execution vertex type: ${forReport}`);
 }
