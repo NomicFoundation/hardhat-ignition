@@ -93,12 +93,12 @@ export type VertexExecutionStatus =
 
 export interface VertexExecutionStateRunning {
   status: VertexExecutionStatusUnstarted;
-  result: null;
+  result: undefined;
 }
 
 export interface VertexExecutionStateUnstarted {
   status: VertexExecutionStatusRunning;
-  result: null;
+  result: undefined;
 }
 
 export interface VertexExecutionStateCompleted {
@@ -113,7 +113,7 @@ export interface VertexExecutionStateFailed {
 
 export interface VertexExecutionStateHold {
   status: VertexExecutionStatusHold;
-  result: null;
+  result: undefined;
 }
 
 export type VertexExecutionState =

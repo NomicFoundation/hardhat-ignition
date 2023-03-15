@@ -11,7 +11,7 @@ import { resolveFrom, toAddress } from "./utils";
 
 export async function executeSendETH(
   { address, value, signer }: SentETH,
-  resultAccumulator: Map<number, ExecutionVertexVisitResult | null>,
+  resultAccumulator: Map<number, ExecutionVertexVisitResult | undefined>,
   { services, options }: ExecutionContext
 ): Promise<ExecutionVertexVisitResult> {
   const resolve = resolveFrom(resultAccumulator);

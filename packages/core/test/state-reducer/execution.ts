@@ -67,19 +67,19 @@ describe("deployment state reducer", () => {
       assert.deepStrictEqual(state.execution.vertexes, {
         "0": {
           status: "UNSTARTED",
-          result: null,
+          result: undefined,
         },
         "1": {
           status: "UNSTARTED",
-          result: null,
+          result: undefined,
         },
         "2": {
           status: "UNSTARTED",
-          result: null,
+          result: undefined,
         },
         "3": {
           status: "UNSTARTED",
-          result: null,
+          result: undefined,
         },
       });
     });
@@ -291,7 +291,7 @@ describe("deployment state reducer", () => {
 
       assert.deepStrictEqual(state.execution.vertexes[1], {
         status: "HOLD",
-        result: null,
+        result: undefined,
       });
     });
   });

@@ -32,7 +32,7 @@ function resolveFromContext(
 
   const entry = context.get(arg.vertexId);
 
-  if (entry === undefined || entry === null) {
+  if (entry === undefined) {
     throw new IgnitionError(
       `No context entry for ${arg.vertexId} (${arg.label})`
     );

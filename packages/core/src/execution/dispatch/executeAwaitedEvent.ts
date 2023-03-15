@@ -12,7 +12,7 @@ import { resolveFrom, toAddress } from "./utils";
 
 export async function executeAwaitedEvent(
   { event, address, abi, args }: AwaitedEvent,
-  resultAccumulator: Map<number, ExecutionVertexVisitResult | null>,
+  resultAccumulator: Map<number, ExecutionVertexVisitResult | undefined>,
   { services, options }: ExecutionContext
 ): Promise<ExecutionVertexVisitResult> {
   const resolve = resolveFrom(resultAccumulator);

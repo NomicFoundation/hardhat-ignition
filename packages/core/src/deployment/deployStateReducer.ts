@@ -169,7 +169,7 @@ function initialiseExecutionStateFrom(
       return { ...acc, [id]: previousExecutionState.vertexes[id] };
     }
 
-    return { ...acc, [id]: { status: "UNSTARTED", result: null } };
+    return { ...acc, [id]: { status: "UNSTARTED", result: undefined } };
   }, {});
 
   const executionState: ExecutionState = {

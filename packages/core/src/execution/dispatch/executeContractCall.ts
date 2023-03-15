@@ -12,7 +12,7 @@ import { resolveFrom, toAddress } from "./utils";
 
 export async function executeContractCall(
   { method, contract, args, value, signer }: ContractCall,
-  resultAccumulator: Map<number, ExecutionVertexVisitResult | null>,
+  resultAccumulator: Map<number, ExecutionVertexVisitResult | undefined>,
   { services, options }: ExecutionContext
 ): Promise<ExecutionVertexVisitResult> {
   const resolve = resolveFrom(resultAccumulator);

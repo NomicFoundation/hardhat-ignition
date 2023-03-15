@@ -68,7 +68,7 @@ function updateExecutionStateWithNewBatch(
       ...vertexes,
       [id]: {
         status: "RUNNING" as VertexExecutionStatusUnstarted,
-        result: null,
+        result: undefined,
       },
     }),
     state.vertexes
@@ -98,7 +98,7 @@ function convertTo(
     case VertexResultEnum.HOLD:
       return {
         status: "HOLD" as VertexExecutionStatusHold,
-        result: null,
+        result: undefined,
       };
     default:
       return assertNeverKind(vertexVisitResult);

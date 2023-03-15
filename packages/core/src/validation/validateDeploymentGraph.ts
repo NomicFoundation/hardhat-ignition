@@ -20,7 +20,7 @@ export async function validateDeploymentGraph(
       orderedVertexIds,
       deploymentGraph,
       { services, callPoints },
-      new Map<number, null>(),
+      new Map<number, undefined>(),
       validationDispatch
     );
   } catch (err) {
