@@ -240,7 +240,7 @@ describe("deployment state reducer", () => {
 
       assert.equal(
         Object.values(state.execution.vertexes).every(
-          (v) => v.status === "COMPLETED" && Boolean(v.result)
+          (v) => v.status === "COMPLETED" && v.result !== undefined
         ),
         true
       );

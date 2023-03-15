@@ -49,17 +49,18 @@ export class IgnitionWrapper {
     const services = createServices(this._providers);
     const chainId = await services.network.getChainId();
 
+    const journal =
+      deployParams?.journal ??
+      (deployParams?.journalPath !== undefined
+        ? new CommandJournal(chainId, deployParams?.journalPath)
+        : undefined);
+
     const ignition = new Ignition({
       services,
       uiRenderer: showUi
         ? renderToCli(initializeRenderState(), deployParams?.parameters)
         : undefined,
-      journal:
-        deployParams?.journal !== null
-          ? deployParams?.journal
-          : deployParams?.journalPath !== undefined
-          ? new CommandJournal(chainId, deployParams?.journalPath)
-          : undefined,
+      journal,
     });
 
     if (deployParams?.parameters !== undefined) {

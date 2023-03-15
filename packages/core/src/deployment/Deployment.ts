@@ -216,7 +216,7 @@ export class Deployment {
 
         return descriptor;
       })
-      .filter((x): x is VertexDescriptor => Boolean(x));
+      .filter((x): x is VertexDescriptor => x !== null);
   }
 
   public hasUnstarted(): boolean {
