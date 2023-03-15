@@ -161,6 +161,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/unified-signatures": "error",
+    "@typescript-eslint/return-await": "error",
     "constructor-super": "error",
     eqeqeq: ["error", "always"],
     "guard-for-in": "error",
@@ -175,14 +176,19 @@ module.exports = {
     "import/order": [
       "error",
       {
+        alphabetize: {
+          order: "asc",
+        },
         groups: [
           "type",
           "object",
           ["builtin", "external"],
+          "internal",
           "parent",
           "sibling",
           "index",
         ],
+        "newlines-between": "always",
       },
     ],
     "import/no-default-export": "error",
