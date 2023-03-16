@@ -461,15 +461,6 @@ export class DeploymentBuilder implements IDeploymentBuilder {
     return bytesFuture;
   }
 
-  public useSubgraph<T extends FutureDict>(
-    subgraph: Subgraph<T>,
-    options?: UseSubgraphOptions
-  ): Virtual & T {
-    const { result, after } = this._useSubscope(subgraph, options);
-
-    return { ...result, ...after };
-  }
-
   public useModule<T extends ModuleDict>(
     module: Subgraph<T>,
     options?: UseSubgraphOptions

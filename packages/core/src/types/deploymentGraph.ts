@@ -7,7 +7,6 @@ import {
   ContractCall,
   DeployedContract,
   DeploymentGraphFuture,
-  FutureDict,
   HardhatContract,
   HardhatLibrary,
   OptionalParameter,
@@ -228,11 +227,6 @@ export interface IDeploymentBuilder {
   ): OptionalParameter;
 
   getBytesForArtifact(artifactName: string): BytesFuture;
-
-  useSubgraph<T extends FutureDict>(
-    subgraph: Subgraph<T>,
-    options?: UseSubgraphOptions
-  ): Virtual & T;
 
   useModule<T extends ModuleDict>(
     module: Subgraph<T>,
