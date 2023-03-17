@@ -1,8 +1,6 @@
 export { Ignition } from "./Ignition";
 export { buildModule } from "./dsl/buildModule";
 
-export type { IgnitionDeployOptions } from "./Ignition";
-
 export type { SerializedDeploymentResult } from "./types/serialization";
 export type {
   Providers,
@@ -14,6 +12,7 @@ export type {
   DeployPhase,
   DeploymentResult,
   UpdateUiAction,
+  IgnitionDeployOptions,
 } from "./types/deployment";
 export type { Module, ModuleDict, ModuleParams } from "./types/module";
 export type {
