@@ -1,10 +1,11 @@
-import {
+import type {
   ConfigProvider,
   ExternalParamValue,
   HasParamResult,
   ModuleParams,
 } from "@ignored/ignition-core";
-import { IgnitionError } from "@ignored/ignition-core/helpers";
+
+import { IgnitionPluginError } from "./errors";
 
 export class ConfigWrapper implements ConfigProvider {
   public parameters: ModuleParams | undefined;
@@ -19,7 +20,7 @@ export class ConfigWrapper implements ConfigProvider {
 
   public async getParam(paramName: string): Promise<ExternalParamValue> {
     if (this.parameters === undefined) {
-      throw new IgnitionError(
+      throw new IgnitionPluginError(
         `No parameters object provided to deploy options, but module/subgraph requires parameter "${paramName}"`
       );
     }

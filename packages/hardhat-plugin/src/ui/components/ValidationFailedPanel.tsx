@@ -1,5 +1,4 @@
 import { DeployState } from "@ignored/ignition-core";
-import { IgnitionValidationError } from "@ignored/ignition-core/helpers";
 import { Box, Text } from "ink";
 import { relative } from "path";
 
@@ -34,7 +33,7 @@ export const ErrorBox: React.FC<{ error: Error }> = ({ error }) => {
 };
 
 export const ErrorFileLocation: React.FC<{ error: Error }> = ({ error }) => {
-  if (!(error instanceof IgnitionValidationError)) {
+  if (error.name !== "IgnitionValidationError") {
     return null;
   }
 

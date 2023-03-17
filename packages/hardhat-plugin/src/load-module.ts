@@ -1,8 +1,10 @@
-import { Module, ModuleDict } from "@ignored/ignition-core";
-import { IgnitionError } from "@ignored/ignition-core/helpers";
+import type { Module, ModuleDict } from "@ignored/ignition-core";
+
 import setupDebug from "debug";
 import fsExtra from "fs-extra";
 import path from "path";
+
+import { IgnitionPluginError } from "./errors";
 
 const debug = setupDebug("hardhat-ignition:modules");
 
@@ -13,7 +15,7 @@ export function loadModule(
   debug(`Loading user modules from '${modulesDirectory}'`);
 
   if (!fsExtra.existsSync(modulesDirectory)) {
-    throw new IgnitionError(`Directory ${modulesDirectory} not found.`);
+    throw new IgnitionPluginError(`Directory ${modulesDirectory} not found.`);
   }
 
   const fullpathToModule = resolveFullPathToModule(
@@ -22,11 +24,11 @@ export function loadModule(
   );
 
   if (fullpathToModule === undefined) {
-    throw new IgnitionError(`Could not find module ${moduleNameOrPath}`);
+    throw new IgnitionPluginError(`Could not find module ${moduleNameOrPath}`);
   }
 
   if (!isInModuleDirectory(modulesDirectory, fullpathToModule)) {
-    throw new IgnitionError(
+    throw new IgnitionPluginError(
       `The referenced module ${moduleNameOrPath} is outside the module directory ${modulesDirectory}`
     );
   }

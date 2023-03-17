@@ -1,7 +1,6 @@
 import type { Contract } from "ethers";
 
 import {
-  Ignition,
   IgnitionDeployOptions,
   Providers,
   Module,
@@ -9,11 +8,13 @@ import {
   ModuleParams,
   ICommandJournal,
   SerializedDeploymentResult,
+  Ignition,
 } from "@ignored/ignition-core";
-import { IgnitionError, createServices } from "@ignored/ignition-core/helpers";
+import { createServices } from "@ignored/ignition-core/helpers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { CommandJournal } from "./CommandJournal";
+import { IgnitionPluginError } from "./errors";
 import { initializeRenderState, renderToCli } from "./ui/renderToCli";
 
 type HardhatEthers = HardhatRuntimeEnvironment["ethers"];
@@ -79,7 +80,7 @@ export class IgnitionWrapper {
         heldMessage += `  - ${vertex.label}\n`;
       }
 
-      throw new IgnitionError(
+      throw new IgnitionPluginError(
         `Execution held for module '${ignitionModule.name}':\n\n${heldMessage}`
       );
     }
@@ -96,7 +97,7 @@ export class IgnitionWrapper {
         failuresMessage += `  - ${failure.message}\n`;
       }
 
-      throw new IgnitionError(
+      throw new IgnitionPluginError(
         `${failureType} for module '${ignitionModule.name}':\n\n${failuresMessage}`
       );
     }

@@ -1,9 +1,10 @@
-import { DeployState } from "@ignored/ignition-core";
-import { IgnitionError } from "@ignored/ignition-core/helpers";
+import type { UiBatch, UiVertex, UiVertexStatus } from "../../types";
+import type { DeployState } from "@ignored/ignition-core";
+
 import { Box, Text } from "ink";
 import Spinner from "ink-spinner";
 
-import { UiBatch, UiVertex, UiVertexStatus } from "../../types";
+import { IgnitionPluginError } from "../../../errors";
 
 import { Divider } from "./Divider";
 
@@ -208,5 +209,7 @@ const determineStatusOf = (
     return "COMPELETED";
   }
 
-  throw new IgnitionError(`Unable to determine vertex status for ${vertexId}`);
+  throw new IgnitionPluginError(
+    `Unable to determine vertex status for ${vertexId}`
+  );
 };
