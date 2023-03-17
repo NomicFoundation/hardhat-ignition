@@ -1,4 +1,4 @@
-export { Ignition, IgnitionDeployOptions } from "./Ignition";
+export { Ignition } from "./Ignition";
 export { buildModule } from "./dsl/buildModule";
 export { buildSubgraph } from "./dsl/buildSubgraph";
 export { viewExecutionResults } from "./deployment/utils";
@@ -8,11 +8,9 @@ export { IgnitionError, IgnitionValidationError } from "./utils/errors";
 export { TransactionsService } from "./services/TransactionsService";
 export { ContractsService } from "./services/ContractsService";
 export { VertexResultEnum } from "./types/graph";
-export type {
-  SerializedDeploymentResult,
-  ContractInfo,
-} from "./types/serialization";
 export type { Services } from "./services/types";
+
+export type { SerializedDeploymentResult } from "./types/serialization";
 export type {
   Providers,
   ConfigProvider,
@@ -23,6 +21,7 @@ export type {
   DeployPhase,
   DeploymentResult,
   UpdateUiAction,
+  IgnitionDeployOptions,
 } from "./types/deployment";
 export type {
   Module,

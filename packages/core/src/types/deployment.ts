@@ -17,6 +17,16 @@ import type { BigNumber } from "ethers";
 export type UpdateUiAction = (deployState: DeployState) => void;
 export type UiParamsClosure = (moduleParams?: ModuleParams) => UpdateUiAction;
 
+export interface IgnitionDeployOptions {
+  txPollingInterval: number;
+  networkName: string;
+  maxRetries: number;
+  gasPriceIncrementPerRetry: BigNumber | null;
+  pollingInterval: number;
+  eventDuration: number;
+  force: boolean;
+}
+
 export type DeploymentResult<T extends ModuleDict = ModuleDict> =
   | { _kind: "failure"; failures: [string, Error[]] }
   | { _kind: "hold"; holds: VertexDescriptor[] }
