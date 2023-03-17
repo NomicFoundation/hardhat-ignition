@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 
-import { Services } from "../../services/types";
+import { Services } from "../../services/services";
 import {
   ArtifactContractDeploymentVertex,
   ArtifactLibraryDeploymentVertex,

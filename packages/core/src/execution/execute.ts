@@ -1,5 +1,5 @@
 import type { Deployment } from "../deployment/Deployment";
-import type { Services } from "../services/types";
+import type { Services } from "../services/services";
 import type { ExecutionOptions, ExecutionState } from "../types/deployment";
 import type { ExecutionVertexDispatcher } from "../types/execution";
 import type {

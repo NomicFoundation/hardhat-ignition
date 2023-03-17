@@ -9,7 +9,7 @@ import { ConfigService } from "./ConfigService";
 import { ContractsService } from "./ContractsService";
 import { NetworkService } from "./NetworkService";
 import { TransactionsService } from "./TransactionsService";
-import { Services } from "./types";
+import { Services } from "./services";
 
 export function createServices(providers: Providers): Services {
   const txSender = new TxSender(providers.gasProvider);

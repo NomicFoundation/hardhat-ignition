@@ -1,4 +1,4 @@
-import type { Services } from "../services/types";
+import type { Services } from "../services/services";
 import type {
   DeployState,
   UpdateUiAction,

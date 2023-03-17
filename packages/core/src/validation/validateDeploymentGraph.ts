@@ -1,6 +1,6 @@
 import { getSortedVertexIdsFrom } from "../graph/utils";
 import { visit } from "../graph/visit";
-import { Services } from "../services/types";
+import { Services } from "../services/services";
 import { CallPoints, IDeploymentGraph } from "../types/deploymentGraph";
 import { ValidationVisitResult } from "../types/validation";
 import { IgnitionError } from "../utils/errors";

@@ -1,6 +1,6 @@
 import { ExecutionGraph } from "../execution/ExecutionGraph";
 import { clone } from "../graph/adjacencyList";
-import { Services } from "../services/types";
+import { Services } from "../services/services";
 import {
   IDeploymentGraph,
   DeploymentGraphVertex,

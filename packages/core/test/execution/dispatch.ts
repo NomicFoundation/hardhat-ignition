@@ -6,7 +6,7 @@ import sinon from "sinon";
 import { Deployment } from "../../src/deployment/Deployment";
 import { ExecutionGraph } from "../../src/execution/ExecutionGraph";
 import { execute } from "../../src/execution/execute";
-import { Services, TransactionOptions } from "../../src/services/types";
+import { Services, TransactionOptions } from "../../src/services/services";
 import { ExecutionVertex } from "../../src/types/executionGraph";
 import { VertexResultEnum } from "../../src/types/graph";
 import { Artifact } from "../../src/types/hardhat";
