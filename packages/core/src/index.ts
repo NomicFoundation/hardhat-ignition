@@ -8,7 +8,7 @@ export { IgnitionError, IgnitionValidationError } from "./utils/errors";
 export { TransactionsService } from "./services/TransactionsService";
 export { ContractsService } from "./services/ContractsService";
 export { VertexResultEnum } from "./types/graph";
-export type { Services } from "./services/types";
+export type { Services } from "./types/services";
 
 export type { SerializedDeploymentResult } from "./types/serialization";
 export type {
