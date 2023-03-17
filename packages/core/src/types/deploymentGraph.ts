@@ -1,6 +1,4 @@
-import type { BigNumber } from "ethers";
-
-import {
+import type {
   ArtifactContract,
   ArtifactLibrary,
   EventFuture,
@@ -21,9 +19,10 @@ import {
   SendFuture,
   AddressResolvable,
 } from "./future";
-import { AdjacencyList, VertexDescriptor } from "./graph";
-import { Artifact } from "./hardhat";
-import { ModuleDict, Subgraph } from "./module";
+import type { AdjacencyList, VertexDescriptor } from "./graph";
+import type { Artifact } from "./hardhat";
+import type { ModuleDict, Subgraph } from "./module";
+import type { BigNumber } from "ethers";
 
 export interface ScopeData {
   before: Virtual;

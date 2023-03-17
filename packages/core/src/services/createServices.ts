@@ -1,6 +1,8 @@
+import type { Providers } from "../types/providers";
+import type { Services } from "../types/services";
+
 import { ethers } from "ethers";
 
-import { Providers } from "../types/providers";
 import { TxSender } from "../utils/tx-sender";
 
 import { AccountsService } from "./AccountsService";
@@ -9,7 +11,6 @@ import { ConfigService } from "./ConfigService";
 import { ContractsService } from "./ContractsService";
 import { NetworkService } from "./NetworkService";
 import { TransactionsService } from "./TransactionsService";
-import { Services } from "./services";
 
 export function createServices(providers: Providers): Services {
   const txSender = new TxSender(providers.gasProvider);

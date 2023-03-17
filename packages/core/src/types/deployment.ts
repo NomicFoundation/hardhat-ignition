@@ -1,4 +1,3 @@
-import type { Services } from "../services/services";
 import type {
   ExecutionVertex,
   ExecutionVertexVisitResult,
@@ -12,6 +11,7 @@ import type {
 } from "./graph";
 import type { ModuleDict, ModuleParams } from "./module";
 import type { SerializedDeploymentResult } from "./serialization";
+import type { Services } from "./services";
 import type { BigNumber } from "ethers";
 
 export type UpdateUiAction = (deployState: DeployState) => void;

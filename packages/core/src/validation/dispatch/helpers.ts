@@ -1,12 +1,12 @@
-import type { Services } from "../../services/services";
 import type { CallableFuture } from "../../types/future";
+import type { VertexVisitResultFailure } from "../../types/graph";
+import type { Services } from "../../types/services";
 
 import {
   CallPoints,
   DeploymentGraphVertex,
   InternalParamValue,
 } from "../../types/deploymentGraph";
-import { VertexResultEnum, VertexVisitResultFailure } from "../../types/graph";
 import { IgnitionError } from "../../utils/errors";
 import { isBytesArg } from "../../utils/guards";
 import { resolveProxyValue } from "../../utils/proxy";
@@ -89,7 +89,7 @@ export function buildValidationError(
   failure.message = message;
 
   return {
-    _kind: VertexResultEnum.FAILURE,
+    _kind: "failure",
     failure,
   };
 }

@@ -1,7 +1,4 @@
-import { BigNumber, ethers } from "ethers";
-
-import { Services } from "../../services/services";
-import {
+import type {
   ArtifactContractDeploymentVertex,
   ArtifactLibraryDeploymentVertex,
   CallDeploymentVertex,
@@ -14,7 +11,7 @@ import {
   EventVertex,
   SendVertex,
 } from "../../types/deploymentGraph";
-import {
+import type {
   AwaitedEvent,
   ContractCall,
   ContractDeploy,
@@ -23,12 +20,16 @@ import {
   LibraryDeploy,
   SentETH,
 } from "../../types/executionGraph";
-import {
+import type {
   BytesFuture,
   DeploymentGraphFuture,
   EventParamFuture,
 } from "../../types/future";
-import { Artifact } from "../../types/hardhat";
+import type { Artifact } from "../../types/hardhat";
+import type { Services } from "../../types/services";
+
+import { BigNumber, ethers } from "ethers";
+
 import { IgnitionError } from "../../utils/errors";
 import { isBytesArg, isFuture } from "../../utils/guards";
 

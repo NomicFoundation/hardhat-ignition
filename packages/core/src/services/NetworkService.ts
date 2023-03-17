@@ -1,6 +1,5 @@
-import { Providers } from "../types/providers";
-
-import { INetworkService } from "./services";
+import type { Providers } from "../types/providers";
+import type { INetworkService } from "../types/services";
 
 export class NetworkService implements INetworkService {
   constructor(private readonly _providers: Providers) {}

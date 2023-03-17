@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unused-modules */
-import type { ContractsServiceProviders } from "../src/services/services";
+import type { ContractsServiceProviders } from "../src/types/services";
 import type { TxSender } from "../src/utils/tx-sender";
 
 import { assert } from "chai";

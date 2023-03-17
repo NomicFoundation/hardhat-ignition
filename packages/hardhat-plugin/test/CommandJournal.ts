@@ -1,6 +1,5 @@
 /* eslint-disable import/no-unused-modules */
 import { DeployStateExecutionCommand } from "@ignored/ignition-core";
-import { VertexResultEnum } from "@ignored/ignition-core/helpers";
 import { assert } from "chai";
 import { BigNumber } from "ethers";
 import fs from "fs";
@@ -26,7 +25,7 @@ describe("File based command journal", () => {
         type: "EXECUTION::SET_VERTEX_RESULT",
         vertexId: 0,
         result: {
-          _kind: VertexResultEnum.SUCCESS,
+          _kind: "success",
           result: {
             name: "Example",
             abi: [
@@ -51,7 +50,7 @@ describe("File based command journal", () => {
         type: "EXECUTION::SET_VERTEX_RESULT",
         vertexId: 1,
         result: {
-          _kind: VertexResultEnum.SUCCESS,
+          _kind: "success",
           result: {
             hash: "0x7058ee5c5c027de2480a3d559695d0a1311763c5dcb3d301ee1203cc44a9031d",
           },
@@ -61,7 +60,7 @@ describe("File based command journal", () => {
         type: "EXECUTION::SET_VERTEX_RESULT",
         vertexId: 2,
         result: {
-          _kind: VertexResultEnum.FAILURE,
+          _kind: "failure",
           failure: {} as any, // new Error("Example Error"),
         },
       },
@@ -69,7 +68,7 @@ describe("File based command journal", () => {
         type: "EXECUTION::SET_VERTEX_RESULT",
         vertexId: 3,
         result: {
-          _kind: VertexResultEnum.HOLD,
+          _kind: "hold",
         },
       },
     ];

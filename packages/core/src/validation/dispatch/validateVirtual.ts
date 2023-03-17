@@ -1,5 +1,4 @@
 import { DeploymentGraphVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
@@ -12,7 +11,7 @@ export async function validateVirtual(
   _context: ValidationDispatchContext
 ): Promise<ValidationVertexVisitResult> {
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }

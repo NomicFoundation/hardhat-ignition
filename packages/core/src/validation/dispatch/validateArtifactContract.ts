@@ -1,12 +1,12 @@
-import { ethers, BigNumber } from "ethers";
-
-import { ArtifactContractDeploymentVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
-import {
+import type { ArtifactContractDeploymentVertex } from "../../types/deploymentGraph";
+import type {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
+
+import { ethers, BigNumber } from "ethers";
+
 import { isArtifact, isParameter } from "../../utils/guards";
 
 import { buildValidationError, validateBytesForArtifact } from "./helpers";
@@ -66,7 +66,7 @@ export async function validateArtifactContract(
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }

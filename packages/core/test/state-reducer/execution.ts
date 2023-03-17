@@ -7,7 +7,6 @@ import {
 } from "../../src/deployment/deployStateReducer";
 import { buildModule } from "../../src/dsl/buildModule";
 import { DeployState } from "../../src/types/deployment";
-import { VertexResultEnum } from "../../src/types/graph";
 
 import { applyActions, resolveExecutionGraphFor } from "./utils";
 
@@ -120,7 +119,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 0,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -133,7 +132,7 @@ describe("deployment state reducer", () => {
       assert.deepStrictEqual(state.execution.vertexes[0], {
         status: "COMPLETED",
         result: {
-          _kind: VertexResultEnum.SUCCESS,
+          _kind: "success",
           result: { hash: "example" },
         },
       });
@@ -155,7 +154,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 0,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -167,7 +166,7 @@ describe("deployment state reducer", () => {
       assert.deepStrictEqual(state.execution.vertexes[0], {
         status: "COMPLETED",
         result: {
-          _kind: VertexResultEnum.SUCCESS,
+          _kind: "success",
           result: { hash: "example" },
         },
       });
@@ -190,7 +189,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 0,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -203,7 +202,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 1,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -211,7 +210,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 2,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -224,7 +223,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 3,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -263,7 +262,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 0,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -276,7 +275,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 1,
           result: {
-            _kind: VertexResultEnum.HOLD,
+            _kind: "hold",
           },
         },
       ]);
@@ -312,7 +311,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 0,
           result: {
-            _kind: VertexResultEnum.SUCCESS,
+            _kind: "success",
             result: { hash: "example" },
           },
         },
@@ -325,7 +324,7 @@ describe("deployment state reducer", () => {
           type: "EXECUTION::SET_VERTEX_RESULT",
           vertexId: 1,
           result: {
-            _kind: VertexResultEnum.FAILURE,
+            _kind: "failure",
             failure: new Error("No connection"),
           },
         },
@@ -342,7 +341,7 @@ describe("deployment state reducer", () => {
       assert.deepStrictEqual(state.execution.vertexes[1], {
         status: "FAILED",
         result: {
-          _kind: VertexResultEnum.FAILURE,
+          _kind: "failure",
           failure: new Error("No connection"),
         },
       });

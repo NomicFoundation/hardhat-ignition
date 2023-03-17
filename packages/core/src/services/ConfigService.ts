@@ -1,7 +1,7 @@
 import type { ExternalParamValue } from "../types/deploymentGraph";
 import type { HasParamResult, Providers } from "../types/providers";
 
-import { IConfigService } from "./services";
+import { IConfigService } from "../types/services";
 
 export class ConfigService implements IConfigService {
   constructor(private readonly _providers: Providers) {}

@@ -1,8 +1,9 @@
+import type { CallPoints, IDeploymentGraph } from "../types/deploymentGraph";
+import type { Services } from "../types/services";
+import type { ValidationVisitResult } from "../types/validation";
+
 import { getSortedVertexIdsFrom } from "../graph/utils";
 import { visit } from "../graph/visit";
-import { Services } from "../services/services";
-import { CallPoints, IDeploymentGraph } from "../types/deploymentGraph";
-import { ValidationVisitResult } from "../types/validation";
 import { IgnitionError } from "../utils/errors";
 
 import { validationDispatch } from "./dispatch/validationDispatch";

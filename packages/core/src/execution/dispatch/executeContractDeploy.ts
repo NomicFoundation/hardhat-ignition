@@ -7,7 +7,6 @@ import type {
 
 import { ContractFactory, ethers } from "ethers";
 
-import { VertexResultEnum } from "../../types/graph";
 import { collectLibrariesAndLink } from "../../utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
@@ -47,7 +46,7 @@ export async function executeContractDeploy(
     });
   } catch (err) {
     return {
-      _kind: VertexResultEnum.FAILURE,
+      _kind: "failure",
       failure: err as any,
     };
   }
@@ -57,12 +56,12 @@ export async function executeContractDeploy(
     receipt = await services.transactions.wait(txHash);
   } catch {
     return {
-      _kind: VertexResultEnum.HOLD,
+      _kind: "hold",
     };
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: {
       name: artifact.contractName,
       abi: artifact.abi,

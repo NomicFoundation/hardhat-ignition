@@ -1,5 +1,10 @@
 /* eslint-disable import/no-unused-modules */
 import type { IDeploymentBuilder } from "../src/types/deploymentGraph";
+import type { ArtifactContract } from "../src/types/future";
+import type { Artifact } from "../src/types/hardhat";
+import type { Module, ModuleDict } from "../src/types/module";
+import type { Services } from "../src/types/services";
+import type { ValidationVisitResult } from "../src/types/validation";
 
 import { assert } from "chai";
 import { ethers } from "ethers";
@@ -7,11 +12,6 @@ import sinon from "sinon";
 
 import { buildModule } from "../src/dsl/buildModule";
 import { generateDeploymentGraphFrom } from "../src/process/generateDeploymentGraphFrom";
-import { Services } from "../src/services/services";
-import { ArtifactContract } from "../src/types/future";
-import { Artifact } from "../src/types/hardhat";
-import { Module, ModuleDict } from "../src/types/module";
-import { ValidationVisitResult } from "../src/types/validation";
 import { IgnitionValidationError } from "../src/utils/errors";
 import { validateDeploymentGraph } from "../src/validation/validateDeploymentGraph";
 

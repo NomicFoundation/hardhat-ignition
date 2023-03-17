@@ -1,3 +1,5 @@
+export type VertexResultEnum = "success" | "failure" | "hold";
+
 export interface VertexDescriptor {
   id: number;
   label: string;
@@ -15,24 +17,18 @@ export interface IGraph<T> {
 
 export type VertexGraph = IGraph<VertexDescriptor>;
 
-export enum VertexResultEnum {
-  SUCCESS = "success",
-  FAILURE = "failure",
-  HOLD = "hold",
-}
-
 export interface VertexVisitResultSuccess<T> {
-  _kind: VertexResultEnum.SUCCESS;
+  _kind: "success";
   result: T;
 }
 
 export interface VertexVisitResultFailure {
-  _kind: VertexResultEnum.FAILURE;
+  _kind: "failure";
   failure: Error;
 }
 
 export interface VertexVisitResultHold {
-  _kind: VertexResultEnum.HOLD;
+  _kind: "hold";
 }
 
 export type VertexVisitResult<T> =

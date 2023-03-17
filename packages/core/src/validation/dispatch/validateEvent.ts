@@ -1,12 +1,11 @@
-import { ethers } from "ethers";
-
-import { EventVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
-import {
+import type { EventVertex } from "../../types/deploymentGraph";
+import type {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
+
+import { ethers } from "ethers";
 
 import {
   buildValidationError,
@@ -99,7 +98,7 @@ export async function validateEvent(
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }

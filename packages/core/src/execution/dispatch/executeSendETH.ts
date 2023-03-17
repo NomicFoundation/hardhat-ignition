@@ -5,8 +5,6 @@ import type {
 } from "../../types/executionGraph";
 import type { PopulatedTransaction } from "ethers";
 
-import { VertexResultEnum } from "../../types/graph";
-
 import { resolveFrom, toAddress } from "./utils";
 
 export async function executeSendETH(
@@ -32,7 +30,7 @@ export async function executeSendETH(
     });
   } catch (err) {
     return {
-      _kind: VertexResultEnum.FAILURE,
+      _kind: "failure",
       failure: err as any,
     };
   }
@@ -41,12 +39,12 @@ export async function executeSendETH(
     await services.transactions.wait(txHash);
   } catch {
     return {
-      _kind: VertexResultEnum.HOLD,
+      _kind: "hold",
     };
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: {
       hash: txHash,
       value,

@@ -6,8 +6,6 @@ import type {
 
 import { Contract } from "ethers";
 
-import { VertexResultEnum } from "../../types/graph";
-
 import { resolveFrom, toAddress } from "./utils";
 
 export async function executeContractCall(
@@ -36,7 +34,7 @@ export async function executeContractCall(
     });
   } catch (err) {
     return {
-      _kind: VertexResultEnum.FAILURE,
+      _kind: "failure",
       failure: err as any,
     };
   }
@@ -45,12 +43,12 @@ export async function executeContractCall(
     await services.transactions.wait(txHash);
   } catch {
     return {
-      _kind: VertexResultEnum.HOLD,
+      _kind: "hold",
     };
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: {
       hash: txHash,
     },

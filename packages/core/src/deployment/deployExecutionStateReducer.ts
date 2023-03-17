@@ -9,8 +9,6 @@ import type {
 } from "../types/deployment";
 import type { ExecutionVertexVisitResult } from "../types/executionGraph";
 
-import { VertexResultEnum } from "../types/graph";
-
 export function deployExecutionStateReducer(
   state: ExecutionState,
   action: DeployStateExecutionCommand
@@ -79,17 +77,17 @@ function convertTo(
   vertexVisitResult: ExecutionVertexVisitResult
 ): VertexExecutionState {
   switch (vertexVisitResult._kind) {
-    case VertexResultEnum.SUCCESS:
+    case "success":
       return {
         status: "COMPLETED" as VertexExecutionStatusCompleted,
         result: vertexVisitResult,
       };
-    case VertexResultEnum.FAILURE:
+    case "failure":
       return {
         status: "FAILED" as VertexExecutionStatusFailed,
         result: vertexVisitResult,
       };
-    case VertexResultEnum.HOLD:
+    case "hold":
       return {
         status: "HOLD" as VertexExecutionStatusHold,
         result: undefined,

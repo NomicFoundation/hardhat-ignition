@@ -1,4 +1,9 @@
 /* eslint-disable import/no-unused-modules */
+import type { ExecutionVertex } from "../../src/types/executionGraph";
+import type { Artifact } from "../../src/types/hardhat";
+import type { ICommandJournal } from "../../src/types/journal";
+import type { Services, TransactionOptions } from "../../src/types/services";
+
 import { assert } from "chai";
 import { ethers } from "ethers";
 import sinon from "sinon";
@@ -6,11 +11,6 @@ import sinon from "sinon";
 import { Deployment } from "../../src/deployment/Deployment";
 import { ExecutionGraph } from "../../src/execution/ExecutionGraph";
 import { execute } from "../../src/execution/execute";
-import { Services, TransactionOptions } from "../../src/services/services";
-import { ExecutionVertex } from "../../src/types/executionGraph";
-import { VertexResultEnum } from "../../src/types/graph";
-import { Artifact } from "../../src/types/hardhat";
-import { ICommandJournal } from "../../src/types/journal";
 import { buildAdjacencyListFrom } from "../graph/helpers";
 import { getMockServices } from "../helpers";
 
@@ -76,7 +76,7 @@ describe("Execution - dispatch", () => {
     }
 
     assert.deepStrictEqual(response.result.get(0), {
-      _kind: VertexResultEnum.SUCCESS,
+      _kind: "success",
       result: {
         abi: [],
         address: "0xAddr",
@@ -139,7 +139,7 @@ describe("Execution - dispatch", () => {
     }
 
     assert.deepStrictEqual(response.result.get(0), {
-      _kind: VertexResultEnum.SUCCESS,
+      _kind: "success",
       result: {
         abi: [],
         address: "0xAddr",
@@ -246,7 +246,7 @@ describe("Execution - dispatch", () => {
     }
 
     assert.deepStrictEqual(response.result.get(1), {
-      _kind: VertexResultEnum.SUCCESS,
+      _kind: "success",
       result: {
         hash: "0x2",
       },
@@ -384,7 +384,7 @@ describe("Execution - dispatch", () => {
       }
 
       assert.deepStrictEqual(response.result.get(2), {
-        _kind: VertexResultEnum.SUCCESS,
+        _kind: "success",
         result: {
           topics: ["0x0000000000000000000000000000000000000003"],
         },
@@ -439,7 +439,7 @@ describe("Execution - dispatch", () => {
     }
 
     assert.deepStrictEqual(response.result.get(0), {
-      _kind: VertexResultEnum.SUCCESS,
+      _kind: "success",
       result: {
         name: "Foo",
         abi: [],

@@ -1,12 +1,11 @@
-import { isAddress } from "@ethersproject/address";
-
-import { DeployedContractDeploymentVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
-import {
+import type { DeployedContractDeploymentVertex } from "../../types/deploymentGraph";
+import type {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
+
+import { isAddress } from "@ethersproject/address";
 
 import { buildValidationError } from "./helpers";
 
@@ -24,7 +23,7 @@ export async function validateDeployedContract(
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }

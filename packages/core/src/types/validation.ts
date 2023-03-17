@@ -1,7 +1,10 @@
-import { Services } from "../services/services";
-
-import { CallPoints } from "./deploymentGraph";
-import { ResultsAccumulator, VertexVisitResult, VisitResult } from "./graph";
+import type { CallPoints } from "./deploymentGraph";
+import type {
+  ResultsAccumulator,
+  VertexVisitResult,
+  VisitResult,
+} from "./graph";
+import type { Services } from "./services";
 
 export type ValidationVisitResult = VisitResult<undefined>;
 

@@ -2,7 +2,7 @@ import type {
   ContractsServiceProviders,
   IContractsService,
   TransactionOptions,
-} from "./services";
+} from "../types/services";
 
 import setupDebug from "debug";
 import { ethers } from "ethers";

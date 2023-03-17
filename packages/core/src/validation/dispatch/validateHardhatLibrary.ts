@@ -1,12 +1,12 @@
-import { ethers } from "ethers";
-
-import { HardhatLibraryDeploymentVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
-import {
+import type {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
+
+import { ethers } from "ethers";
+
+import { HardhatLibraryDeploymentVertex } from "../../types/deploymentGraph";
 
 import { buildValidationError, validateBytesForArtifact } from "./helpers";
 
@@ -60,7 +60,7 @@ export async function validateHardhatLibrary(
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }

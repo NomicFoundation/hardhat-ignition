@@ -1,12 +1,12 @@
-import { ethers, BigNumber } from "ethers";
-
-import { CallDeploymentVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
-import {
+import type { CallDeploymentVertex } from "../../types/deploymentGraph";
+import type {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
+
+import { ethers, BigNumber } from "ethers";
+
 import { isParameter } from "../../utils/guards";
 
 import {
@@ -102,7 +102,7 @@ export async function validateCall(
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }

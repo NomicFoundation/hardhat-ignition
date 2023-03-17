@@ -1,4 +1,4 @@
-import { IExecutionGraph } from "./executionGraph";
+import type { IExecutionGraph } from "./executionGraph";
 
 export type TransformResult =
   | {

@@ -6,8 +6,6 @@ import type {
 
 import { Contract, ethers } from "ethers";
 
-import { VertexResultEnum } from "../../types/graph";
-
 import { resolveFrom, toAddress } from "./utils";
 
 export async function executeAwaitedEvent(
@@ -34,20 +32,20 @@ export async function executeAwaitedEvent(
 
     if (eventResult === null) {
       return {
-        _kind: VertexResultEnum.HOLD,
+        _kind: "hold",
       };
     }
 
     topics = contractInstance.interface.parseLog(eventResult).args;
   } catch (err) {
     return {
-      _kind: VertexResultEnum.FAILURE,
+      _kind: "failure",
       failure: err as any,
     };
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: {
       topics,
     },

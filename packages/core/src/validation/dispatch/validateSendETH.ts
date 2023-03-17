@@ -1,7 +1,7 @@
+import type { SendVertex } from "../../types/deploymentGraph";
+
 import { ethers, BigNumber } from "ethers";
 
-import { SendVertex } from "../../types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
@@ -44,7 +44,7 @@ export async function validateSendETH(
   }
 
   return {
-    _kind: VertexResultEnum.SUCCESS,
+    _kind: "success",
     result: undefined,
   };
 }
