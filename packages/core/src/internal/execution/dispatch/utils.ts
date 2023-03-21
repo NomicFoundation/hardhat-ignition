@@ -3,8 +3,8 @@ import type {
   ExecutionResultsAccumulator,
 } from "../../types/executionGraph";
 
-import { IgnitionError } from "../../utils/errors";
-import { isDependable, isEventParam, isProxy } from "../../utils/guards";
+import { IgnitionError } from "../../../utils/errors";
+import { isDependable, isEventParam, isProxy } from "../../../utils/guards";
 
 export function toAddress(v: any) {
   if (typeof v === "object" && "address" in v) {

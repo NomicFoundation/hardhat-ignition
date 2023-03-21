@@ -3,10 +3,10 @@ import { assert } from "chai";
 import { ethers } from "ethers";
 import sinon from "sinon";
 
-import { Deployment } from "../../src/deployment/Deployment";
-import { ExecutionGraph } from "../../src/execution/ExecutionGraph";
-import { execute } from "../../src/execution/execute";
-import { ExecutionVertex } from "../../src/types/executionGraph";
+import { Deployment } from "../../src/internal/deployment/Deployment";
+import { ExecutionGraph } from "../../src/internal/execution/ExecutionGraph";
+import { execute } from "../../src/internal/execution/execute";
+import { ExecutionVertex } from "../../src/internal/types/executionGraph";
 import { VertexResultEnum } from "../../src/types/graph";
 import { Artifact } from "../../src/types/hardhat";
 import { ICommandJournal } from "../../src/types/journal";

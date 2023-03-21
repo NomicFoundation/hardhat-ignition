@@ -1,33 +1,45 @@
 import type { ExecutionContext } from "../../types/deployment";
 import type {
+  ContractDeploy,
   ExecutionResultsAccumulator,
   ExecutionVertexVisitResult,
-  LibraryDeploy,
 } from "../../types/executionGraph";
 
 import { ContractFactory, ethers } from "ethers";
 
-import { VertexResultEnum } from "../../types/graph";
-import { collectLibrariesAndLink } from "../../utils/collectLibrariesAndLink";
+import { VertexResultEnum } from "../../../types/graph";
+import { collectLibrariesAndLink } from "../../../utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
 
-export async function executeLibraryDeploy(
-  { artifact, args, signer }: LibraryDeploy,
+export async function executeContractDeploy(
+  { artifact, args, libraries, value, signer }: ContractDeploy,
   resultAccumulator: ExecutionResultsAccumulator,
   { services, options }: ExecutionContext
 ): Promise<ExecutionVertexVisitResult> {
   let txHash: string;
   try {
-    const resolvedArgs = args
-      .map(resolveFrom(resultAccumulator))
-      .map(toAddress);
+    const resolve = resolveFrom(resultAccumulator);
 
-    const linkedByteCode = await collectLibrariesAndLink(artifact, {});
+    const resolvedArgs = args.map(resolve).map(toAddress);
+
+    const resolvedLibraries = Object.fromEntries(
+      Object.entries(libraries ?? {}).map(([k, v]) => [
+        k,
+        toAddress(resolve(v)),
+      ])
+    );
+
+    const linkedByteCode = await collectLibrariesAndLink(
+      artifact,
+      resolvedLibraries
+    );
 
     const Factory = new ContractFactory(artifact.abi, linkedByteCode, signer);
 
-    const deployTransaction = Factory.getDeployTransaction(...resolvedArgs);
+    const deployTransaction = Factory.getDeployTransaction(...resolvedArgs, {
+      value,
+    });
 
     txHash = await services.contracts.sendTx(deployTransaction, {
       ...options,
@@ -56,6 +68,7 @@ export async function executeLibraryDeploy(
       abi: artifact.abi,
       bytecode: artifact.bytecode,
       address: receipt.contractAddress,
+      value,
     },
   };
 }

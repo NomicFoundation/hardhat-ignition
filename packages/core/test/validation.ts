@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import sinon from "sinon";
 
 import { buildModule } from "../src/dsl/buildModule";
-import { generateDeploymentGraphFrom } from "../src/process/generateDeploymentGraphFrom";
+import { generateDeploymentGraphFrom } from "../src/internal/process/generateDeploymentGraphFrom";
 import { ArtifactContract } from "../src/types/future";
 import { Artifact } from "../src/types/hardhat";
 import { Module, ModuleDict } from "../src/types/module";

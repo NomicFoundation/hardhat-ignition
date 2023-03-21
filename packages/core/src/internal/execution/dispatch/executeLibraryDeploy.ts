@@ -1,45 +1,33 @@
 import type { ExecutionContext } from "../../types/deployment";
 import type {
-  ContractDeploy,
   ExecutionResultsAccumulator,
   ExecutionVertexVisitResult,
+  LibraryDeploy,
 } from "../../types/executionGraph";
 
 import { ContractFactory, ethers } from "ethers";
 
-import { VertexResultEnum } from "../../types/graph";
-import { collectLibrariesAndLink } from "../../utils/collectLibrariesAndLink";
+import { VertexResultEnum } from "../../../types/graph";
+import { collectLibrariesAndLink } from "../../../utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
 
-export async function executeContractDeploy(
-  { artifact, args, libraries, value, signer }: ContractDeploy,
+export async function executeLibraryDeploy(
+  { artifact, args, signer }: LibraryDeploy,
   resultAccumulator: ExecutionResultsAccumulator,
   { services, options }: ExecutionContext
 ): Promise<ExecutionVertexVisitResult> {
   let txHash: string;
   try {
-    const resolve = resolveFrom(resultAccumulator);
+    const resolvedArgs = args
+      .map(resolveFrom(resultAccumulator))
+      .map(toAddress);
 
-    const resolvedArgs = args.map(resolve).map(toAddress);
-
-    const resolvedLibraries = Object.fromEntries(
-      Object.entries(libraries ?? {}).map(([k, v]) => [
-        k,
-        toAddress(resolve(v)),
-      ])
-    );
-
-    const linkedByteCode = await collectLibrariesAndLink(
-      artifact,
-      resolvedLibraries
-    );
+    const linkedByteCode = await collectLibrariesAndLink(artifact, {});
 
     const Factory = new ContractFactory(artifact.abi, linkedByteCode, signer);
 
-    const deployTransaction = Factory.getDeployTransaction(...resolvedArgs, {
-      value,
-    });
+    const deployTransaction = Factory.getDeployTransaction(...resolvedArgs);
 
     txHash = await services.contracts.sendTx(deployTransaction, {
       ...options,
@@ -68,7 +56,6 @@ export async function executeContractDeploy(
       abi: artifact.abi,
       bytecode: artifact.bytecode,
       address: receipt.contractAddress,
-      value,
     },
   };
 }

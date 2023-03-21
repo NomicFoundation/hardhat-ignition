@@ -1,4 +1,10 @@
 import type {
+  VertexDescriptor,
+  VertexVisitResultFailure,
+} from "../../types/graph";
+import type { ICommandJournal } from "../../types/journal";
+import type { Services } from "../../types/services";
+import type {
   DeployState,
   UpdateUiAction,
   DeployStateCommand,
@@ -6,17 +12,11 @@ import type {
   DeployNetworkConfig,
 } from "../types/deployment";
 import type { ExecutionVertexVisitResult } from "../types/executionGraph";
-import type {
-  VertexDescriptor,
-  VertexVisitResultFailure,
-} from "../types/graph";
-import type { ICommandJournal } from "../types/journal";
-import type { Services } from "../types/services";
 
 import setupDebug from "debug";
 
+import { IgnitionError } from "../../utils/errors";
 import { ExecutionGraph } from "../execution/ExecutionGraph";
-import { IgnitionError } from "../utils/errors";
 
 import {
   initializeDeployState,

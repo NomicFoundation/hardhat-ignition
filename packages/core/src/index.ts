@@ -13,7 +13,7 @@ export type {
   DeploymentResult,
   UpdateUiAction,
   IgnitionDeployOptions,
-} from "./types/deployment";
+} from "./internal/types/deployment";
 export type { Module, ModuleDict, ModuleParams } from "./types/module";
 export type {
   ExternalParamValue,
@@ -29,6 +29,6 @@ export type {
 export type {
   ExecutionVertex,
   ExecutionVertexType,
-} from "./types/executionGraph";
+} from "./internal/types/executionGraph";
 export type { ICommandJournal } from "./types/journal";
-export type { DeployStateExecutionCommand } from "./types/deployment";
+export type { DeployStateExecutionCommand } from "./internal/types/deployment";

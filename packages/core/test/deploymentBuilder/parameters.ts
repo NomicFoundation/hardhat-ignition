@@ -7,7 +7,7 @@ import type {
 import { assert } from "chai";
 
 import { buildModule } from "../../src/dsl/buildModule";
-import { generateDeploymentGraphFrom } from "../../src/process/generateDeploymentGraphFrom";
+import { generateDeploymentGraphFrom } from "../../src/internal/process/generateDeploymentGraphFrom";
 import { IgnitionError } from "../../src/utils/errors";
 import { isCallable } from "../../src/utils/guards";
 

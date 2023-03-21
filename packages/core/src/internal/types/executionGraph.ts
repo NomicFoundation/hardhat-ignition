@@ -1,20 +1,20 @@
 import type { BigNumber, ethers } from "ethers";
 
-import { LibraryMap } from "./deploymentGraph";
+import { LibraryMap } from "../../types/deploymentGraph";
 import {
   AddressResolvable,
   ArtifactContract,
   DeploymentGraphFuture,
   EventParamFuture,
-} from "./future";
+} from "../../types/future";
 import {
   AdjacencyList,
   ResultsAccumulator,
   VertexDescriptor,
   VertexVisitResult,
   VisitResult,
-} from "./graph";
-import { Artifact } from "./hardhat";
+} from "../../types/graph";
+import { Artifact } from "../../types/hardhat";
 
 export interface IExecutionGraph {
   adjacencyList: AdjacencyList;

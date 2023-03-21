@@ -12,7 +12,16 @@ import {
   ExternalParamValue,
   EventVertex,
   SendVertex,
-} from "../../types/deploymentGraph";
+} from "../../../types/deploymentGraph";
+import {
+  BytesFuture,
+  DeploymentGraphFuture,
+  EventParamFuture,
+} from "../../../types/future";
+import { Artifact } from "../../../types/hardhat";
+import { Services } from "../../../types/services";
+import { IgnitionError } from "../../../utils/errors";
+import { isBytesArg, isFuture } from "../../../utils/guards";
 import {
   AwaitedEvent,
   ContractCall,
@@ -22,15 +31,6 @@ import {
   LibraryDeploy,
   SentETH,
 } from "../../types/executionGraph";
-import {
-  BytesFuture,
-  DeploymentGraphFuture,
-  EventParamFuture,
-} from "../../types/future";
-import { Artifact } from "../../types/hardhat";
-import { Services } from "../../types/services";
-import { IgnitionError } from "../../utils/errors";
-import { isBytesArg, isFuture } from "../../utils/guards";
 
 interface TransformContext {
   services: Services;

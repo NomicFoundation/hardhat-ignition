@@ -1,17 +1,17 @@
 import type {
-  ExecutionVertex,
-  ExecutionVertexVisitResult,
-  VertexVisitResultSuccessResult,
-} from "./executionGraph";
-import type {
   IGraph,
   VertexDescriptor,
   VertexVisitResultFailure,
   VertexVisitResultSuccess,
-} from "./graph";
-import type { ModuleDict, ModuleParams } from "./module";
-import type { SerializedDeploymentResult } from "./serialization";
-import type { Services } from "./services";
+} from "../../types/graph";
+import type { ModuleDict, ModuleParams } from "../../types/module";
+import type { SerializedDeploymentResult } from "../../types/serialization";
+import type { Services } from "../../types/services";
+import type {
+  ExecutionVertex,
+  ExecutionVertexVisitResult,
+  VertexVisitResultSuccessResult,
+} from "./executionGraph";
 import type { BigNumber } from "ethers";
 
 export type UpdateUiAction = (deployState: DeployState) => void;

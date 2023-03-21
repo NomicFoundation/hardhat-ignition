@@ -1,4 +1,4 @@
-export { viewExecutionResults } from "./deployment/utils";
+export { viewExecutionResults } from "./internal/deployment/utils";
 export { createServices } from "./services/createServices";
 export { serializeReplacer } from "./utils/serialize";
 export { IgnitionError, IgnitionValidationError } from "./utils/errors";

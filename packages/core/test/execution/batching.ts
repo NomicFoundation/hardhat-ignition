@@ -3,14 +3,14 @@ import type {
   ContractDeploy,
   ExecutionVertex,
   ExecutionVertexVisitResult,
-} from "../../src/types/executionGraph";
+} from "../../src/internal/types/executionGraph";
 
 import { assert } from "chai";
 import { BigNumber } from "ethers";
 
-import { Deployment } from "../../src/deployment/Deployment";
-import { ExecutionGraph } from "../../src/execution/ExecutionGraph";
-import { executeInBatches } from "../../src/execution/execute";
+import { Deployment } from "../../src/internal/deployment/Deployment";
+import { ExecutionGraph } from "../../src/internal/execution/ExecutionGraph";
+import { executeInBatches } from "../../src/internal/execution/execute";
 import { VertexResultEnum } from "../../src/types/graph";
 import { ICommandJournal } from "../../src/types/journal";
 import { buildAdjacencyListFrom } from "../graph/helpers";
