@@ -7,9 +7,9 @@ import type {
 import setupDebug from "debug";
 import { ethers } from "ethers";
 
-import { IgnitionError } from "../utils/errors";
-import { sleep } from "../utils/sleep";
-import { TxSender } from "../utils/tx-sender";
+import { IgnitionError } from "../../utils/errors";
+import { sleep } from "../../utils/sleep";
+import { TxSender } from "../../utils/tx-sender";
 
 export class ContractsService implements IContractsService {
   private _debug = setupDebug("ignition:services:contracts-service");

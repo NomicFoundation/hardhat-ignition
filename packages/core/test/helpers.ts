@@ -1,7 +1,5 @@
 import { ethers } from "ethers";
 
-import { Artifact } from "../src/types/hardhat";
-import { HasParamResult } from "../src/types/providers";
 import {
   Services,
   TransactionOptions,
@@ -11,7 +9,9 @@ import {
   IConfigService,
   IArtifactsService,
   IAccountsService,
-} from "../src/types/services";
+} from "../src/internal/types/services";
+import { Artifact } from "../src/types/hardhat";
+import { HasParamResult } from "../src/types/providers";
 import { IgnitionError } from "../src/utils/errors";
 
 export function getMockServices() {

@@ -4,7 +4,7 @@ import {
   CallPoints,
   IDeploymentGraph,
 } from "../internal/types/deploymentGraph";
-import { Services } from "../types/services";
+import { Services } from "../internal/types/services";
 import { ValidationVisitResult } from "../types/validation";
 import { IgnitionError } from "../utils/errors";
 

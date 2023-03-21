@@ -24,7 +24,7 @@ import { hashExecutionGraph } from "./internal/execution/utils";
 import { NoopCommandJournal } from "./internal/journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "./internal/process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "./internal/process/transformDeploymentGraphToExecutionGraph";
-import { Services } from "./types/services";
+import { Services } from "./internal/types/services";
 import { IgnitionError } from "./utils/errors";
 import { resolveProxyValue } from "./utils/proxy";
 import { validateDeploymentGraph } from "./validation/validateDeploymentGraph";

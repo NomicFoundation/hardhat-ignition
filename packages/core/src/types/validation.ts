@@ -4,8 +4,7 @@ import {
   VertexVisitResult,
   VisitResult,
 } from "../internal/types/graph";
-
-import { Services } from "./services";
+import { Services } from "../internal/types/services";
 
 export type ValidationVisitResult = VisitResult<undefined>;
 

@@ -1,5 +1,5 @@
+import type { Services } from "../../internal/types/services";
 import type { CallableFuture } from "../../types/future";
-import type { Services } from "../../types/services";
 
 import {
   CallPoints,

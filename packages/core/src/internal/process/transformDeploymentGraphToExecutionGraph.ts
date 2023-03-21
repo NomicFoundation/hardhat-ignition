@@ -1,5 +1,4 @@
 import { clone } from "../../internal/graph/adjacencyList";
-import { Services } from "../../types/services";
 import { ExecutionGraph } from "../execution/ExecutionGraph";
 import {
   IDeploymentGraph,
@@ -7,6 +6,7 @@ import {
 } from "../types/deploymentGraph";
 import { ExecutionVertex, IExecutionGraph } from "../types/executionGraph";
 import { TransformResult } from "../types/process";
+import { Services } from "../types/services";
 
 import { convertDeploymentVertexToExecutionVertex as convertDeploymentVertexToExecutionVertex } from "./transform/convertDeploymentVertexToExecutionVertex";
 import { reduceDeploymentGraphByEliminatingVirtualVertexes } from "./transform/reduceDeploymentGraphByEliminatingVirtualVertexes";
