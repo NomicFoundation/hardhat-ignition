@@ -1,4 +1,3 @@
-import type { ICommandJournal } from "../../types/journal";
 import type { Services } from "../../types/services";
 import type {
   DeployState,
@@ -12,6 +11,7 @@ import type {
   VertexDescriptor,
   VertexVisitResultFailure,
 } from "../types/graph";
+import type { ICommandJournal } from "../types/journal";
 
 import setupDebug from "debug";
 

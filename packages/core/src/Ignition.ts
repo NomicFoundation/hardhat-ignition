@@ -7,7 +7,7 @@ import type {
   ExecutionResultsAccumulator,
   ExecutionVisitResult,
 } from "./internal/types/executionGraph";
-import type { ICommandJournal } from "./types/journal";
+import type { ICommandJournal } from "./internal/types/journal";
 import type { Module, ModuleDict } from "./types/module";
 import type { IgnitionPlan } from "./types/plan";
 import type {
@@ -21,9 +21,9 @@ import { Deployment } from "./internal/deployment/Deployment";
 import { execute } from "./internal/execution/execute";
 import { loadJournalInto } from "./internal/execution/loadJournalInto";
 import { hashExecutionGraph } from "./internal/execution/utils";
+import { NoopCommandJournal } from "./internal/journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "./internal/process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "./internal/process/transformDeploymentGraphToExecutionGraph";
-import { NoopCommandJournal } from "./journal/NoopCommandJournal";
 import { Services } from "./types/services";
 import { IgnitionError } from "./utils/errors";
 import { resolveProxyValue } from "./utils/proxy";
