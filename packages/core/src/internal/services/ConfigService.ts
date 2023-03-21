@@ -1,5 +1,5 @@
-import type { ExternalParamValue } from "../../internal/types/deploymentGraph";
 import type { HasParamResult, Providers } from "../../types/providers";
+import type { ExternalParamValue } from "../types/deploymentGraph";
 
 import { IConfigService } from "../types/services";
 

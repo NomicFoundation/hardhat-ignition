@@ -1,4 +1,4 @@
-import { Deployment } from "../../internal/deployment/Deployment";
+import { Deployment } from "../deployment/Deployment";
 import { ICommandJournal } from "../types/journal";
 
 /**

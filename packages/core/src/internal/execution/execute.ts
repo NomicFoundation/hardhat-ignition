@@ -1,4 +1,4 @@
-import type { Deployment } from "../../internal/deployment/Deployment";
+import type { Deployment } from "../deployment/Deployment";
 import type { ExecutionOptions, ExecutionState } from "../types/deployment";
 import type { ExecutionVertexDispatcher } from "../types/execution";
 import type {
@@ -9,7 +9,7 @@ import type {
 } from "../types/executionGraph";
 import type { Services } from "../types/services";
 
-import { viewExecutionResults } from "../../internal/deployment/utils";
+import { viewExecutionResults } from "../deployment/utils";
 import { IgnitionError } from "../utils/errors";
 
 import { ExecutionGraph } from "./ExecutionGraph";

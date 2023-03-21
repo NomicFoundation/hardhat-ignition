@@ -1,5 +1,5 @@
-import { clone } from "../../internal/graph/adjacencyList";
 import { ExecutionGraph } from "../execution/ExecutionGraph";
+import { clone } from "../graph/adjacencyList";
 import {
   IDeploymentGraph,
   DeploymentGraphVertex,

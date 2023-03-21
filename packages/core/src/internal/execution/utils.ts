@@ -1,7 +1,7 @@
 import hash from "object-hash";
 
-import { getDependenciesFor } from "../../internal/graph/adjacencyList";
 import { ExecutionGraph } from "../execution/ExecutionGraph";
+import { getDependenciesFor } from "../graph/adjacencyList";
 import { serializeReplacer } from "../utils/serialize";
 
 export function allDependenciesCompleted(
