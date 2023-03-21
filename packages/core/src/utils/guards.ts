@@ -8,7 +8,7 @@ import type {
   ArtifactLibraryDeploymentVertex,
   EventVertex,
   InternalParamValue,
-} from "../types/deploymentGraph";
+} from "../internal/types/deploymentGraph";
 import type {
   CallableFuture,
   DependableFuture,

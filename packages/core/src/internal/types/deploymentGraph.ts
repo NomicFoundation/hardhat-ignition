@@ -20,10 +20,10 @@ import {
   EventParamFuture,
   SendFuture,
   AddressResolvable,
-} from "./future";
-import { AdjacencyList, VertexDescriptor } from "./graph";
-import { Artifact } from "./hardhat";
-import { ModuleDict, Module } from "./module";
+} from "../../types/future";
+import { AdjacencyList, VertexDescriptor } from "../../types/graph";
+import { Artifact } from "../../types/hardhat";
+import { ModuleDict, Module } from "../../types/module";
 
 export interface ScopeData {
   before: Virtual;

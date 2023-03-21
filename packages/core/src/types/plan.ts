@@ -1,6 +1,5 @@
+import { IDeploymentGraph } from "../internal/types/deploymentGraph";
 import { IExecutionGraph } from "../internal/types/executionGraph";
-
-import { IDeploymentGraph } from "./deploymentGraph";
 
 export interface IgnitionPlan {
   deploymentGraph: IDeploymentGraph;

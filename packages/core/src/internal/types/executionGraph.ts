@@ -1,6 +1,5 @@
 import type { BigNumber, ethers } from "ethers";
 
-import { LibraryMap } from "../../types/deploymentGraph";
 import {
   AddressResolvable,
   ArtifactContract,
@@ -15,6 +14,8 @@ import {
   VisitResult,
 } from "../../types/graph";
 import { Artifact } from "../../types/hardhat";
+
+import { LibraryMap } from "./deploymentGraph";
 
 export interface IExecutionGraph {
   adjacencyList: AdjacencyList;

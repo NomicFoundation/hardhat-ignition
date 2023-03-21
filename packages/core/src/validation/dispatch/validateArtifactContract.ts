@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 
-import { ArtifactContractDeploymentVertex } from "../../types/deploymentGraph";
+import { ArtifactContractDeploymentVertex } from "../../internal/types/deploymentGraph";
 import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,

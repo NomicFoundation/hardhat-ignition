@@ -51,7 +51,7 @@ import {
   EventVertex,
   SendVertex,
   VirtualVertex,
-} from "../types/deploymentGraph";
+} from "../internal/types/deploymentGraph";
 import { IgnitionError, IgnitionValidationError } from "../utils/errors";
 import {
   assertModuleReturnTypes,

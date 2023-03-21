@@ -1,4 +1,5 @@
-import { CallPoints } from "./deploymentGraph";
+import { CallPoints } from "../internal/types/deploymentGraph";
+
 import { ResultsAccumulator, VertexVisitResult, VisitResult } from "./graph";
 import { Services } from "./services";
 

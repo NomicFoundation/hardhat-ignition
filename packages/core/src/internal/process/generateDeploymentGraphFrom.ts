@@ -2,7 +2,7 @@ import type {
   CallPoints,
   DeploymentBuilderOptions,
   IDeploymentGraph,
-} from "../../types/deploymentGraph";
+} from "../types/deploymentGraph";
 
 import { DeploymentBuilder } from "../../dsl/DeploymentBuilder";
 import { Module, ModuleDict } from "../../types/module";

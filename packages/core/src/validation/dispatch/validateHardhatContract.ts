@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 
-import { HardhatContractDeploymentVertex } from "../../types/deploymentGraph";
+import { HardhatContractDeploymentVertex } from "../../internal/types/deploymentGraph";
 import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,

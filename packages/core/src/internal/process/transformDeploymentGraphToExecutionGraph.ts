@@ -1,10 +1,10 @@
 import { clone } from "../../graph/adjacencyList";
+import { Services } from "../../types/services";
+import { ExecutionGraph } from "../execution/ExecutionGraph";
 import {
   IDeploymentGraph,
   DeploymentGraphVertex,
-} from "../../types/deploymentGraph";
-import { Services } from "../../types/services";
-import { ExecutionGraph } from "../execution/ExecutionGraph";
+} from "../types/deploymentGraph";
 import { ExecutionVertex, IExecutionGraph } from "../types/executionGraph";
 import { TransformResult } from "../types/process";
 

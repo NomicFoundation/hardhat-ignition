@@ -1,4 +1,4 @@
-import { DeploymentGraphVertex } from "../../types/deploymentGraph";
+import { DeploymentGraphVertex } from "../../internal/types/deploymentGraph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,

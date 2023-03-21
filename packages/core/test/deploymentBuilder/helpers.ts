@@ -1,6 +1,6 @@
 import { DeploymentGraph } from "../../src/dsl/DeploymentGraph";
 import { getDependenciesFor } from "../../src/graph/adjacencyList";
-import { DeploymentGraphVertex } from "../../src/types/deploymentGraph";
+import { DeploymentGraphVertex } from "../../src/internal/types/deploymentGraph";
 import { VertexDescriptor } from "../../src/types/graph";
 
 export function getDeploymentVertexByLabel(

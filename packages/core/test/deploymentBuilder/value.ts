@@ -2,7 +2,7 @@
 import type {
   IDeploymentGraph,
   IDeploymentBuilder,
-} from "../../src/types/deploymentGraph";
+} from "../../src/internal/types/deploymentGraph";
 import type { Artifact } from "../../src/types/hardhat";
 
 import { assert } from "chai";

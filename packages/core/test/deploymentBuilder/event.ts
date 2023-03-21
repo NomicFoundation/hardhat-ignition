@@ -6,7 +6,7 @@ import { generateDeploymentGraphFrom } from "../../src/internal/process/generate
 import {
   IDeploymentBuilder,
   IDeploymentGraph,
-} from "../../src/types/deploymentGraph";
+} from "../../src/internal/types/deploymentGraph";
 import { ArtifactContract } from "../../src/types/future";
 import {
   isAwaitedEvent,

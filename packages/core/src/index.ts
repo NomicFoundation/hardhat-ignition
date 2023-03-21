@@ -19,7 +19,7 @@ export type {
   ExternalParamValue,
   IDeploymentBuilder,
   DeploymentGraphVertex,
-} from "./types/deploymentGraph";
+} from "./internal/types/deploymentGraph";
 export type { IgnitionPlan } from "./types/plan";
 export type {
   VertexGraph,

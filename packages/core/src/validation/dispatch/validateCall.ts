@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 
-import { CallDeploymentVertex } from "../../types/deploymentGraph";
+import { CallDeploymentVertex } from "../../internal/types/deploymentGraph";
 import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,

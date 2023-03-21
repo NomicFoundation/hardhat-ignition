@@ -5,7 +5,7 @@ import {
   CallPoints,
   DeploymentGraphVertex,
   InternalParamValue,
-} from "../../types/deploymentGraph";
+} from "../../internal/types/deploymentGraph";
 import { VertexResultEnum, VertexVisitResultFailure } from "../../types/graph";
 import { IgnitionError } from "../../utils/errors";
 import { isBytesArg } from "../../utils/guards";

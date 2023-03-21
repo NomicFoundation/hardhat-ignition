@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unused-modules */
-import type { IDeploymentBuilder } from "../src/types/deploymentGraph";
+import type { IDeploymentBuilder } from "../src/internal/types/deploymentGraph";
 
 import { assert } from "chai";
 import { ethers } from "ethers";

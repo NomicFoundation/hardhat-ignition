@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { ArtifactLibraryDeploymentVertex } from "../../types/deploymentGraph";
+import { ArtifactLibraryDeploymentVertex } from "../../internal/types/deploymentGraph";
 import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
