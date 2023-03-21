@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-import { EventVertex } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum } from "../../internal/types/graph";
+import { EventVertex } from "../../types/deploymentGraph";
+import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,

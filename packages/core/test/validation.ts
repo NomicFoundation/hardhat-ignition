@@ -8,12 +8,12 @@ import sinon from "sinon";
 import { buildModule } from "../src/dsl/buildModule";
 import { generateDeploymentGraphFrom } from "../src/internal/process/generateDeploymentGraphFrom";
 import { Services } from "../src/internal/types/services";
+import { ValidationVisitResult } from "../src/internal/types/validation";
 import { IgnitionValidationError } from "../src/internal/utils/errors";
+import { validateDeploymentGraph } from "../src/internal/validation/validateDeploymentGraph";
 import { ArtifactContract } from "../src/types/future";
 import { Artifact } from "../src/types/hardhat";
 import { Module, ModuleDict } from "../src/types/module";
-import { ValidationVisitResult } from "../src/types/validation";
-import { validateDeploymentGraph } from "../src/validation/validateDeploymentGraph";
 
 import { getMockServices } from "./helpers";
 

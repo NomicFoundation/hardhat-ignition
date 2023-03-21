@@ -1,12 +1,9 @@
-import { getSortedVertexIdsFrom } from "../internal/graph/utils";
-import { visit } from "../internal/graph/visit";
-import {
-  CallPoints,
-  IDeploymentGraph,
-} from "../internal/types/deploymentGraph";
-import { Services } from "../internal/types/services";
-import { IgnitionError } from "../internal/utils/errors";
+import { getSortedVertexIdsFrom } from "../graph/utils";
+import { visit } from "../graph/visit";
+import { CallPoints, IDeploymentGraph } from "../types/deploymentGraph";
+import { Services } from "../types/services";
 import { ValidationVisitResult } from "../types/validation";
+import { IgnitionError } from "../utils/errors";
 
 import { validationDispatch } from "./dispatch/validationDispatch";
 

@@ -27,7 +27,7 @@ import { transformDeploymentGraphToExecutionGraph } from "./internal/process/tra
 import { Services } from "./internal/types/services";
 import { IgnitionError } from "./internal/utils/errors";
 import { resolveProxyValue } from "./internal/utils/proxy";
-import { validateDeploymentGraph } from "./validation/validateDeploymentGraph";
+import { validateDeploymentGraph } from "./internal/validation/validateDeploymentGraph";
 
 const log = setupDebug("ignition:main");
 

@@ -1,7 +1,7 @@
 import { isAddress } from "@ethersproject/address";
 
-import { DeployedContractDeploymentVertex } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum } from "../../internal/types/graph";
+import { DeployedContractDeploymentVertex } from "../../types/deploymentGraph";
+import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,

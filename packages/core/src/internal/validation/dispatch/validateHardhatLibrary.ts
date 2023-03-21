@@ -1,8 +1,7 @@
 import { ethers } from "ethers";
 
-import { ArtifactLibraryDeploymentVertex } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum } from "../../internal/types/graph";
-import { isArtifact } from "../../internal/utils/guards";
+import { HardhatLibraryDeploymentVertex } from "../../types/deploymentGraph";
+import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
@@ -11,49 +10,52 @@ import {
 
 import { buildValidationError, validateBytesForArtifact } from "./helpers";
 
-export async function validateArtifactLibrary(
-  vertex: ArtifactLibraryDeploymentVertex,
+export async function validateHardhatLibrary(
+  vertex: HardhatLibraryDeploymentVertex,
   _resultAccumulator: ValidationResultsAccumulator,
-  context: ValidationDispatchContext
+  { callPoints, services }: ValidationDispatchContext
 ): Promise<ValidationVertexVisitResult> {
   if (!ethers.utils.isAddress(vertex.from)) {
     return buildValidationError(
       vertex,
       `For library 'from' must be a valid address string`,
-      context.callPoints
+      callPoints
     );
   }
 
   const invalidBytes = await validateBytesForArtifact({
     vertex,
-    callPoints: context.callPoints,
-    services: context.services,
+    callPoints,
+    services,
   });
 
   if (invalidBytes !== null) {
     return invalidBytes;
   }
 
-  const artifactExists = isArtifact(vertex.artifact);
+  const artifactExists = await services.artifacts.hasArtifact(
+    vertex.libraryName
+  );
 
   if (!artifactExists) {
     return buildValidationError(
       vertex,
-      `Artifact not provided for library '${vertex.label}'`,
-      context.callPoints
+      `Library with name '${vertex.libraryName}' doesn't exist`,
+      callPoints
     );
   }
 
+  const artifact = await services.artifacts.getArtifact(vertex.libraryName);
   const argsLength = vertex.args.length;
 
-  const iface = new ethers.utils.Interface(vertex.artifact.abi);
+  const iface = new ethers.utils.Interface(artifact.abi);
   const expectedArgsLength = iface.deploy.inputs.length;
 
   if (argsLength !== expectedArgsLength) {
     return buildValidationError(
       vertex,
-      `The constructor of the library '${vertex.label}' expects ${expectedArgsLength} arguments but ${argsLength} were given`,
-      context.callPoints
+      `The constructor of the library '${vertex.libraryName}' expects ${expectedArgsLength} arguments but ${argsLength} were given`,
+      callPoints
     );
   }
 

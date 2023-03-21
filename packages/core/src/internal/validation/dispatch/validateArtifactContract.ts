@@ -1,13 +1,13 @@
 import { ethers, BigNumber } from "ethers";
 
-import { ArtifactContractDeploymentVertex } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum } from "../../internal/types/graph";
-import { isArtifact, isParameter } from "../../internal/utils/guards";
+import { ArtifactContractDeploymentVertex } from "../../types/deploymentGraph";
+import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
+import { isArtifact, isParameter } from "../../utils/guards";
 
 import { buildValidationError, validateBytesForArtifact } from "./helpers";
 

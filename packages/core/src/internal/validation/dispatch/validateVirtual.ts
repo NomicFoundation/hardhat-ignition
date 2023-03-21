@@ -1,5 +1,5 @@
-import { DeploymentGraphVertex } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum } from "../../internal/types/graph";
+import { DeploymentGraphVertex } from "../../types/deploymentGraph";
+import { VertexResultEnum } from "../../types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,

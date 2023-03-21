@@ -7,8 +7,8 @@ import {
   DeployState,
   DeployStateCommand,
 } from "../../src/internal/types/deployment";
+import { validateDeploymentGraph } from "../../src/internal/validation/validateDeploymentGraph";
 import { Module } from "../../src/types/module";
-import { validateDeploymentGraph } from "../../src/validation/validateDeploymentGraph";
 import { getMockServices } from "../helpers";
 
 export function applyActions(
