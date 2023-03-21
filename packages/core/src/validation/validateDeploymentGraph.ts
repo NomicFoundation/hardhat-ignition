@@ -5,8 +5,8 @@ import {
   IDeploymentGraph,
 } from "../internal/types/deploymentGraph";
 import { Services } from "../internal/types/services";
+import { IgnitionError } from "../internal/utils/errors";
 import { ValidationVisitResult } from "../types/validation";
-import { IgnitionError } from "../utils/errors";
 
 import { validationDispatch } from "./dispatch/validationDispatch";
 

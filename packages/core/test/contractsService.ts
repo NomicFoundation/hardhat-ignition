@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unused-modules */
 import type { ContractsServiceProviders } from "../src/internal/types/services";
-import type { TxSender } from "../src/utils/tx-sender";
+import type { TxSender } from "../src/internal/utils/tx-sender";
 
 import { assert } from "chai";
 import { ethers } from "ethers";

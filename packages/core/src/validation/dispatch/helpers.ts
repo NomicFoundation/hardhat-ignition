@@ -10,9 +10,9 @@ import {
   VertexResultEnum,
   VertexVisitResultFailure,
 } from "../../internal/types/graph";
-import { IgnitionError } from "../../utils/errors";
-import { isBytesArg } from "../../utils/guards";
-import { resolveProxyValue } from "../../utils/proxy";
+import { IgnitionError } from "../../internal/utils/errors";
+import { isBytesArg } from "../../internal/utils/guards";
+import { resolveProxyValue } from "../../internal/utils/proxy";
 
 export async function resolveArtifactForCallableFuture(
   givenFuture: CallableFuture,

@@ -8,7 +8,10 @@ import { assert } from "chai";
 
 import { buildModule } from "../../src/dsl/buildModule";
 import { generateDeploymentGraphFrom } from "../../src/internal/process/generateDeploymentGraphFrom";
-import { isHardhatContract, isHardhatLibrary } from "../../src/utils/guards";
+import {
+  isHardhatContract,
+  isHardhatLibrary,
+} from "../../src/internal/utils/guards";
 
 import {
   getDependenciesForVertex,

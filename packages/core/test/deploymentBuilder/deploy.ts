@@ -8,12 +8,12 @@ import { assert } from "chai";
 
 import { buildModule } from "../../src/dsl/buildModule";
 import { generateDeploymentGraphFrom } from "../../src/internal/process/generateDeploymentGraphFrom";
-import { Artifact } from "../../src/types/hardhat";
 import {
   isArtifactContract,
   isDeployedContract,
   isHardhatContract,
-} from "../../src/utils/guards";
+} from "../../src/internal/utils/guards";
+import { Artifact } from "../../src/types/hardhat";
 
 import {
   getDependenciesForVertex,

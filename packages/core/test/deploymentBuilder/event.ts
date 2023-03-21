@@ -7,12 +7,12 @@ import {
   IDeploymentBuilder,
   IDeploymentGraph,
 } from "../../src/internal/types/deploymentGraph";
-import { ArtifactContract } from "../../src/types/future";
 import {
   isAwaitedEvent,
   isCall,
   isArtifactContract,
-} from "../../src/utils/guards";
+} from "../../src/internal/utils/guards";
+import { ArtifactContract } from "../../src/types/future";
 
 import {
   getDependenciesForVertex,

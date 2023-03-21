@@ -25,8 +25,8 @@ import { NoopCommandJournal } from "./internal/journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "./internal/process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "./internal/process/transformDeploymentGraphToExecutionGraph";
 import { Services } from "./internal/types/services";
-import { IgnitionError } from "./utils/errors";
-import { resolveProxyValue } from "./utils/proxy";
+import { IgnitionError } from "./internal/utils/errors";
+import { resolveProxyValue } from "./internal/utils/proxy";
 import { validateDeploymentGraph } from "./validation/validateDeploymentGraph";
 
 const log = setupDebug("ignition:main");

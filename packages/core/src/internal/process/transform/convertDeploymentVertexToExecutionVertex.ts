@@ -6,8 +6,6 @@ import {
   EventParamFuture,
 } from "../../../types/future";
 import { Artifact } from "../../../types/hardhat";
-import { IgnitionError } from "../../../utils/errors";
-import { isBytesArg, isFuture } from "../../../utils/guards";
 import {
   ArtifactContractDeploymentVertex,
   ArtifactLibraryDeploymentVertex,
@@ -31,6 +29,8 @@ import {
   SentETH,
 } from "../../types/executionGraph";
 import { Services } from "../../types/services";
+import { IgnitionError } from "../../utils/errors";
+import { isBytesArg, isFuture } from "../../utils/guards";
 
 interface TransformContext {
   services: Services;

@@ -14,7 +14,7 @@ import {
   isArtifactContract,
   isHardhatContract,
   isCall,
-} from "../../src/utils/guards";
+} from "../../src/internal/utils/guards";
 
 import { getDeploymentVertexByLabel } from "./helpers";
 

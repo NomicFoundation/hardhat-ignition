@@ -10,7 +10,7 @@ import type {
 import type { Services } from "../types/services";
 
 import { viewExecutionResults } from "../../internal/deployment/utils";
-import { IgnitionError } from "../../utils/errors";
+import { IgnitionError } from "../utils/errors";
 
 import { ExecutionGraph } from "./ExecutionGraph";
 import { executionDispatch } from "./dispatch/executionDispatch";

@@ -6,8 +6,8 @@ import type {
 
 import { DeploymentBuilder } from "../../dsl/DeploymentBuilder";
 import { Module, ModuleDict } from "../../types/module";
-import { IgnitionError } from "../../utils/errors";
-import { assertModuleReturnTypes } from "../../utils/guards";
+import { IgnitionError } from "../utils/errors";
+import { assertModuleReturnTypes } from "../utils/guards";
 
 export function generateDeploymentGraphFrom<T extends ModuleDict>(
   ignitionModule: Module<T>,

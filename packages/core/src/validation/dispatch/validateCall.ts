@@ -2,12 +2,12 @@ import { ethers, BigNumber } from "ethers";
 
 import { CallDeploymentVertex } from "../../internal/types/deploymentGraph";
 import { VertexResultEnum } from "../../internal/types/graph";
+import { isParameter } from "../../internal/utils/guards";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
-import { isParameter } from "../../utils/guards";
 
 import {
   buildValidationError,

@@ -2,12 +2,12 @@ import { ethers } from "ethers";
 
 import { ArtifactLibraryDeploymentVertex } from "../../internal/types/deploymentGraph";
 import { VertexResultEnum } from "../../internal/types/graph";
+import { isArtifact } from "../../internal/utils/guards";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,
   ValidationVertexVisitResult,
 } from "../../types/validation";
-import { isArtifact } from "../../utils/guards";
 
 import { buildValidationError, validateBytesForArtifact } from "./helpers";
 

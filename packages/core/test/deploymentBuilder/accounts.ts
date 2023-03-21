@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 
 import { buildModule } from "../../src/dsl/buildModule";
 import { generateDeploymentGraphFrom } from "../../src/internal/process/generateDeploymentGraphFrom";
-import { isCall, isHardhatContract } from "../../src/utils/guards";
+import { isCall, isHardhatContract } from "../../src/internal/utils/guards";
 
 import { getDeploymentVertexByLabel } from "./helpers";
 

@@ -8,7 +8,7 @@ import {
   IDeploymentBuilder,
   IDeploymentGraph,
 } from "../../src/internal/types/deploymentGraph";
-import { isHardhatContract } from "../../src/utils/guards";
+import { isHardhatContract } from "../../src/internal/utils/guards";
 
 import {
   getDependenciesForVertex,

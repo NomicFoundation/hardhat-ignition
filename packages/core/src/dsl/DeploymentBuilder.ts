@@ -52,7 +52,10 @@ import {
   SendVertex,
   VirtualVertex,
 } from "../internal/types/deploymentGraph";
-import { IgnitionError, IgnitionValidationError } from "../utils/errors";
+import {
+  IgnitionError,
+  IgnitionValidationError,
+} from "../internal/utils/errors";
 import {
   assertModuleReturnTypes,
   isArtifact,
@@ -60,8 +63,8 @@ import {
   isContract,
   isDependable,
   isParameter,
-} from "../utils/guards";
-import { resolveProxyDependency } from "../utils/proxy";
+} from "../internal/utils/guards";
+import { resolveProxyDependency } from "../internal/utils/proxy";
 
 import { DeploymentGraph } from "./DeploymentGraph";
 import { ScopeStack } from "./ScopeStack";

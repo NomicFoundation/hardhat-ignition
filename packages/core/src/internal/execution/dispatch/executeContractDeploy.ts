@@ -7,8 +7,8 @@ import type {
 
 import { ContractFactory, ethers } from "ethers";
 
-import { collectLibrariesAndLink } from "../../../utils/collectLibrariesAndLink";
 import { VertexResultEnum } from "../../types/graph";
+import { collectLibrariesAndLink } from "../../utils/collectLibrariesAndLink";
 
 import { resolveFrom, toAddress } from "./utils";
 
