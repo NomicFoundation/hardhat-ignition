@@ -25,7 +25,7 @@ export type {
   VertexGraph,
   VertexDescriptor,
   VertexVisitResultFailure,
-} from "./types/graph";
+} from "./internal/types/graph";
 export type {
   ExecutionVertex,
   ExecutionVertexType,

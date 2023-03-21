@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 import { HardhatLibraryDeploymentVertex } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum } from "../../types/graph";
+import { VertexResultEnum } from "../../internal/types/graph";
 import {
   ValidationDispatchContext,
   ValidationResultsAccumulator,

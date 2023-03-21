@@ -1,4 +1,4 @@
-import { Graph } from "../graph/Graph";
+import { Graph } from "../internal/graph/Graph";
 import {
   DeploymentGraphVertex as DeploymentGraphVertex,
   ScopeData,

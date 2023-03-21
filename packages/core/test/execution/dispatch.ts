@@ -7,7 +7,7 @@ import { Deployment } from "../../src/internal/deployment/Deployment";
 import { ExecutionGraph } from "../../src/internal/execution/ExecutionGraph";
 import { execute } from "../../src/internal/execution/execute";
 import { ExecutionVertex } from "../../src/internal/types/executionGraph";
-import { VertexResultEnum } from "../../src/types/graph";
+import { VertexResultEnum } from "../../src/internal/types/graph";
 import { Artifact } from "../../src/types/hardhat";
 import { ICommandJournal } from "../../src/types/journal";
 import { Services, TransactionOptions } from "../../src/types/services";

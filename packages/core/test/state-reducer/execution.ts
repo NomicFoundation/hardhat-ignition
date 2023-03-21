@@ -7,7 +7,7 @@ import {
   initializeDeployState,
 } from "../../src/internal/deployment/deployStateReducer";
 import { DeployState } from "../../src/internal/types/deployment";
-import { VertexResultEnum } from "../../src/types/graph";
+import { VertexResultEnum } from "../../src/internal/types/graph";
 
 import { applyActions, resolveExecutionGraphFor } from "./utils";
 

@@ -6,7 +6,10 @@ import {
   DeploymentGraphVertex,
   InternalParamValue,
 } from "../../internal/types/deploymentGraph";
-import { VertexResultEnum, VertexVisitResultFailure } from "../../types/graph";
+import {
+  VertexResultEnum,
+  VertexVisitResultFailure,
+} from "../../internal/types/graph";
 import { IgnitionError } from "../../utils/errors";
 import { isBytesArg } from "../../utils/guards";
 import { resolveProxyValue } from "../../utils/proxy";

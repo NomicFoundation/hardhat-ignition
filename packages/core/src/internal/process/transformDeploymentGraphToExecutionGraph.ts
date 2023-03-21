@@ -1,4 +1,4 @@
-import { clone } from "../../graph/adjacencyList";
+import { clone } from "../../internal/graph/adjacencyList";
 import { Services } from "../../types/services";
 import { ExecutionGraph } from "../execution/ExecutionGraph";
 import {

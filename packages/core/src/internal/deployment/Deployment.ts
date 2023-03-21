@@ -1,7 +1,3 @@
-import type {
-  VertexDescriptor,
-  VertexVisitResultFailure,
-} from "../../types/graph";
 import type { ICommandJournal } from "../../types/journal";
 import type { Services } from "../../types/services";
 import type {
@@ -12,6 +8,10 @@ import type {
   DeployNetworkConfig,
 } from "../types/deployment";
 import type { ExecutionVertexVisitResult } from "../types/executionGraph";
+import type {
+  VertexDescriptor,
+  VertexVisitResultFailure,
+} from "../types/graph";
 
 import setupDebug from "debug";
 

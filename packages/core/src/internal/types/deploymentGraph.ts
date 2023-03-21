@@ -21,9 +21,10 @@ import {
   SendFuture,
   AddressResolvable,
 } from "../../types/future";
-import { AdjacencyList, VertexDescriptor } from "../../types/graph";
 import { Artifact } from "../../types/hardhat";
 import { ModuleDict, Module } from "../../types/module";
+
+import { AdjacencyList, VertexDescriptor } from "./graph";
 
 export interface ScopeData {
   before: Virtual;

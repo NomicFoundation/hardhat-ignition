@@ -6,7 +6,7 @@ import type {
 
 import { Contract } from "ethers";
 
-import { VertexResultEnum } from "../../../types/graph";
+import { VertexResultEnum } from "../../types/graph";
 
 import { resolveFrom, toAddress } from "./utils";
 

@@ -9,7 +9,7 @@ import type {
 } from "../types/deployment";
 import type { ExecutionVertexVisitResult } from "../types/executionGraph";
 
-import { VertexResultEnum } from "../../types/graph";
+import { VertexResultEnum } from "../types/graph";
 
 export function deployExecutionStateReducer(
   state: ExecutionState,

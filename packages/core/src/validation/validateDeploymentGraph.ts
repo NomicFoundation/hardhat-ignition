@@ -1,5 +1,5 @@
-import { getSortedVertexIdsFrom } from "../graph/utils";
-import { visit } from "../graph/visit";
+import { getSortedVertexIdsFrom } from "../internal/graph/utils";
+import { visit } from "../internal/graph/visit";
 import {
   CallPoints,
   IDeploymentGraph,

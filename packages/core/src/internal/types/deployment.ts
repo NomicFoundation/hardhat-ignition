@@ -1,9 +1,3 @@
-import type {
-  IGraph,
-  VertexDescriptor,
-  VertexVisitResultFailure,
-  VertexVisitResultSuccess,
-} from "../../types/graph";
 import type { ModuleDict, ModuleParams } from "../../types/module";
 import type { SerializedDeploymentResult } from "../../types/serialization";
 import type { Services } from "../../types/services";
@@ -12,6 +6,12 @@ import type {
   ExecutionVertexVisitResult,
   VertexVisitResultSuccessResult,
 } from "./executionGraph";
+import type {
+  IGraph,
+  VertexDescriptor,
+  VertexVisitResultFailure,
+  VertexVisitResultSuccess,
+} from "./graph";
 import type { BigNumber } from "ethers";
 
 export type UpdateUiAction = (deployState: DeployState) => void;

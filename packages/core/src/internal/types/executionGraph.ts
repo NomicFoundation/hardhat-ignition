@@ -6,16 +6,16 @@ import {
   DeploymentGraphFuture,
   EventParamFuture,
 } from "../../types/future";
+import { Artifact } from "../../types/hardhat";
+
+import { LibraryMap } from "./deploymentGraph";
 import {
   AdjacencyList,
   ResultsAccumulator,
   VertexDescriptor,
   VertexVisitResult,
   VisitResult,
-} from "../../types/graph";
-import { Artifact } from "../../types/hardhat";
-
-import { LibraryMap } from "./deploymentGraph";
+} from "./graph";
 
 export interface IExecutionGraph {
   adjacencyList: AdjacencyList;
