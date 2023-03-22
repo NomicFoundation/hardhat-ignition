@@ -7,6 +7,7 @@ import { buildModule, Ignition } from "../src";
 import { Artifact } from "../src/types/hardhat";
 
 import { getMockServices } from "./helpers";
+import { setupIgnitionWithOverrideServices } from "./helpers/setupIgnitionWithOverrideServices";
 
 describe("deploy options", () => {
   const tokenArtifact: Artifact = {
@@ -49,7 +50,7 @@ describe("deploy options", () => {
   before(async function () {
     const services = getMockServices();
 
-    ignition = new Ignition({
+    ignition = setupIgnitionWithOverrideServices({
       services: {
         ...services,
         accounts: {

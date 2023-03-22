@@ -25,9 +25,11 @@ import { hashExecutionGraph } from "./internal/execution/utils";
 import { NoopCommandJournal } from "./internal/journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "./internal/process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "./internal/process/transformDeploymentGraphToExecutionGraph";
+import { createServices } from "./internal/services/createServices";
 import { Services } from "./internal/types/services";
 import { resolveProxyValue } from "./internal/utils/proxy";
 import { validateDeploymentGraph } from "./internal/validation/validateDeploymentGraph";
+import { Providers } from "./types/providers";
 
 const log = setupDebug("ignition:main");
 
@@ -37,15 +39,15 @@ export class Ignition {
   private _journal: ICommandJournal;
 
   constructor({
-    services,
+    providers,
     uiRenderer,
     journal,
   }: {
-    services: Services;
+    providers: Providers;
     uiRenderer?: UpdateUiAction;
     journal?: ICommandJournal;
   }) {
-    this._services = services;
+    this._services = createServices(providers);
     this._uiRenderer = uiRenderer ?? (() => {});
     this._journal = journal ?? new NoopCommandJournal();
   }
