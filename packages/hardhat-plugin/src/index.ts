@@ -12,6 +12,7 @@ import { IgnitionWrapper } from "./ignition-wrapper";
 import { loadModule } from "./load-module";
 import { Renderer } from "./plan";
 import "./type-extensions";
+import { renderInfo } from "./ui/components/info";
 
 export { buildModule } from "@ignored/ignition-core";
 
@@ -205,6 +206,35 @@ task("plan")
       }
     }
   );
+
+task("ignition-info")
+  .setDescription("Lists the status of all deployments")
+  .setAction(async (_, hre) => {
+    const networkName = hre.network.name;
+
+    const fakeData = [
+      {
+        networkName,
+        contracts: [
+          {
+            contractName: "Test A",
+            status: "Deployed",
+            address: "0x388C818CA8B9251b393131C08a736A67ccB19297",
+          },
+          {
+            contractName: "Test",
+            status: "errored",
+          },
+          {
+            contractName: "Test C",
+            status: "pending",
+          },
+        ],
+      },
+    ];
+
+    renderInfo(fakeData);
+  });
 
 function resolveParametersFromModuleName(
   moduleName: string,
