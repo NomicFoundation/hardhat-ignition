@@ -15,7 +15,7 @@ class TestIgnition extends Ignition {
   }
 }
 
-export function setupIgnitionWithOverrideServices({
+export function setupIgnitionWith({
   services,
   journal,
 }: {
