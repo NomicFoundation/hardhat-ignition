@@ -1,8 +1,19 @@
 import { ICommandJournal } from "../../src";
 import { Ignition } from "../../src/Ignition";
+import { NoopCommandJournal } from "../../src/internal/journal/NoopCommandJournal";
 import { Services } from "../../src/internal/types/services";
 
-import { getMockProviders } from "./getMockProviders";
+class TestIgnition extends Ignition {
+  constructor({
+    services,
+    journal = new NoopCommandJournal(),
+  }: {
+    services: Services;
+    journal?: ICommandJournal;
+  }) {
+    super({ services, uiRenderer: () => {}, journal });
+  }
+}
 
 export function setupIgnitionWithOverrideServices({
   services,
@@ -11,9 +22,5 @@ export function setupIgnitionWithOverrideServices({
   services: Services;
   journal?: ICommandJournal;
 }) {
-  const ignition = new Ignition({ providers: getMockProviders(), journal });
-
-  (ignition as any)._services = services;
-
-  return ignition;
+  return new TestIgnition({ services, journal });
 }

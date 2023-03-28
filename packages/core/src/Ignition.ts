@@ -38,18 +38,34 @@ export class Ignition {
   private _uiRenderer: UpdateUiAction;
   private _journal: ICommandJournal;
 
-  constructor({
+  public static create({
     providers,
-    uiRenderer,
-    journal,
+    uiRenderer = () => {},
+    journal = new NoopCommandJournal(),
   }: {
     providers: Providers;
     uiRenderer?: UpdateUiAction;
     journal?: ICommandJournal;
   }) {
-    this._services = createServices(providers);
-    this._uiRenderer = uiRenderer ?? (() => {});
-    this._journal = journal ?? new NoopCommandJournal();
+    return new Ignition({
+      services: createServices(providers),
+      uiRenderer,
+      journal,
+    });
+  }
+
+  protected constructor({
+    services,
+    uiRenderer,
+    journal,
+  }: {
+    services: Services;
+    uiRenderer: UpdateUiAction;
+    journal: ICommandJournal;
+  }) {
+    this._services = services;
+    this._uiRenderer = uiRenderer;
+    this._journal = journal;
   }
 
   public async deploy<T extends ModuleDict>(

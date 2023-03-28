@@ -55,7 +55,7 @@ export class IgnitionWrapper {
         ? new CommandJournal(chainId, deployParams?.journalPath)
         : undefined);
 
-    const ignition = new Ignition({
+    const ignition = Ignition.create({
       providers: this._providers,
       uiRenderer: showUi
         ? renderToCli(initializeRenderState(), deployParams?.parameters)
@@ -106,7 +106,7 @@ export class IgnitionWrapper {
   }
 
   public async plan<T extends ModuleDict>(ignitionModule: Module<T>) {
-    const ignition = new Ignition({
+    const ignition = Ignition.create({
       providers: this._providers,
     });
 
