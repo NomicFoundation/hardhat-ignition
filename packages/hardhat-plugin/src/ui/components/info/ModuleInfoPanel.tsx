@@ -1,5 +1,10 @@
 import { Box, Text, Spacer } from "ink";
 
+export interface ModuleInfoData {
+  moduleName: string;
+  panelData: StatusPanelData[];
+}
+
 export interface StatusPanelData {
   networkName: string;
   contracts: ContractInfo[];
@@ -11,7 +16,21 @@ export interface ContractInfo {
   address?: string;
 }
 
-export const StatusPanel = ({ data }: { data: StatusPanelData }) => {
+export const ModuleInfoPanel = ({ data }: { data: ModuleInfoData }) => {
+  return (
+    <Box flexDirection="column">
+      <Box flexDirection="column" marginBottom={1}>
+        <Text>{data.moduleName}</Text>
+        <Spacer />
+        <Text>{divider(data.moduleName, "_", data.moduleName.length + 1)}</Text>
+        <Spacer />
+      </Box>
+      {...data.panelData.map((panelData) => <StatusPanel data={panelData} />)}
+    </Box>
+  );
+};
+
+const StatusPanel = ({ data }: { data: StatusPanelData }) => {
   const nameWidth = getMaxStringLength(
     data.contracts.map(({ contractName }) => contractName)
   );
@@ -21,7 +40,7 @@ export const StatusPanel = ({ data }: { data: StatusPanelData }) => {
   );
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" marginBottom={1}>
       <Box flexDirection="column" marginBottom={1}>
         <Text>{data.networkName}</Text>
         <Spacer />
@@ -60,8 +79,8 @@ const StatusRow = ({
   );
 };
 
-function divider(name: string): string {
-  return new Array(name.length).fill("-").join("");
+function divider(name: string, fill: string = "-", length?: number): string {
+  return new Array(length ?? name.length).fill(fill).join("");
 }
 
 function getMaxStringLength(strings: string[]): number {

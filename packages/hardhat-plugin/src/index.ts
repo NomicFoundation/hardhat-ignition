@@ -214,20 +214,38 @@ task("ignition-info")
 
     const fakeData = [
       {
-        networkName,
-        contracts: [
+        moduleName: "MultisigModule.js",
+        panelData: [
           {
-            contractName: "Test A",
-            status: "Deployed",
-            address: "0x388C818CA8B9251b393131C08a736A67ccB19297",
+            networkName,
+            contracts: [
+              {
+                contractName: "Test A",
+                status: "Deployed",
+                address: "0x388C818CA8B9251b393131C08a736A67ccB19297",
+              },
+              {
+                contractName: "Test",
+                status: "errored",
+              },
+              {
+                contractName: "Test C",
+                status: "pending",
+              },
+            ],
           },
           {
-            contractName: "Test",
-            status: "errored",
-          },
-          {
-            contractName: "Test C",
-            status: "pending",
+            networkName: "mainnet",
+            contracts: [
+              {
+                contractName: "Test",
+                status: "errored",
+              },
+              {
+                contractName: "Test C",
+                status: "pending",
+              },
+            ],
           },
         ],
       },

@@ -1,17 +1,17 @@
-import { Box, Text, render } from "ink";
+import { Box, render } from "ink";
 
-import { StatusPanel, StatusPanelData } from "./StatusPanel";
+import { ModuleInfoPanel, ModuleInfoData } from "./ModuleInfoPanel";
 
-export function renderInfo(data: StatusPanelData[]) {
+export function renderInfo(data: ModuleInfoData[]) {
   render(<InfoView data={data} />);
 }
 
-const InfoView = ({ data }: { data: StatusPanelData[] }) => {
+const InfoView = ({ data }: { data: ModuleInfoData[] }) => {
   return (
     <Box flexDirection="column" margin={1}>
       {...data.map((panelData) => (
         <Box flexDirection="row">
-          <StatusPanel data={panelData} />
+          <ModuleInfoPanel data={panelData} />
         </Box>
       ))}
     </Box>
