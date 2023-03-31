@@ -13,6 +13,11 @@ import { loadModule } from "./load-module";
 import { Renderer } from "./plan";
 import "./type-extensions";
 import { renderInfo } from "./ui/components/info";
+import {
+  ContractInfo,
+  ModuleInfoData,
+  StatusPanelData,
+} from "./ui/components/info/ModuleInfoPanel";
 
 export { buildModule } from "@ignored/ignition-core";
 
@@ -208,51 +213,101 @@ task("plan")
   );
 
 task("ignition-info")
+  .addPositionalParam("moduleNameOrPath")
   .setDescription("Lists the status of all deployments")
-  .setAction(async (_, hre) => {
-    const networkName = hre.network.name;
+  .setAction(
+    async ({ moduleNameOrPath }: { moduleNameOrPath: string }, hre) => {
+      const userModule: Module<ModuleDict> | undefined = loadModule(
+        hre.config.paths.ignition,
+        moduleNameOrPath
+      );
 
-    const fakeData = [
-      {
-        moduleName: "MultisigModule.js",
-        panelData: [
-          {
+      if (userModule === undefined) {
+        console.warn("No Ignition modules found");
+        process.exit(0);
+      }
+
+      const journalPath = resolveJournalPath(
+        userModule?.name,
+        hre.config.paths.ignition
+      );
+
+      const deployments = await hre.ignition.info(userModule.name, journalPath);
+
+      const moduleInfoData: { [moduleName: string]: ModuleInfoData } = {};
+      for (const deployment of deployments) {
+        const { networkName, chainId, moduleName } = deployment.state.details;
+
+        const contracts: ContractInfo[] = [];
+        for (const vertex of Object.values(
+          deployment.state.execution.vertexes
+        )) {
+          if (
+            vertex.status === "COMPLETED" &&
+            "bytecode" in vertex.result.result &&
+            "value" in vertex.result.result
+          ) {
+            contracts.push({
+              contractName: vertex.result.result.name,
+              status: "deployed",
+              address: vertex.result.result.address,
+            });
+          }
+        }
+
+        if (contracts.length > 0) {
+          const panelData: StatusPanelData = {
             networkName,
-            contracts: [
-              {
-                contractName: "Test A",
-                status: "Deployed",
-                address: "0x388C818CA8B9251b393131C08a736A67ccB19297",
-              },
-              {
-                contractName: "Test",
-                status: "errored",
-              },
-              {
-                contractName: "Test C",
-                status: "pending",
-              },
-            ],
-          },
-          {
-            networkName: "mainnet",
-            contracts: [
-              {
-                contractName: "Test",
-                status: "errored",
-              },
-              {
-                contractName: "Test C",
-                status: "pending",
-              },
-            ],
-          },
-        ],
-      },
-    ];
+            chainId,
+            contracts,
+          };
+          moduleInfoData[moduleName] ??= { moduleName, panelData: [] };
+          moduleInfoData[moduleName].panelData.push(panelData);
+        }
+      }
 
-    renderInfo(fakeData);
-  });
+      // const fakeData = [
+      //   {
+      //     moduleName: "MultisigModule.js",
+      //     panelData: [
+      //       {
+      //         networkName: "hardhat",
+      //         contracts: [
+      //           {
+      //             contractName: "Test A",
+      //             status: "Deployed",
+      //             address: "0x388C818CA8B9251b393131C08a736A67ccB19297",
+      //           },
+      //           {
+      //             contractName: "Test",
+      //             status: "errored",
+      //           },
+      //           {
+      //             contractName: "Test C",
+      //             status: "pending",
+      //           },
+      //         ],
+      //       },
+      //       {
+      //         networkName: "mainnet",
+      //         contracts: [
+      //           {
+      //             contractName: "Test",
+      //             status: "errored",
+      //           },
+      //           {
+      //             contractName: "Test C",
+      //             status: "pending",
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //   },
+      // ];
+
+      renderInfo(Object.values(moduleInfoData));
+    }
+  );
 
 function resolveParametersFromModuleName(
   moduleName: string,

@@ -22,6 +22,7 @@ import { generateDeploymentGraphFrom } from "./process/generateDeploymentGraphFr
 import { transformDeploymentGraphToExecutionGraph } from "./process/transformDeploymentGraphToExecutionGraph";
 import { createServices } from "./services/createServices";
 import {
+  DeployStateExecutionCommand,
   DeploymentResult,
   DeploymentResultState,
   UpdateUiAction,
@@ -33,6 +34,7 @@ import {
 } from "./types/executionGraph";
 import { VertexResultEnum, VisitResultState } from "./types/graph";
 import { Services } from "./types/services";
+import { networkNameByChainId } from "./utils/networkNames";
 import {
   isFailure,
   processStepFailed,
@@ -301,6 +303,43 @@ export class IgnitionImplementation implements Ignition {
     const { executionGraph } = transformResult.result;
 
     return { deploymentGraph, executionGraph };
+  }
+
+  public async info(moduleName: string): Promise<Deployment[]> {
+    log(`Start info`);
+
+    const journalData: {
+      [k: string]: Array<DeployStateExecutionCommand & { chainId: number }>;
+    } = {};
+    for await (const command of this._journal.readAll()) {
+      const network = networkNameByChainId[command.chainId] ?? "unknown";
+
+      if (journalData[network] === undefined) {
+        journalData[network] = [];
+      }
+
+      journalData[network].push(command);
+    }
+
+    const deployments: Deployment[] = [];
+    for (const [networkName, commands] of Object.entries(journalData)) {
+      const deployment = new Deployment(
+        moduleName,
+        this._services,
+        this._journal
+      );
+
+      await deployment.setDeploymentDetails({
+        networkName,
+        chainId: commands[0].chainId,
+      });
+
+      await deployment.load(commands);
+
+      deployments.push(deployment);
+    }
+
+    return deployments;
   }
 
   private async _constructExecutionGraphFrom<T extends ModuleDict>(

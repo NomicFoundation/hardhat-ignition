@@ -7,6 +7,7 @@ export interface ModuleInfoData {
 
 export interface StatusPanelData {
   networkName: string;
+  chainId: number;
   contracts: ContractInfo[];
 }
 
@@ -42,7 +43,9 @@ const StatusPanel = ({ data }: { data: StatusPanelData }) => {
   return (
     <Box flexDirection="column" marginBottom={1}>
       <Box flexDirection="column" marginBottom={1}>
-        <Text>{data.networkName}</Text>
+        <Text>
+          {data.networkName} ({data.chainId})
+        </Text>
         <Spacer />
         <Text>{divider(data.networkName)}</Text>
         <Spacer />
