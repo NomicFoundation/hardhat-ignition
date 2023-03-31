@@ -178,7 +178,7 @@ export class IgnitionImplementation implements Ignition {
         accounts,
         chainId,
         artifacts,
-        networkName: options.networkName,
+        networkName: networkNameByChainId[chainId] ?? "unknown",
         force: options.force,
       });
 
@@ -260,7 +260,7 @@ export class IgnitionImplementation implements Ignition {
    */
   public async plan<T extends ModuleDict>(
     deploymentModule: Module<T>
-  ): Promise<IgnitionPlan> {
+  ): Promise<IgnitionPlan & { networkName: string }> {
     log(`Start plan`);
 
     const [chainId, accounts, artifacts] = await Promise.all([
@@ -302,7 +302,11 @@ export class IgnitionImplementation implements Ignition {
 
     const { executionGraph } = transformResult.result;
 
-    return { deploymentGraph, executionGraph };
+    return {
+      deploymentGraph,
+      executionGraph,
+      networkName: networkNameByChainId[chainId] ?? "unknown",
+    };
   }
 
   public async info(moduleName: string): Promise<Deployment[]> {

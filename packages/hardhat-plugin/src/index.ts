@@ -193,12 +193,12 @@ task("plan")
         process.exit(0);
       }
 
-      const plan = await hre.ignition.plan(userModule);
+      const { networkName, ...plan } = await hre.ignition.plan(userModule);
 
       const renderer = new Renderer(userModule.name, plan, {
         cachePath: hre.config.paths.cache,
         network: {
-          name: hre.network.name,
+          name: networkName,
           id: hre.network.config.chainId ?? "unknown",
         },
       });
@@ -265,45 +265,6 @@ task("ignition-info")
           moduleInfoData[moduleName].panelData.push(panelData);
         }
       }
-
-      // const fakeData = [
-      //   {
-      //     moduleName: "MultisigModule.js",
-      //     panelData: [
-      //       {
-      //         networkName: "hardhat",
-      //         contracts: [
-      //           {
-      //             contractName: "Test A",
-      //             status: "Deployed",
-      //             address: "0x388C818CA8B9251b393131C08a736A67ccB19297",
-      //           },
-      //           {
-      //             contractName: "Test",
-      //             status: "errored",
-      //           },
-      //           {
-      //             contractName: "Test C",
-      //             status: "pending",
-      //           },
-      //         ],
-      //       },
-      //       {
-      //         networkName: "mainnet",
-      //         contracts: [
-      //           {
-      //             contractName: "Test",
-      //             status: "errored",
-      //           },
-      //           {
-      //             contractName: "Test C",
-      //             status: "pending",
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //   },
-      // ];
 
       renderInfo(Object.values(moduleInfoData));
     }
