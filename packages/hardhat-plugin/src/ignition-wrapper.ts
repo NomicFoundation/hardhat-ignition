@@ -142,10 +142,7 @@ export class IgnitionWrapper {
   public async info(moduleName: string, journalPath: string) {
     const journal = new CommandJournal(0, journalPath);
 
-    const ignition = new Ignition({
-      services: createServices(this._providers),
-      journal,
-    });
+    const ignition = Ignition.create({ providers: this._providers, journal });
 
     return ignition.info(moduleName);
   }
