@@ -313,29 +313,33 @@ export class IgnitionImplementation implements Ignition {
     log(`Start info`);
 
     const journalData: {
-      [k: string]: Array<DeployStateExecutionCommand & { chainId: number }>;
+      [networkTag: string]: Array<
+        DeployStateExecutionCommand & { chainId: number }
+      >;
     } = {};
     for await (const command of this._journal.readAll()) {
       const network = networkNameByChainId[command.chainId] ?? "unknown";
+      const networkTag = `${network}:${command.chainId}`;
 
-      if (journalData[network] === undefined) {
-        journalData[network] = [];
+      if (journalData[networkTag] === undefined) {
+        journalData[networkTag] = [];
       }
 
-      journalData[network].push(command);
+      journalData[networkTag].push(command);
     }
 
     const deployments: Deployment[] = [];
-    for (const [networkName, commands] of Object.entries(journalData)) {
+    for (const [networkTag, commands] of Object.entries(journalData)) {
       const deployment = new Deployment(
         moduleName,
         this._services,
         this._journal
       );
 
+      const [networkName, chainId] = networkTag.split(":");
       await deployment.setDeploymentDetails({
         networkName,
-        chainId: commands[0].chainId,
+        chainId: +chainId,
       });
 
       await deployment.load(commands);
