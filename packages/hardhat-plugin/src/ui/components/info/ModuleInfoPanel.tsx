@@ -1,21 +1,10 @@
+import type {
+  ModuleInfoData,
+  NetworkInfoData,
+  ContractInfoData,
+} from "@ignored/ignition-core";
+
 import { Box, Text, Spacer } from "ink";
-
-export interface ModuleInfoData {
-  moduleName: string;
-  panelData: StatusPanelData[];
-}
-
-export interface StatusPanelData {
-  networkName: string;
-  chainId: number;
-  contracts: ContractInfo[];
-}
-
-export interface ContractInfo {
-  contractName: string;
-  status: string;
-  address?: string;
-}
 
 export const ModuleInfoPanel = ({ data }: { data: ModuleInfoData }) => {
   return (
@@ -26,12 +15,14 @@ export const ModuleInfoPanel = ({ data }: { data: ModuleInfoData }) => {
         <Text>{divider(data.moduleName, "_", data.moduleName.length + 1)}</Text>
         <Spacer />
       </Box>
-      {...data.panelData.map((panelData) => <StatusPanel data={panelData} />)}
+      {...data.networks.map((networkData) => (
+        <StatusPanel data={networkData} />
+      ))}
     </Box>
   );
 };
 
-const StatusPanel = ({ data }: { data: StatusPanelData }) => {
+const StatusPanel = ({ data }: { data: NetworkInfoData }) => {
   const nameWidth = getMaxStringLength(
     data.contracts.map(({ contractName }) => contractName)
   );
@@ -68,7 +59,7 @@ const StatusRow = ({
 }: {
   nameWidth: number;
   statusWidth: number;
-  data: ContractInfo;
+  data: ContractInfoData;
 }) => {
   const name = data.contractName.padEnd(nameWidth);
   const status = data.status.padEnd(statusWidth);

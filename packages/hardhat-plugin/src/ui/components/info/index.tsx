@@ -1,6 +1,8 @@
+import type { ModuleInfoData } from "@ignored/ignition-core";
+
 import { Box, render } from "ink";
 
-import { ModuleInfoPanel, ModuleInfoData } from "./ModuleInfoPanel";
+import { ModuleInfoPanel } from "./ModuleInfoPanel";
 
 export function renderInfo(data: ModuleInfoData[]) {
   render(<InfoView data={data} />);

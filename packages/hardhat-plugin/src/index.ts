@@ -13,11 +13,6 @@ import { loadModule } from "./load-module";
 import { Renderer } from "./plan";
 import "./type-extensions";
 import { renderInfo } from "./ui/components/info";
-import {
-  ContractInfo,
-  ModuleInfoData,
-  StatusPanelData,
-} from "./ui/components/info/ModuleInfoPanel";
 
 export { buildModule } from "@ignored/ignition-core";
 
@@ -232,41 +227,9 @@ task("ignition-info")
         hre.config.paths.ignition
       );
 
-      const deployments = await hre.ignition.info(userModule.name, journalPath);
+      const moduleInfo = await hre.ignition.info(userModule.name, journalPath);
 
-      const moduleInfoData: { [moduleName: string]: ModuleInfoData } = {};
-      for (const deployment of deployments) {
-        const { networkName, chainId, moduleName } = deployment.state.details;
-
-        const contracts: ContractInfo[] = [];
-        for (const vertex of Object.values(
-          deployment.state.execution.vertexes
-        )) {
-          if (
-            vertex.status === "COMPLETED" &&
-            "bytecode" in vertex.result.result &&
-            "value" in vertex.result.result
-          ) {
-            contracts.push({
-              contractName: vertex.result.result.name,
-              status: "deployed",
-              address: vertex.result.result.address,
-            });
-          }
-        }
-
-        if (contracts.length > 0) {
-          const panelData: StatusPanelData = {
-            networkName,
-            chainId,
-            contracts,
-          };
-          moduleInfoData[moduleName] ??= { moduleName, panelData: [] };
-          moduleInfoData[moduleName].panelData.push(panelData);
-        }
-      }
-
-      renderInfo(Object.values(moduleInfoData));
+      renderInfo(Object.values(moduleInfo));
     }
   );
 

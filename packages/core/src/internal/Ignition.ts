@@ -1,3 +1,8 @@
+import type {
+  ModuleInfoData,
+  NetworkInfoData,
+  ContractInfoData,
+} from "../types/info";
 import type { Module, ModuleDict } from "../types/module";
 import type { IgnitionPlan } from "../types/plan";
 import type {
@@ -260,7 +265,7 @@ export class IgnitionImplementation implements Ignition {
    */
   public async plan<T extends ModuleDict>(
     deploymentModule: Module<T>
-  ): Promise<IgnitionPlan & { networkName: string }> {
+  ): Promise<IgnitionPlan> {
     log(`Start plan`);
 
     const [chainId, accounts, artifacts] = await Promise.all([
@@ -309,7 +314,7 @@ export class IgnitionImplementation implements Ignition {
     };
   }
 
-  public async info(moduleName: string): Promise<Deployment[]> {
+  public async info(moduleName: string): Promise<ModuleInfoData[]> {
     log(`Start info`);
 
     const journalData: {
@@ -347,7 +352,44 @@ export class IgnitionImplementation implements Ignition {
       deployments.push(deployment);
     }
 
-    return deployments;
+    const moduleInfoData: { [moduleName: string]: ModuleInfoData } = {};
+    for (const deployment of deployments) {
+      const {
+        networkName,
+        chainId,
+        moduleName: deploymentName,
+      } = deployment.state.details;
+
+      const contracts: ContractInfoData[] = [];
+      for (const vertex of Object.values(deployment.state.execution.vertexes)) {
+        if (
+          vertex.status === "COMPLETED" &&
+          "bytecode" in vertex.result.result &&
+          "value" in vertex.result.result
+        ) {
+          contracts.push({
+            contractName: vertex.result.result.name,
+            status: "deployed",
+            address: vertex.result.result.address,
+          });
+        }
+      }
+
+      if (contracts.length > 0) {
+        const networkInfo: NetworkInfoData = {
+          networkName,
+          chainId,
+          contracts,
+        };
+        moduleInfoData[deploymentName] ??= {
+          moduleName: deploymentName,
+          networks: [],
+        };
+        moduleInfoData[deploymentName].networks.push(networkInfo);
+      }
+    }
+
+    return Object.values(moduleInfoData);
   }
 
   private async _constructExecutionGraphFrom<T extends ModuleDict>(
