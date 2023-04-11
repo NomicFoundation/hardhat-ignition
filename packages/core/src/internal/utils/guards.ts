@@ -18,6 +18,7 @@ import type {
   EventVertex,
   HardhatContractDeploymentVertex,
   HardhatLibraryDeploymentVertex,
+  StaticCallDeploymentVertex,
 } from "../types/deploymentGraph";
 
 import { IgnitionError } from "../../errors";
@@ -88,6 +89,7 @@ export function isDependable(possible: any): possible is DependableFuture {
   return (
     isFuture(possible) &&
     (possible.type === "call" ||
+      possible.type === "static-call" ||
       possible.type === "contract" ||
       possible.type === "library" ||
       possible.type === "virtual" ||
@@ -107,6 +109,12 @@ export function isVirtual(possible: any): possible is Virtual {
 
 export function isEventParam(possible: any): possible is EventParamFuture {
   return isFuture(possible) && possible.type === "eventParam";
+}
+
+export function isStaticCall(
+  possible: any
+): possible is StaticCallDeploymentVertex {
+  return isFuture(possible) && possible.type === "static-call";
 }
 
 export function isParameter(
