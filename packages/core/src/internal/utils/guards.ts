@@ -7,6 +7,7 @@ import type {
   OptionalParameter,
   ProxyFuture,
   RequiredParameter,
+  StaticContractCall,
   Virtual,
 } from "../../types/future";
 import type {
@@ -56,6 +57,12 @@ export function isCall(
   node: DeploymentGraphVertex
 ): node is CallDeploymentVertex {
   return node.type === "Call";
+}
+
+export function isStaticCall(
+  node: DeploymentGraphVertex
+): node is StaticCallDeploymentVertex {
+  return node.type === "StaticCall";
 }
 
 export function isAwaitedEvent(
@@ -111,9 +118,9 @@ export function isEventParam(possible: any): possible is EventParamFuture {
   return isFuture(possible) && possible.type === "eventParam";
 }
 
-export function isStaticCall(
+export function isStaticCallFuture(
   possible: any
-): possible is StaticCallDeploymentVertex {
+): possible is StaticContractCall {
   return isFuture(possible) && possible.type === "static-call";
 }
 

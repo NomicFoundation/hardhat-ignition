@@ -9,7 +9,7 @@ import {
   isDependable,
   isEventParam,
   isProxy,
-  isStaticCall,
+  isStaticCallFuture,
 } from "../../utils/guards";
 
 export function toAddress(v: any) {
@@ -60,7 +60,7 @@ function resolveFromContext(
     return entry.result.topics[arg.label];
   }
 
-  if (isStaticCall(arg) && "data" in entry.result) {
+  if (isStaticCallFuture(arg) && "data" in entry.result) {
     return entry.result.data;
   }
 
