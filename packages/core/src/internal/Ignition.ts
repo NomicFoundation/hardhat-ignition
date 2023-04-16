@@ -314,6 +314,14 @@ export class IgnitionImplementation implements Ignition {
     };
   }
 
+  /**
+   * Retrieve information about the given deployed module
+   *
+   * @param moduleName - The name of the Ignition module to retrieve data about
+   * @returns The addresses of the deployed contracts across any relevant networks
+   *
+   * @internal
+   */
   public async info(moduleName: string): Promise<ModuleInfoData[]> {
     log(`Start info`);
 

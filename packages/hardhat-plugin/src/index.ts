@@ -188,12 +188,12 @@ task("plan")
         process.exit(0);
       }
 
-      const { networkName, ...plan } = await hre.ignition.plan(userModule);
+      const plan = await hre.ignition.plan(userModule);
 
       const renderer = new Renderer(userModule.name, plan, {
         cachePath: hre.config.paths.cache,
         network: {
-          name: networkName,
+          name: (plan as { networkName: string }).networkName,
           id: hre.network.config.chainId ?? "unknown",
         },
       });

@@ -1,7 +1,7 @@
 /**
  * A data structure describing a deployed Module
  *
- * @internal
+ * @alpha
  */
 export interface ModuleInfoData {
   moduleName: string;
@@ -11,7 +11,7 @@ export interface ModuleInfoData {
 /**
  * A data structure describing network info for a deployed Module
  *
- * @internal
+ * @alpha
  */
 export interface NetworkInfoData {
   networkName: string;
@@ -22,7 +22,7 @@ export interface NetworkInfoData {
 /**
  * A data structure describing a deployed Contract
  *
- * @internal
+ * @alpha
  */
 export interface ContractInfoData {
   contractName: string;
