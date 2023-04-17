@@ -1,9 +1,10 @@
 import type {
+  BaseArgValue,
   ExecutionVertexVisitResult,
   StaticContractCallExecutionVertex,
 } from "../../types/executionGraph";
 
-import { Contract, ethers, BigNumber } from "ethers";
+import { Contract, ethers } from "ethers";
 
 import { VertexResultEnum } from "../../types/graph";
 
@@ -19,7 +20,7 @@ export async function executeStaticContractCall(
 
   const { address, abi } = resolve(contract);
 
-  let result: string | number | boolean | BigNumber | ethers.utils.Result;
+  let result: BaseArgValue | ethers.utils.Result;
   try {
     const contractInstance = new Contract(address, abi, signer);
 

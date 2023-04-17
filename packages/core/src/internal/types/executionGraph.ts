@@ -234,7 +234,7 @@ export interface ContractCallSuccess {
  * @internal
  */
 export interface StaticContractCallSuccess {
-  data: string | number | boolean | BigNumber | ethers.utils.Result;
+  data: BaseArgValue | ethers.utils.Result;
 }
 
 /**
