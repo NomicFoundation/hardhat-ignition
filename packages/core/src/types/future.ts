@@ -231,7 +231,7 @@ export type ArtifactFuture = ArtifactContract | DeployedContract;
  *
  * @alpha
  */
-export type ContractFuture =
+export type ContractFutureOld =
   | HardhatContract
   | ArtifactContract
   | DeployedContract;
@@ -248,7 +248,7 @@ export type LibraryFuture = HardhatLibrary | ArtifactLibrary;
  *
  * @alpha
  */
-export type CallableFuture = ContractFuture | LibraryFuture;
+export type CallableFuture = ContractFutureOld | LibraryFuture;
 
 /**
  * A future value from an on-chain action that.
@@ -273,7 +273,7 @@ export type AddressResolvable =
   | string
   | ParameterFuture
   | EventParamFuture
-  | ContractFuture;
+  | ContractFutureOld;
 
 /**
  * The future value of a passed parameter to a Module.

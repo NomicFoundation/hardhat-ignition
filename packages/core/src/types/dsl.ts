@@ -56,7 +56,7 @@ export interface IDeploymentBuilder {
   call(
     contractFuture: DeploymentGraphFuture,
     functionName: string,
-    options: CallOptions
+    options: CallOptionsOld
   ): ContractCall;
 
   /**
@@ -71,7 +71,7 @@ export interface IDeploymentBuilder {
   staticCall(
     contractFuture: DeploymentGraphFuture,
     functionName: string,
-    options: StaticCallOptions
+    options: StaticCallOptionsOld
   ): StaticContractCall;
 
   /**
@@ -82,7 +82,7 @@ export interface IDeploymentBuilder {
    *
    * @alpha
    */
-  contract(contractName: string, options?: ContractOptions): HardhatContract;
+  contract(contractName: string, options?: ContractOptionsOld): HardhatContract;
 
   /**
    * Deploy a contract based on an artifact.
@@ -98,7 +98,7 @@ export interface IDeploymentBuilder {
   contract(
     contractName: string,
     artifact: Artifact,
-    options?: ContractOptions
+    options?: ContractOptionsOld
   ): ArtifactContract;
 
   /**
@@ -181,7 +181,7 @@ export interface IDeploymentBuilder {
    *
    * @alpha
    */
-  library(libraryName: string, options?: ContractOptions): HardhatLibrary;
+  library(libraryName: string, options?: ContractOptionsOld): HardhatLibrary;
   /**
    * Deploy a library based on an artifact.
    *
@@ -194,7 +194,7 @@ export interface IDeploymentBuilder {
   library(
     libraryName: string,
     artifact: Artifact,
-    options?: ContractOptions
+    options?: ContractOptionsOld
   ): ArtifactLibrary;
 
   /**
@@ -239,7 +239,7 @@ export interface AwaitOptions {
  *
  * @alpha
  */
-export interface CallOptions {
+export interface CallOptionsOld {
   args: InternalParamValue[];
   after?: DeploymentGraphFuture[];
   value?: BigNumber | ParameterFuture;
@@ -251,7 +251,7 @@ export interface CallOptions {
  *
  * @alpha
  */
-export interface StaticCallOptions {
+export interface StaticCallOptionsOld {
   args: InternalParamValue[];
   after?: DeploymentGraphFuture[];
   from?: string;
@@ -262,7 +262,7 @@ export interface StaticCallOptions {
  *
  * @alpha
  */
-export interface ContractOptions {
+export interface ContractOptionsOld {
   args?: InternalParamValue[];
   libraries?: {
     [key: string]: DeploymentGraphFuture;

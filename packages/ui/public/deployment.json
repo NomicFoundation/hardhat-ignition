@@ -1,0 +1,238 @@
+{
+  "details": {
+    "chainId": 999,
+    "networkName": "Hardhat"
+  },
+  "startModule": "MyModule",
+  "modules": {
+    "MyModule": {
+      "id": "MyModule",
+      "futures": {
+        "MyModule:TestHelper": {
+          "id": "MyModule:TestHelper",
+          "type": 0,
+          "dependencies": [],
+          "contractName": "TestHelper",
+          "constructorArgs": [],
+          "libraries": {}
+        },
+        "MyModule:MyDefi": {
+          "id": "MyModule:MyDefi",
+          "type": 0,
+          "dependencies": [
+            {
+              "futureId": "Synthetix:SynthetixCore:0x0123",
+              "_kind": "FutureToken"
+            },
+            {
+              "futureId": "Balancer:BalancerCore",
+              "_kind": "FutureToken"
+            }
+          ],
+          "contractName": "MyDefi",
+          "constructorArgs": [],
+          "libraries": {}
+        }
+      },
+      "submodules": [
+        {
+          "moduleId": "Synthetix",
+          "_kind": "ModuleToken"
+        },
+        {
+          "moduleId": "Balancer",
+          "_kind": "ModuleToken"
+        },
+        {
+          "moduleId": "Uniswap",
+          "_kind": "ModuleToken"
+        }
+      ],
+      "results": {
+        "myDefi": {
+          "futureId": "MyModule:MyDefi",
+          "_kind": "FutureToken"
+        },
+        "router": {
+          "futureId": "Uniswap:UniswapRouter",
+          "_kind": "FutureToken"
+        },
+        "synthetix": {
+          "futureId": "Synthetix:SynthetixCore:0x0123",
+          "_kind": "FutureToken"
+        },
+        "balancer": {
+          "futureId": "Balancer:BalancerCore",
+          "_kind": "FutureToken"
+        },
+        "testHelper": {
+          "futureId": "MyModule:TestHelper",
+          "_kind": "FutureToken"
+        }
+      }
+    },
+    "Synthetix": {
+      "id": "Synthetix",
+      "futures": {
+        "Synthetix:SynthetixCore:0x0123": {
+          "id": "Synthetix:SynthetixCore:0x0123",
+          "type": 6,
+          "dependencies": [],
+          "contractName": "SynthetixCore",
+          "address": "0x0123",
+          "artifact": [
+            "fake artifact"
+          ]
+        },
+        "Synthetix:SynthetixCore#setUniswap": {
+          "id": "Synthetix:SynthetixCore#setUniswap",
+          "type": 4,
+          "dependencies": [
+            {
+              "futureId": "Synthetix:SynthetixCore:0x0123",
+              "_kind": "FutureToken"
+            },
+            {
+              "futureId": "Uniswap:UniswapRouter",
+              "_kind": "FutureToken"
+            }
+          ],
+          "contract": {
+            "futureId": "Synthetix:SynthetixCore:0x0123",
+            "_kind": "FutureToken"
+          },
+          "functionName": "setUniswap",
+          "args": [
+            {
+              "futureId": "Uniswap:UniswapRouter",
+              "_kind": "FutureToken"
+            }
+          ]
+        }
+      },
+      "submodules": [
+        {
+          "moduleId": "Uniswap",
+          "_kind": "ModuleToken"
+        }
+      ],
+      "results": {
+        "synthetix": {
+          "futureId": "Synthetix:SynthetixCore:0x0123",
+          "_kind": "FutureToken"
+        }
+      }
+    },
+    "Uniswap": {
+      "id": "Uniswap",
+      "futures": {
+        "Uniswap:UniswapRouter": {
+          "id": "Uniswap:UniswapRouter",
+          "type": 0,
+          "dependencies": [],
+          "contractName": "UniswapRouter",
+          "constructorArgs": [
+            1,
+            2,
+            3
+          ],
+          "libraries": {}
+        },
+        "Uniswap:UniswapRouter#configure": {
+          "id": "Uniswap:UniswapRouter#configure",
+          "type": 4,
+          "dependencies": [
+            {
+              "futureId": "Uniswap:UniswapRouter",
+              "_kind": "FutureToken"
+            }
+          ],
+          "contract": {
+            "futureId": "Uniswap:UniswapRouter",
+            "_kind": "FutureToken"
+          },
+          "functionName": "configure",
+          "args": [
+            3,
+            4,
+            5
+          ]
+        }
+      },
+      "submodules": [],
+      "results": {
+        "router": {
+          "futureId": "Uniswap:UniswapRouter",
+          "_kind": "FutureToken"
+        }
+      }
+    },
+    "Balancer": {
+      "id": "Balancer",
+      "futures": {
+        "Balancer:SafeMath": {
+          "id": "Balancer:SafeMath",
+          "type": 2,
+          "dependencies": [],
+          "contractName": "SafeMath",
+          "libraries": {}
+        },
+        "Balancer:BalancerCore": {
+          "id": "Balancer:BalancerCore",
+          "type": 0,
+          "dependencies": [
+            {
+              "futureId": "Balancer:SafeMath",
+              "_kind": "FutureToken"
+            }
+          ],
+          "contractName": "BalancerCore",
+          "constructorArgs": [],
+          "libraries": {
+            "SafeMath": {
+              "futureId": "Balancer:SafeMath",
+              "_kind": "FutureToken"
+            }
+          }
+        },
+        "Balancer:BalancerCore#setUniswap": {
+          "id": "Balancer:BalancerCore#setUniswap",
+          "type": 4,
+          "dependencies": [
+            {
+              "futureId": "Balancer:BalancerCore",
+              "_kind": "FutureToken"
+            },
+            {
+              "futureId": "Uniswap:UniswapRouter",
+              "_kind": "FutureToken"
+            }
+          ],
+          "contract": {
+            "futureId": "Balancer:BalancerCore",
+            "_kind": "FutureToken"
+          },
+          "functionName": "setUniswap",
+          "args": [
+            {
+              "futureId": "Uniswap:UniswapRouter",
+              "_kind": "FutureToken"
+            }
+          ]
+        }
+      },
+      "submodules": [
+        {
+          "moduleId": "Uniswap",
+          "_kind": "ModuleToken"
+        }
+      ],
+      "results": {
+        "balancer": {
+          "futureId": "Balancer:BalancerCore",
+          "_kind": "FutureToken"
+        }
+      }
+    }
+  }
+}

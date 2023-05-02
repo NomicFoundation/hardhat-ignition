@@ -5,7 +5,7 @@ import type {
   ArtifactLibrary,
   CallableFuture,
   ContractCall,
-  ContractFuture,
+  ContractFutureOld,
   DependableFuture,
   DeployedContract,
   DeploymentGraphFuture,
@@ -58,12 +58,12 @@ import {
 import { resolveProxyDependency } from "../../internal/utils/proxy";
 import {
   AwaitOptions,
-  CallOptions,
-  ContractOptions,
+  CallOptionsOld,
+  ContractOptionsOld,
   IDeploymentBuilder,
   InternalParamValue,
   SendOptions,
-  StaticCallOptions,
+  StaticCallOptionsOld,
   UseModuleOptions,
 } from "../../types/dsl";
 import { addEdge, ensureVertex } from "../graph/adjacencyList";
@@ -153,21 +153,21 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
   public library(
     libraryName: string,
-    options?: ContractOptions
+    options?: ContractOptionsOld
   ): HardhatLibrary;
   public library(
     libraryName: string,
     artifact: Artifact,
-    options?: ContractOptions
+    options?: ContractOptionsOld
   ): ArtifactLibrary;
   public library(
     libraryName: string,
-    artifactOrOptions?: ContractOptions | Artifact,
-    givenOptions?: ContractOptions
+    artifactOrOptions?: ContractOptionsOld | Artifact,
+    givenOptions?: ContractOptionsOld
   ): HardhatLibrary | ArtifactLibrary {
     if (isArtifact(artifactOrOptions)) {
       const artifact = artifactOrOptions;
-      const options: ContractOptions | undefined = givenOptions;
+      const options: ContractOptionsOld | undefined = givenOptions;
 
       const artifactContractFuture: ArtifactLibrary = {
         vertexId: this._resolveNextId(),
@@ -191,7 +191,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
       return artifactContractFuture;
     } else {
-      const options: ContractOptions | undefined = artifactOrOptions;
+      const options: ContractOptionsOld | undefined = artifactOrOptions;
 
       const libraryFuture: HardhatLibrary = {
         vertexId: this._resolveNextId(),
@@ -219,21 +219,21 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
   public contract(
     contractName: string,
-    options?: ContractOptions
+    options?: ContractOptionsOld
   ): HardhatContract;
   public contract(
     contractName: string,
     artifact: Artifact,
-    options?: ContractOptions
+    options?: ContractOptionsOld
   ): ArtifactContract;
   public contract(
     contractName: string,
-    artifactOrOptions?: Artifact | ContractOptions,
-    givenOptions?: ContractOptions
+    artifactOrOptions?: Artifact | ContractOptionsOld,
+    givenOptions?: ContractOptionsOld
   ): HardhatContract | ArtifactContract {
     if (isArtifact(artifactOrOptions)) {
       const artifact = artifactOrOptions;
-      const options: ContractOptions | undefined = givenOptions;
+      const options: ContractOptionsOld | undefined = givenOptions;
 
       const artifactContractFuture: ArtifactContract = {
         vertexId: this._resolveNextId(),
@@ -259,7 +259,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
 
       return artifactContractFuture;
     } else {
-      const options: ContractOptions | undefined = artifactOrOptions;
+      const options: ContractOptionsOld | undefined = artifactOrOptions;
 
       const contractFuture: HardhatContract = {
         vertexId: this._resolveNextId(),
@@ -319,7 +319,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
   public call(
     contractFuture: DeploymentGraphFuture,
     functionName: string,
-    { args, after, value, from }: CallOptions
+    { args, after, value, from }: CallOptionsOld
   ): ContractCall {
     const callFuture: ContractCall = {
       vertexId: this._resolveNextId(),
@@ -374,7 +374,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
   public staticCall(
     contractFuture: DeploymentGraphFuture,
     functionName: string,
-    { args, after, from }: StaticCallOptions
+    { args, after, from }: StaticCallOptionsOld
   ): StaticContractCall {
     const staticCallFuture: StaticContractCall = {
       vertexId: this._resolveNextId(),
@@ -507,7 +507,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
         throw new IgnitionError("Could not resolve contract from parameter");
       }
 
-      address = scopeData.parameters[parameter.label] as ContractFuture;
+      address = scopeData.parameters[parameter.label] as ContractFutureOld;
     } else {
       if (sendTo.subtype !== "address") {
         throw new IgnitionError(
