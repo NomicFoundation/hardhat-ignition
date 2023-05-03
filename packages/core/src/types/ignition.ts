@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 
+import { IDeployment } from "./deployment";
 import { ModuleInfoData } from "./info";
 import { Module, ModuleDict } from "./module";
 import { IgnitionPlan } from "./plan";
@@ -24,14 +25,11 @@ export type UpdateUiActionT = unknown;
  *
  * @alpha
  */
-export interface IgnitionDeployOptions {
-  txPollingInterval: number;
-  networkName: string;
+export interface IgnitionExecuteOptions {
   maxRetries: number;
   gasPriceIncrementPerRetry: BigNumber | null;
   pollingInterval: number;
   eventDuration: number;
-  force: boolean;
 }
 
 /**
@@ -60,10 +58,10 @@ export interface Ignition {
    *
    * @alpha
    */
-  deploy<T extends ModuleDict>(
-    ignitionModule: Module<T>,
-    options: IgnitionDeployOptions
-  ): Promise<DeploymentResultT<T>>;
+  execute(
+    deployment: IDeployment,
+    options: IgnitionExecuteOptions
+  ): Promise<DeploymentResultT>;
 
   /**
    * Construct a plan (or dry run) describing how a deployment will be executed

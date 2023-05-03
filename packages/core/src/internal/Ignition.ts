@@ -1,3 +1,4 @@
+import type { IDeployment } from "../types/deployment";
 import type {
   ModuleInfoData,
   NetworkInfoData,
@@ -14,15 +15,10 @@ import type { ICommandJournal } from "./types/journal";
 import setupDebug from "debug";
 
 import { IgnitionError } from "../errors";
-import { Ignition, IgnitionDeployOptions } from "../types/ignition";
-import { ProcessStepResult } from "../types/process";
+import { Ignition, IgnitionExecuteOptions } from "../types/ignition";
 import { Providers } from "../types/providers";
 
-import { Deployment } from "./deployment/Deployment";
 import { execute } from "./execution/execute";
-import { loadJournalInto } from "./execution/loadJournalInto";
-import { hashExecutionGraph } from "./execution/utils";
-import { NoopCommandJournal } from "./journal/NoopCommandJournal";
 import { generateDeploymentGraphFrom } from "./process/generateDeploymentGraphFrom";
 import { transformDeploymentGraphToExecutionGraph } from "./process/transformDeploymentGraphToExecutionGraph";
 import { createServices } from "./services/createServices";
@@ -35,16 +31,11 @@ import {
 import {
   ExecutionResultsAccumulator,
   ExecutionVisitResult,
-  IExecutionGraph,
 } from "./types/executionGraph";
 import { VertexResultEnum, VisitResultState } from "./types/graph";
 import { Services } from "./types/services";
 import { networkNameByChainId } from "./utils/networkNames";
-import {
-  isFailure,
-  processStepFailed,
-  processStepSucceeded,
-} from "./utils/process-results";
+import { isFailure } from "./utils/process-results";
 import { resolveProxyValue } from "./utils/proxy";
 import { validateDeploymentGraph } from "./validation/validateDeploymentGraph";
 
@@ -92,12 +83,6 @@ export interface IgnitionConstructorArgs {
    * Ignition state on each major state change.
    */
   uiRenderer: UpdateUiAction;
-
-  /**
-   * A journal that will be used to store a record of the current
-   * run and to access the history of previous runs.
-   */
-  journal: ICommandJournal;
 }
 
 /**
@@ -108,7 +93,6 @@ export interface IgnitionConstructorArgs {
 export class IgnitionImplementation implements Ignition {
   private _services: Services;
   private _uiRenderer: UpdateUiAction;
-  private _journal: ICommandJournal;
 
   /**
    * A factory function to create a new Ignition instance based on the
@@ -120,12 +104,10 @@ export class IgnitionImplementation implements Ignition {
   public static create({
     providers,
     uiRenderer = () => {},
-    journal = new NoopCommandJournal(),
   }: IgnitionCreationArgs) {
     return new IgnitionImplementation({
       services: createServices(providers),
       uiRenderer: uiRenderer as UpdateUiAction,
-      journal: journal as ICommandJournal,
     });
   }
 
@@ -137,95 +119,18 @@ export class IgnitionImplementation implements Ignition {
    *
    * @internal
    */
-  protected constructor({
-    services,
-    uiRenderer,
-    journal,
-  }: IgnitionConstructorArgs) {
+  protected constructor({ services, uiRenderer }: IgnitionConstructorArgs) {
     this._services = services;
     this._uiRenderer = uiRenderer;
-    this._journal = journal;
   }
 
-  /**
-   * Run a deployment based on a given Ignition module on-chain,
-   * leveraging any configured journal to record.
-   *
-   * @param ignitionModule - An Ignition module
-   * @param options - Configuration options
-   * @returns A struct indicating whether the deployment was
-   * a success, failure or hold. A successful result will
-   * include the addresses of the deployed contracts.
-   *
-   * @internal
-   */
-  public async deploy<T extends ModuleDict>(
-    ignitionModule: Module<T>,
-    options: IgnitionDeployOptions
-  ): Promise<DeploymentResult<T>> {
+  public async execute(
+    deployment: IDeployment,
+    options: IgnitionExecuteOptions
+  ): Promise<DeploymentResult> {
     log(`Start deploy`);
 
-    const deployment = new Deployment(
-      ignitionModule.name,
-      this._services,
-      this._journal,
-      this._uiRenderer
-    );
-
     try {
-      const [chainId, accounts, artifacts] = await Promise.all([
-        this._services.network.getChainId(),
-        this._services.accounts.getAccounts(),
-        this._services.artifacts.getAllArtifacts(),
-      ]);
-
-      await deployment.setDeploymentDetails({
-        accounts,
-        chainId,
-        artifacts,
-        networkName: networkNameByChainId[chainId] ?? "unknown",
-        force: options.force,
-      });
-
-      const constructExecutionGraphResult =
-        await this._constructExecutionGraphFrom(deployment, ignitionModule);
-
-      if (isFailure(constructExecutionGraphResult)) {
-        log("Failed to construct execution graph");
-
-        return {
-          _kind: DeploymentResultState.FAILURE,
-          failures: [
-            constructExecutionGraphResult.message,
-            constructExecutionGraphResult.failures,
-          ],
-        };
-      }
-
-      const { executionGraph, moduleOutputs } =
-        constructExecutionGraphResult.result;
-
-      log("Execution graph constructed");
-      await deployment.transformComplete(executionGraph);
-
-      // rebuild previous execution state based on journal
-      log("Load journal entries for network");
-      await loadJournalInto(deployment, this._journal);
-
-      // check that safe to run based on changes
-      log("Reconciling previous runs with current module");
-      const moduleChangeResult = this._checkSafeDeployment(deployment);
-
-      if (isFailure(moduleChangeResult)) {
-        log("Failed to reconcile");
-        await deployment.failReconciliation();
-
-        return {
-          _kind: DeploymentResultState.FAILURE,
-          failures: [moduleChangeResult.message, moduleChangeResult.failures],
-        };
-      }
-
       log("Execute based on execution graph");
       const executionResult = await execute(deployment, {
         maxRetries: options.maxRetries,
@@ -234,7 +139,10 @@ export class IgnitionImplementation implements Ignition {
         eventDuration: options.eventDuration,
       });
 
-      return this._buildOutputFrom(executionResult, moduleOutputs);
+      return this._buildOutputFrom(
+        executionResult,
+        deployment.state.transform.moduleOutputs
+      );
     } catch (err) {
       if (!(err instanceof Error)) {
         const unexpectedError = new IgnitionError("Unexpected error");
@@ -400,67 +308,6 @@ export class IgnitionImplementation implements Ignition {
     return Object.values(moduleInfoData);
   }
 
-  private async _constructExecutionGraphFrom<T extends ModuleDict>(
-    deployment: Deployment,
-    ignitionModule: Module<T>
-  ): Promise<
-    ProcessStepResult<{ executionGraph: IExecutionGraph; moduleOutputs: T }>
-  > {
-    log("Generate deployment graph from module");
-    const deploymentGraphConstructionResult = generateDeploymentGraphFrom(
-      ignitionModule,
-      {
-        chainId: deployment.state.details.chainId,
-        accounts: deployment.state.details.accounts,
-        artifacts: deployment.state.details.artifacts,
-      }
-    );
-
-    if (isFailure(deploymentGraphConstructionResult)) {
-      await deployment.failUnexpected(
-        deploymentGraphConstructionResult.failures
-      );
-
-      return deploymentGraphConstructionResult;
-    }
-
-    const {
-      graph: deploymentGraph,
-      callPoints,
-      moduleOutputs,
-    } = deploymentGraphConstructionResult.result;
-
-    await deployment.startValidation();
-    const validationResult = await validateDeploymentGraph(
-      deploymentGraph,
-      callPoints,
-      deployment.services
-    );
-
-    if (isFailure(validationResult)) {
-      await deployment.failValidation(validationResult.failures);
-
-      return validationResult;
-    }
-
-    log("Transform deployment graph to execution graph");
-    const transformResult = await transformDeploymentGraphToExecutionGraph(
-      deploymentGraph,
-      deployment.services
-    );
-
-    if (isFailure(transformResult)) {
-      await deployment.failUnexpected(transformResult.failures);
-
-      return transformResult;
-    }
-
-    return processStepSucceeded({
-      executionGraph: transformResult.result.executionGraph,
-      moduleOutputs,
-    });
-  }
-
   private _buildOutputFrom<T extends ModuleDict>(
     executionResult: ExecutionVisitResult,
     moduleOutputs: T
@@ -516,42 +363,5 @@ export class IgnitionImplementation implements Ignition {
     }
 
     return serializedResult as SerializedDeploymentResult<T>;
-  }
-
-  private _checkSafeDeployment(
-    deployment: Deployment
-  ): ProcessStepResult<boolean> {
-    if (deployment.state.details.force) {
-      return processStepSucceeded(true);
-    }
-
-    if (deployment.state.transform.executionGraph === null) {
-      return processStepFailed("Module reconciliation failed", [
-        new IgnitionError(
-          "Execution graph must be set to check safe deployment"
-        ),
-      ]);
-    }
-
-    const previousExecutionGraphHash =
-      deployment.state.execution.executionGraphHash;
-
-    if (previousExecutionGraphHash === "") {
-      return processStepSucceeded(true);
-    }
-
-    const currentExecutionGraphHash = hashExecutionGraph(
-      deployment.state.transform.executionGraph
-    );
-
-    if (previousExecutionGraphHash === currentExecutionGraphHash) {
-      return processStepSucceeded(true);
-    }
-
-    return processStepFailed("Module reconciliation failed", [
-      new IgnitionError(
-        "The module has been modified since the last run. You can ignore the previous runs with the '--force' flag."
-      ),
-    ]);
   }
 }

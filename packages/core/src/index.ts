@@ -1,4 +1,5 @@
 export { buildModule } from "./buildModule";
+export { construct } from "./construct";
 export * from "./initialization";
 export * from "./errors";
 export * from "./types/dsl";

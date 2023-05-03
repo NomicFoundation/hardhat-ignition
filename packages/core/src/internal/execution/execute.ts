@@ -1,4 +1,3 @@
-import type { Deployment } from "../deployment/Deployment";
 import type { ExecutionOptions, ExecutionState } from "../types/deployment";
 import type { ExecutionVertexDispatcher } from "../types/execution";
 import type {
@@ -10,6 +9,7 @@ import type {
 import type { Services } from "../types/services";
 
 import { IgnitionError } from "../../errors";
+import { IDeployment } from "../../types/deployment";
 import { viewExecutionResults } from "../deployment/utils";
 import { VisitResultState } from "../types/graph";
 
@@ -18,7 +18,7 @@ import { executionDispatch } from "./dispatch/executionDispatch";
 import { allDependenciesCompleted, hashExecutionGraph } from "./utils";
 
 export async function execute(
-  deployment: Deployment,
+  deployment: IDeployment,
   options: ExecutionOptions
 ): Promise<ExecutionVisitResult> {
   if (deployment.state.transform.executionGraph === null) {
@@ -34,7 +34,7 @@ export async function execute(
 }
 
 export async function executeInBatches(
-  deployment: Deployment,
+  deployment: IDeployment,
   executionGraph: ExecutionGraph,
   executionVertexDispatcher: ExecutionVertexDispatcher,
   options: ExecutionOptions

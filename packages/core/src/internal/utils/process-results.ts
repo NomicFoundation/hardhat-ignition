@@ -8,6 +8,7 @@ import {
 export const processStepSucceeded = <T>(result: T): ProcessStepSuccess<T> => ({
   _kind: ProcessResultKind.SUCCESS,
   result,
+  isFailure: false,
 });
 
 export const processStepFailed = (
@@ -17,6 +18,7 @@ export const processStepFailed = (
   _kind: ProcessResultKind.FAILURE,
   message,
   failures,
+  isFailure: true,
 });
 
 export const processStepErrored = (

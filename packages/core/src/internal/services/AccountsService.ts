@@ -8,14 +8,6 @@ export class AccountsService implements IAccountsService {
 
   constructor(private readonly _providers: Providers) {}
 
-  public async getAccounts(): Promise<string[]> {
-    if (this._accounts.length === 0) {
-      this._accounts = await this._providers.accounts.getAccounts();
-    }
-
-    return this._accounts;
-  }
-
   public async getSigner(address: string): Promise<ethers.Signer> {
     if (this._signers[address] === undefined) {
       this._signers[address] = await this._providers.accounts.getSigner(

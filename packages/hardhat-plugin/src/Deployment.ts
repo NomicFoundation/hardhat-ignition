@@ -1,46 +1,191 @@
-import type {
-  DeployNetworkConfig,
-  DeployState,
-  DeployStateCommand,
-  DeployStateExecutionCommand,
-  UpdateUiAction,
-} from "../types/deployment";
-import type { ExecutionVertexVisitResult } from "../types/executionGraph";
-import type { ICommandJournal } from "../types/journal";
-import type { Services } from "../types/services";
+/**
+ * The different phases a deployment will move through:
+ *
+ * uninitialized -\> validating -\> execution -\> complete
+ *                      |             |--------\> hold
+ *                      |             |--------\> failed
+ *                      |
+ *                      |----------------------\> validation-failed
+ *                      |----------------------\> reconciliation-failed
+ *
+ * @internal
+ */
+export type DeployPhase =
+  | "uninitialized"
+  | "validating"
+  | "execution"
+  | "complete"
+  | "failed"
+  | "hold"
+  | "validation-failed"
+  | "reconciliation-failed"
+  | "failed-unexpectedly";
 
-import setupDebug from "debug";
+export interface DeployNetworkConfig {
+  moduleName: string;
+  chainId: number;
+  networkName: string;
+  accounts: string[];
+  artifacts: Artifact[];
+  force: boolean;
+}
 
-import { IgnitionError } from "../../errors";
-import { ExecutionGraph } from "../execution/ExecutionGraph";
-import {
-  VertexDescriptor,
-  VertexResultEnum,
-  VertexVisitResultFailure,
-} from "../types/graph";
+export type DeployStateCommand =
+  | { type: "SET_DETAILS"; config: Partial<DeployNetworkConfig> }
+  | { type: "SET_CHAIN_ID"; chainId: number }
+  | { type: "SET_NETWORK_NAME"; networkName: string }
+  | { type: "SET_ACCOUNTS"; accounts: string[] }
+  | { type: "SET_FORCE_FLAG"; force: boolean }
+  | {
+      type: "START_VALIDATION";
+    }
+  | {
+      type: "VALIDATION_FAIL";
+      errors: Error[];
+    }
+  | {
+      type: "TRANSFORM_COMPLETE";
+      executionGraph: IGraph<ExecutionVertex>;
+    }
+  | {
+      type: "RECONCILIATION_FAILED";
+    }
+  | {
+      type: "UNEXPECTED_FAIL";
+      errors: Error[];
+    };
 
-import {
-  deployStateReducer,
-  initializeDeployState,
-} from "./deployStateReducer";
-import { isDeployStateExecutionCommand } from "./utils";
+export interface DeployState {
+  phase: DeployPhase;
+  details: DeployNetworkConfig;
+  validation: ValidationState;
+  transform: {
+    executionGraph: IGraph<ExecutionVertex> | null;
+  };
+  execution: ExecutionState;
+  unexpected: {
+    errors: Error[];
+  };
+}
 
-const log = setupDebug("ignition:deployment");
+export function initializeDeployState(moduleName: string): DeployState {
+  return {
+    phase: "uninitialized",
+    details: {
+      moduleName,
+      chainId: 0,
+      networkName: "",
+      accounts: [],
+      artifacts: [],
+      force: false,
+    },
+    validation: {
+      errors: [],
+    },
+    transform: {
+      executionGraph: null,
+    },
+    execution: {
+      run: 0,
+      vertexes: {},
+      batch: null,
+      previousBatches: [],
+      executionGraphHash: "",
+    },
+    unexpected: {
+      errors: [],
+    },
+  };
+}
+
+export function deployStateReducer(
+  state: DeployState,
+  action: DeployStateCommand
+): DeployState {
+  switch (action.type) {
+    case "SET_DETAILS":
+      return {
+        ...state,
+        details: {
+          ...state.details,
+          ...action.config,
+        },
+      };
+    case "SET_CHAIN_ID":
+      return {
+        ...state,
+        details: {
+          ...state.details,
+          chainId: action.chainId,
+        },
+      };
+    case "SET_NETWORK_NAME":
+      return {
+        ...state,
+        details: {
+          ...state.details,
+          networkName: action.networkName,
+        },
+      };
+    case "SET_ACCOUNTS":
+      return {
+        ...state,
+        details: {
+          ...state.details,
+          accounts: action.accounts,
+        },
+      };
+    case "SET_FORCE_FLAG":
+      return {
+        ...state,
+        details: {
+          ...state.details,
+          force: action.force,
+        },
+      };
+    case "START_VALIDATION":
+      return {
+        ...state,
+        phase: "validating",
+      };
+    case "VALIDATION_FAIL":
+      return {
+        ...state,
+        phase: "validation-failed",
+        validation: {
+          ...state.validation,
+          errors: action.errors,
+        },
+      };
+    case "TRANSFORM_COMPLETE":
+      return {
+        ...state,
+        transform: { executionGraph: action.executionGraph },
+      };
+    case "RECONCILIATION_FAILED":
+      return { ...state, phase: "reconciliation-failed" };
+    case "UNEXPECTED_FAIL":
+      return {
+        ...state,
+        phase: "failed-unexpectedly",
+        unexpected: {
+          errors: action.errors,
+        },
+      };
+  }
+}
 
 export class Deployment {
   public state: DeployState;
-  public services: Services;
   public ui?: UpdateUiAction;
   private commandJournal: ICommandJournal;
 
   constructor(
     moduleName: string,
-    services: Services,
     journal: ICommandJournal,
     ui?: UpdateUiAction
   ) {
     this.state = initializeDeployState(moduleName);
-    this.services = services;
     this.commandJournal = journal;
     this.ui = ui;
   }

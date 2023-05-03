@@ -1,6 +1,7 @@
 import type { Contract } from "ethers";
 
 import {
+  construct,
   IgnitionDeployOptions,
   IgnitionError,
   initializeIgnition,
@@ -10,14 +11,17 @@ import {
   Providers,
   SerializedDeploymentResult,
 } from "@ignored/ignition-core";
+import { serializeReplacer } from "@ignored/ignition-core/helpers";
 import {
   ICommandJournal,
   DeploymentResult,
   DeploymentResultState,
 } from "@ignored/ignition-core/soon-to-be-removed";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import hash from "object-hash";
 
 import { CommandJournal } from "./CommandJournal";
+import { Deployment } from "./Deployment";
 import { initializeRenderState, renderToCli } from "./ui/renderToCli";
 
 type HardhatEthers = HardhatRuntimeEnvironment["ethers"];
@@ -63,7 +67,11 @@ export class IgnitionWrapper {
     const showUi = deployParams?.ui ?? false;
     const force = deployParams?.force ?? false;
 
-    const chainId = await this._getChainId(this._providers);
+    const [chainId, accounts, artifacts] = await Promise.all([
+      this._getChainId(this._providers),
+      this._providers.accounts.getAccounts(),
+      this._providers.artifacts.getAllArtifacts(),
+    ]);
 
     const journal =
       deployParams?.journal ??
@@ -71,11 +79,13 @@ export class IgnitionWrapper {
         ? new CommandJournal(chainId, deployParams?.journalPath)
         : undefined);
 
+    const uiRenderer = showUi
+      ? renderToCli(initializeRenderState(), deployParams?.parameters)
+      : undefined;
+
     const ignition = initializeIgnition({
       providers: this._providers,
-      uiRenderer: showUi
-        ? renderToCli(initializeRenderState(), deployParams?.parameters)
-        : undefined,
+      uiRenderer,
       journal,
     });
 
@@ -83,7 +93,56 @@ export class IgnitionWrapper {
       await this._providers.config.setParams(deployParams.parameters);
     }
 
-    const deploymentResult = (await ignition.deploy(ignitionModule, {
+    const deployment = new Deployment(ignitionModule.name, journal, uiRenderer);
+
+    try {
+      await deployment.setDeploymentDetails({
+        accounts,
+        chainId,
+        artifacts,
+        networkName: "unknown", // todo
+        force,
+      });
+
+      const executionGraphResult = await construct(deployment, ignitionModule);
+
+      if (executionGraphResult.isFailure) {
+        const { message, failures } = executionGraphResult;
+
+        this._fail(ignitionModule.name, message, failures);
+      }
+
+      const { executionGraph, moduleOutputs } = executionGraphResult.result;
+
+      await deployment.transformComplete(executionGraph);
+
+      if (journal !== undefined) {
+        await deployment.load(journal.read());
+      }
+
+      const moduleChangeResult = this._checkSafeDeployment(deployment);
+
+      if (moduleChangeResult !== null) {
+        await deployment.failReconciliation();
+
+        this._fail(ignitionModule.name, ...moduleChangeResult);
+      }
+
+      // end construct phase
+
+      // begin execution
+    } catch (err) {
+      if (!(err instanceof Error)) {
+        const unexpectedError = new IgnitionError("Unexpected error");
+
+        await deployment.failUnexpected([unexpectedError]);
+        this._fail(ignitionModule.name, "Unexpected error", [unexpectedError]);
+      }
+
+      await deployment.failUnexpected([err]);
+    }
+
+    const deploymentResult = (await ignition.execute(ignitionModule, {
       ...this.options,
       force,
     })) as DeploymentResult;
@@ -98,23 +157,6 @@ export class IgnitionWrapper {
 
       throw new IgnitionError(
         `Execution held for module '${ignitionModule.name}':\n\n${heldMessage}`
-      );
-    }
-
-    if (deploymentResult._kind === DeploymentResultState.FAILURE) {
-      const [failureType, failures] = deploymentResult.failures;
-
-      if (failures.length === 1) {
-        throw failures[0];
-      }
-
-      let failuresMessage = "";
-      for (const failure of failures) {
-        failuresMessage += `  - ${failure.message}\n`;
-      }
-
-      throw new IgnitionError(
-        `${failureType} for module '${ignitionModule.name}':\n\n${failuresMessage}`
       );
     }
 
@@ -164,11 +206,78 @@ export class IgnitionWrapper {
     return resolvedOutput as DeployResult<T>;
   }
 
-  private async _getChainId(providers: Providers) {
+  private async _getChainId(providers: Providers): Promise<number> {
     const result = await providers.ethereumProvider.request({
       method: "eth_chainId",
     });
 
     return Number(result);
+  }
+
+  private _fail(
+    moduleName: string,
+    failureType: string,
+    failures: Error[]
+  ): never {
+    if (failures.length === 1) {
+      throw failures[0];
+    }
+
+    let failuresMessage = "";
+    for (const failure of failures) {
+      failuresMessage += `  - ${failure.message}\n`;
+    }
+
+    throw new IgnitionError(
+      `${failureType} for module '${moduleName}':\n\n${failuresMessage}`
+    );
+  }
+
+  private _checkSafeDeployment(
+    deployment: Deployment
+  ): null | [string, Error[]] {
+    if (deployment.state.details.force) {
+      return null;
+    }
+
+    if (deployment.state.transform.executionGraph === null) {
+      return [
+        "Module reconciliation failed",
+        [
+          new IgnitionError(
+            "Execution graph must be set to check safe deployment"
+          ),
+        ],
+      ];
+    }
+
+    const previousExecutionGraphHash =
+      deployment.state.execution.executionGraphHash;
+
+    if (previousExecutionGraphHash === "") {
+      return null;
+    }
+
+    const currentExecutionGraphHash = hash(
+      JSON.parse(
+        JSON.stringify(
+          deployment.state.transform.executionGraph,
+          serializeReplacer
+        )
+      )
+    );
+
+    if (previousExecutionGraphHash === currentExecutionGraphHash) {
+      return null;
+    }
+
+    return [
+      "Module reconciliation failed",
+      [
+        new IgnitionError(
+          "The module has been modified since the last run. You can ignore the previous runs with the '--force' flag."
+        ),
+      ],
+    ];
   }
 }

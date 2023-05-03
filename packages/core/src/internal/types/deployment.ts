@@ -15,8 +15,6 @@ import type { Services } from "./services";
 
 import { BigNumber } from "ethers";
 
-import { Artifact } from "../../types/hardhat";
-
 /**
  * An UI update function that will be invoked on each internal change with the
  * latest version of the state.
@@ -53,29 +51,6 @@ export type DeploymentResult<T extends ModuleDict = ModuleDict> =
       _kind: DeploymentResultState.SUCCESS;
       result: SerializedDeploymentResult<T>;
     };
-
-/**
- * The different phases a deployment will move through:
- *
- * uninitialized -\> validating -\> execution -\> complete
- *                      |             |--------\> hold
- *                      |             |--------\> failed
- *                      |
- *                      |----------------------\> validation-failed
- *                      |----------------------\> reconciliation-failed
- *
- * @internal
- */
-export type DeployPhase =
-  | "uninitialized"
-  | "validating"
-  | "execution"
-  | "complete"
-  | "failed"
-  | "hold"
-  | "validation-failed"
-  | "reconciliation-failed"
-  | "failed-unexpectedly";
 
 /**
  * Commands for updating Ignitions execution state; external interactions
@@ -255,40 +230,6 @@ export interface ExecutionState {
   batch: Set<number> | null;
   previousBatches: Array<Set<number>>;
   executionGraphHash: string;
-}
-
-/**
- * The key details and configuration used to interact with or understand
- * the Ethereum chain being interacted with.
- *
- * @internal
- */
-export interface DeployNetworkConfig {
-  moduleName: string;
-  chainId: number;
-  networkName: string;
-  accounts: string[];
-  artifacts: Artifact[];
-  force: boolean;
-}
-
-/**
- * The core state of an Ignition deploy. Ignitions control flow is based on
- * this state, and updates to it are controlled through update commands.
- *
- * @internal
- */
-export interface DeployState {
-  phase: DeployPhase;
-  details: DeployNetworkConfig;
-  validation: ValidationState;
-  transform: {
-    executionGraph: IGraph<ExecutionVertex> | null;
-  };
-  execution: ExecutionState;
-  unexpected: {
-    errors: Error[];
-  };
 }
 
 export interface ExecutionOptions {

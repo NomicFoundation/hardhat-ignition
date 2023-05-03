@@ -10,33 +10,13 @@ import { ExecutionGraph } from "../execution/ExecutionGraph";
 
 import { deployExecutionStateReducer } from "./deployExecutionStateReducer";
 
-export function initializeDeployState(moduleName: string): DeployState {
+export function initializeExecutionState(): ExecutionState {
   return {
-    phase: "uninitialized",
-    details: {
-      moduleName,
-      chainId: 0,
-      networkName: "",
-      accounts: [],
-      artifacts: [],
-      force: false,
-    },
-    validation: {
-      errors: [],
-    },
-    transform: {
-      executionGraph: null,
-    },
-    execution: {
-      run: 0,
-      vertexes: {},
-      batch: null,
-      previousBatches: [],
-      executionGraphHash: "",
-    },
-    unexpected: {
-      errors: [],
-    },
+    run: 0,
+    vertexes: {},
+    batch: null,
+    previousBatches: [],
+    executionGraphHash: "",
   };
 }
 
@@ -45,75 +25,6 @@ export function deployStateReducer(
   action: DeployStateCommand
 ): DeployState {
   switch (action.type) {
-    case "SET_DETAILS":
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          ...action.config,
-        },
-      };
-    case "SET_CHAIN_ID":
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          chainId: action.chainId,
-        },
-      };
-    case "SET_NETWORK_NAME":
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          networkName: action.networkName,
-        },
-      };
-    case "SET_ACCOUNTS":
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          accounts: action.accounts,
-        },
-      };
-    case "SET_FORCE_FLAG":
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          force: action.force,
-        },
-      };
-    case "START_VALIDATION":
-      return {
-        ...state,
-        phase: "validating",
-      };
-    case "VALIDATION_FAIL":
-      return {
-        ...state,
-        phase: "validation-failed",
-        validation: {
-          ...state.validation,
-          errors: action.errors,
-        },
-      };
-    case "TRANSFORM_COMPLETE":
-      return {
-        ...state,
-        transform: { executionGraph: action.executionGraph },
-      };
-    case "RECONCILIATION_FAILED":
-      return { ...state, phase: "reconciliation-failed" };
-    case "UNEXPECTED_FAIL":
-      return {
-        ...state,
-        phase: "failed-unexpectedly",
-        unexpected: {
-          errors: action.errors,
-        },
-      };
     case "EXECUTION::START":
       if (state.transform.executionGraph === null) {
         return state;
