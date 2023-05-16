@@ -7,6 +7,7 @@ export enum FutureType {
   ARTIFACT_LIBRARY_DEPLOYMENT,
   NAMED_CONTRACT_CALL,
   NAMED_STATIC_CALL,
+  CONTRACT_AT,
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,6 +29,12 @@ export interface Future<ResultT = unknown> {
 export interface ContractFuture<ContractNameT extends string>
   extends Future<string> {
   contractName: ContractNameT;
+}
+
+// A future representing a call. Either a static one or one that modifies contract state
+export interface FunctionCallFuture<FunctionNameT extends string>
+  extends Future<string> {
+  functionName: FunctionNameT;
 }
 
 // A future representing a call. Either a static one or one that modifies contract state
@@ -88,6 +95,34 @@ export interface NamedStaticCallFuture<
   type: FutureType.NAMED_STATIC_CALL;
   contract: ContractFuture<ContractNameT>;
   args: SolidityParamsType;
+}
+
+// A future representing the calling of a contract function that modifies on-chain state
+export interface NamedContractCallFuture<
+  ContractNameT extends string,
+  FunctionNameT extends string
+> extends FunctionCallFuture<FunctionNameT> {
+  type: FutureType.NAMED_CONTRACT_CALL;
+  contract: ContractFuture<ContractNameT>;
+  args: SolidityParamsType;
+}
+
+// A future representing the static calling of a contract function that does not modify state
+export interface NamedStaticCallFuture<
+  ContractNameT extends string,
+  FunctionNameT extends string
+> extends FunctionCallFuture<FunctionNameT> {
+  type: FutureType.NAMED_STATIC_CALL;
+  contract: ContractFuture<ContractNameT>;
+  args: SolidityParamsType;
+}
+
+// A future representing a previously deployed contract at a known address.
+// It may not belong to this project, and we may struggle to type.
+export interface ContractAtFuture extends ContractFuture<string> {
+  type: FutureType.CONTRACT_AT;
+  address: string;
+  artifact: ArtifactType;
 }
 
 // The results of deploying a module must be a dictionary of contract futures

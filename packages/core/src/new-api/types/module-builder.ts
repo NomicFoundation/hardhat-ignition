@@ -3,6 +3,7 @@ import { ArtifactType, SolidityParamsType } from "../stubs";
 import {
   ArtifactContractDeploymentFuture,
   ArtifactLibraryDeploymentFuture,
+  ContractAtFuture,
   ContractFuture,
   Future,
   IgnitionModuleResult,
@@ -55,6 +56,11 @@ export interface StaticCallOptions {
   after?: Future[];
 }
 
+export interface ContractAtOptions {
+  id?: string;
+  after?: Future[];
+}
+
 export interface IgnitionModuleBuilder {
   contract<ContractNameT extends string>(
     contractName: ContractNameT,
@@ -93,6 +99,13 @@ export interface IgnitionModuleBuilder {
     args?: SolidityParamsType,
     options?: StaticCallOptions
   ): NamedStaticCallFuture<ContractNameT, FunctionNameT>;
+
+  contractAt(
+    contractName: string,
+    address: string,
+    artifact: ArtifactType,
+    options?: ContractAtOptions
+  ): ContractAtFuture;
 
   useModule<
     ModuleIdT extends string,

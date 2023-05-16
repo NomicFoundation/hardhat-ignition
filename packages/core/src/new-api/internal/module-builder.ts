@@ -6,6 +6,7 @@ import { ArtifactType, SolidityParamsType } from "../stubs";
 import {
   ArtifactContractDeploymentFuture,
   ArtifactLibraryDeploymentFuture,
+  ContractAtFuture,
   ContractFuture,
   IgnitionModule,
   IgnitionModuleResult,
@@ -16,6 +17,7 @@ import {
 } from "../types/module";
 import {
   CallOptions,
+  ContractAtOptions,
   ContractFromArtifactOptions,
   ContractOptions,
   IgnitionModuleBuilder,
@@ -27,6 +29,7 @@ import {
 import {
   ArtifactContractDeploymentFutureImplementation,
   ArtifactLibraryDeploymentFutureImplementation,
+  ContractAtFutureImplementation,
   IgnitionModuleImplementation,
   NamedContractCallFutureImplementation,
   NamedContractDeploymentFutureImplementation,
@@ -320,6 +323,34 @@ export class IgnitionModuleBuilderImplementation<
     return future;
   }
 
+  public contractAt(
+    contractName: string,
+    address: string,
+    artifact: ArtifactType,
+    options: ContractAtOptions = {}
+  ): ContractAtFuture {
+    const id = options.id ?? address;
+    const futureId = `${this._module.id}:${contractName}:${id}`;
+
+    this._assertUniqueContractAtId(futureId);
+
+    const future = new ContractAtFutureImplementation(
+      futureId,
+      this._module,
+      contractName,
+      address,
+      artifact
+    );
+
+    for (const afterFuture of (options.after ?? []).filter(isFuture)) {
+      future.dependencies.add(afterFuture);
+    }
+
+    this._module.futures.add(future);
+
+    return future;
+  }
+
   public useModule<
     SubmoduleModuleIdT extends string,
     SubmoduleContractNameT extends string,
@@ -409,6 +440,14 @@ export class IgnitionModuleBuilderImplementation<
       futureId,
       `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.staticCall(myContract, "myFunction", [], { id: "MyId"})\``,
       this.staticCall
+    );
+  }
+
+  private _assertUniqueContractAtId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Contracts must have unique ids, ${futureId} has already been used, ensure the id passed is unique \`m.contractAt("MyContract", "0x123...", artifact, { id: "MyId"})\``,
+      this.contractAt
     );
   }
 }
