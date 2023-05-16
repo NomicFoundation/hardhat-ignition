@@ -6,12 +6,16 @@ import { ArtifactType, SolidityParamsType } from "../stubs";
 import {
   ArtifactContractDeploymentFuture,
   ArtifactLibraryDeploymentFuture,
+  ContractFuture,
   IgnitionModule,
   IgnitionModuleResult,
+  NamedContractCallFuture,
   NamedContractDeploymentFuture,
   NamedLibraryDeploymentFuture,
+  NamedStaticCallFuture,
 } from "../types/module";
 import {
+  CallOptions,
   ContractFromArtifactOptions,
   ContractOptions,
   IgnitionModuleBuilder,
@@ -24,8 +28,10 @@ import {
   ArtifactContractDeploymentFutureImplementation,
   ArtifactLibraryDeploymentFutureImplementation,
   IgnitionModuleImplementation,
+  NamedContractCallFutureImplementation,
   NamedContractDeploymentFutureImplementation,
   NamedLibraryDeploymentFutureImplementation,
+  NamedStaticCallFutureImplementation,
 } from "./module";
 import { isFuture } from "./utils";
 
@@ -246,6 +252,74 @@ export class IgnitionModuleBuilderImplementation<
     return future;
   }
 
+  public call<ContractNameT extends string, FunctionNameT extends string>(
+    contractFuture: ContractFuture<ContractNameT>,
+    functionName: FunctionNameT,
+    args: SolidityParamsType = [],
+    options: CallOptions = {}
+  ): NamedContractCallFuture<ContractNameT, FunctionNameT> {
+    const id = options.id ?? functionName;
+    const futureId = `${this._module.id}:${contractFuture.contractName}#${id}`;
+
+    this._assertUniqueCallId(futureId);
+
+    const future = new NamedContractCallFutureImplementation(
+      futureId,
+      this._module,
+      functionName,
+      contractFuture,
+      args
+    );
+
+    future.dependencies.add(contractFuture);
+
+    for (const arg of args.filter(isFuture)) {
+      future.dependencies.add(arg);
+    }
+
+    for (const afterFuture of (options.after ?? []).filter(isFuture)) {
+      future.dependencies.add(afterFuture);
+    }
+
+    this._module.futures.add(future);
+
+    return future;
+  }
+
+  public staticCall<ContractNameT extends string, FunctionNameT extends string>(
+    contractFuture: ContractFuture<ContractNameT>,
+    functionName: FunctionNameT,
+    args: SolidityParamsType = [],
+    options: CallOptions = {}
+  ): NamedStaticCallFuture<ContractNameT, FunctionNameT> {
+    const id = options.id ?? functionName;
+    const futureId = `${this._module.id}:${contractFuture.contractName}#${id}`;
+
+    this._assertUniqueStaticCallId(futureId);
+
+    const future = new NamedStaticCallFutureImplementation(
+      futureId,
+      this._module,
+      functionName,
+      contractFuture,
+      args
+    );
+
+    future.dependencies.add(contractFuture);
+
+    for (const arg of args.filter(isFuture)) {
+      future.dependencies.add(arg);
+    }
+
+    for (const afterFuture of (options.after ?? []).filter(isFuture)) {
+      future.dependencies.add(afterFuture);
+    }
+
+    this._module.futures.add(future);
+
+    return future;
+  }
+
   public useModule<
     SubmoduleModuleIdT extends string,
     SubmoduleContractNameT extends string,
@@ -319,6 +393,22 @@ export class IgnitionModuleBuilderImplementation<
       futureId,
       `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.libraryFromArtifact("MyLibrary", artifact, { id: "MyId"})\``,
       this.libraryFromArtifact
+    );
+  }
+
+  private _assertUniqueCallId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.call(myContract, "myFunction", [], { id: "MyId"})\``,
+      this.call
+    );
+  }
+
+  private _assertUniqueStaticCallId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.staticCall(myContract, "myFunction", [], { id: "MyId"})\``,
+      this.staticCall
     );
   }
 }
