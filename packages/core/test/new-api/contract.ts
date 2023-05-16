@@ -1,17 +1,22 @@
-/* eslint-disable import/no-unused-modules */
 import { assert } from "chai";
 
 import { buildModule } from "../../src/new-api/build-module";
 import { NamedContractDeploymentFutureImplementation } from "../../src/new-api/internal/module";
+import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 import { FutureType } from "../../src/new-api/types/module";
 
 describe("contract", () => {
   it("should be able to setup a deploy contract call", () => {
-    const moduleWithASingleContract = buildModule("Module1", (m) => {
+    const moduleWithASingleContractDefinition = buildModule("Module1", (m) => {
       const contract1 = m.contract("Contract1");
 
       return { contract1 };
     });
+
+    const constructor = new ModuleConstructor();
+    const moduleWithASingleContract = constructor.construct(
+      moduleWithASingleContractDefinition
+    );
 
     assert.isDefined(moduleWithASingleContract);
 
@@ -34,12 +39,20 @@ describe("contract", () => {
   });
 
   it("should be able to pass one contract as an arg dependency to another", () => {
-    const moduleWithDependentContracts = buildModule("Module1", (m) => {
-      const example = m.contract("Example");
-      const another = m.contract("Another", [example]);
+    const moduleWithDependentContractsDefinition = buildModule(
+      "Module1",
+      (m) => {
+        const example = m.contract("Example");
+        const another = m.contract("Another", [example]);
 
-      return { example, another };
-    });
+        return { example, another };
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
 
     assert.isDefined(moduleWithDependentContracts);
 
@@ -62,12 +75,20 @@ describe("contract", () => {
   });
 
   it("should be able to pass one contract as an after dependency of another", () => {
-    const moduleWithDependentContracts = buildModule("Module1", (m) => {
-      const example = m.contract("Example");
-      const another = m.contract("Another", [], { after: [example] });
+    const moduleWithDependentContractsDefinition = buildModule(
+      "Module1",
+      (m) => {
+        const example = m.contract("Example");
+        const another = m.contract("Another", [], { after: [example] });
 
-      return { example, another };
-    });
+        return { example, another };
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
 
     assert.isDefined(moduleWithDependentContracts);
 
@@ -91,14 +112,22 @@ describe("contract", () => {
 
   describe("passing id", () => {
     it("should be able to deploy the same contract twice by passing an id", () => {
-      const moduleWithSameContractTwice = buildModule("Module1", (m) => {
-        const sameContract1 = m.contract("SameContract", [], { id: "first" });
-        const sameContract2 = m.contract("SameContract", [], {
-          id: "second",
-        });
+      const moduleWithSameContractTwiceDefinition = buildModule(
+        "Module1",
+        (m) => {
+          const sameContract1 = m.contract("SameContract", [], { id: "first" });
+          const sameContract2 = m.contract("SameContract", [], {
+            id: "second",
+          });
 
-        return { sameContract1, sameContract2 };
-      });
+          return { sameContract1, sameContract2 };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+      const moduleWithSameContractTwice = constructor.construct(
+        moduleWithSameContractTwiceDefinition
+      );
 
       assert.equal(moduleWithSameContractTwice.id, "Module1");
       assert.equal(
@@ -112,29 +141,39 @@ describe("contract", () => {
     });
 
     it("should throw if the same contract is deployed twice without differentiating ids", () => {
-      assert.throws(() => {
-        buildModule("Module1", (m) => {
-          const sameContract1 = m.contract("SameContract");
-          const sameContract2 = m.contract("SameContract");
+      const moduleDefinition = buildModule("Module1", (m) => {
+        const sameContract1 = m.contract("SameContract");
+        const sameContract2 = m.contract("SameContract");
 
-          return { sameContract1, sameContract2 };
-        });
-      }, /Contracts must have unique ids, Module1:SameContract has already been used/);
+        return { sameContract1, sameContract2 };
+      });
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleDefinition),
+        /Contracts must have unique ids, Module1:SameContract has already been used/
+      );
     });
 
     it("should throw if a contract tries to pass the same id twice", () => {
-      assert.throws(() => {
-        buildModule("Module1", (m) => {
-          const sameContract1 = m.contract("SameContract", [], {
-            id: "same",
-          });
-          const sameContract2 = m.contract("SameContract", [], {
-            id: "same",
-          });
-
-          return { sameContract1, sameContract2 };
+      const moduleDefinition = buildModule("Module1", (m) => {
+        const sameContract1 = m.contract("SameContract", [], {
+          id: "same",
         });
-      }, /Contracts must have unique ids, Module1:same has already been used/);
+        const sameContract2 = m.contract("SameContract", [], {
+          id: "same",
+        });
+
+        return { sameContract1, sameContract2 };
+      });
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleDefinition),
+        /Contracts must have unique ids, Module1:same has already been used/
+      );
     });
   });
 });
