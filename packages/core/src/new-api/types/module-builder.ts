@@ -2,9 +2,12 @@ import { ArtifactType, SolidityParamsType } from "../stubs";
 
 import {
   ArtifactContractDeploymentFuture,
+  ArtifactLibraryDeploymentFuture,
+  ContractFuture,
   Future,
   IgnitionModuleResult,
   NamedContractDeploymentFuture,
+  NamedLibraryDeploymentFuture,
 } from "./module";
 
 export interface IgnitionModuleDefinition<
@@ -19,11 +22,25 @@ export interface IgnitionModuleDefinition<
 export interface ContractOptions {
   id?: string;
   after?: Future[];
+  libraries?: Record<string, ContractFuture<string>>;
 }
 
 export interface ContractFromArtifactOptions {
   id?: string;
   after?: Future[];
+  libraries?: Record<string, ContractFuture<string>>;
+}
+
+export interface LibraryOptions {
+  id?: string;
+  after?: Future[];
+  libraries?: Record<string, ContractFuture<string>>;
+}
+
+export interface LibraryFromArtifactOptions {
+  id?: string;
+  after?: Future[];
+  libraries?: Record<string, ContractFuture<string>>;
 }
 
 export interface IgnitionModuleBuilder {
@@ -39,6 +56,17 @@ export interface IgnitionModuleBuilder {
     args?: SolidityParamsType,
     options?: ContractFromArtifactOptions
   ): ArtifactContractDeploymentFuture;
+
+  library<LibraryNameT extends string>(
+    libraryName: LibraryNameT,
+    options?: LibraryOptions
+  ): NamedLibraryDeploymentFuture<LibraryNameT>;
+
+  libraryFromArtifact(
+    libraryName: string,
+    artifact: ArtifactType,
+    options?: LibraryFromArtifactOptions
+  ): ArtifactLibraryDeploymentFuture;
 
   useModule<
     ModuleIdT extends string,

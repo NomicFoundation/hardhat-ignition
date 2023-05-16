@@ -5,21 +5,27 @@ import { IgnitionValidationError } from "../../errors";
 import { ArtifactType, SolidityParamsType } from "../stubs";
 import {
   ArtifactContractDeploymentFuture,
+  ArtifactLibraryDeploymentFuture,
   IgnitionModule,
   IgnitionModuleResult,
   NamedContractDeploymentFuture,
+  NamedLibraryDeploymentFuture,
 } from "../types/module";
 import {
   ContractFromArtifactOptions,
   ContractOptions,
   IgnitionModuleBuilder,
   IgnitionModuleDefinition,
+  LibraryFromArtifactOptions,
+  LibraryOptions,
 } from "../types/module-builder";
 
 import {
   ArtifactContractDeploymentFutureImplementation,
+  ArtifactLibraryDeploymentFutureImplementation,
   IgnitionModuleImplementation,
   NamedContractDeploymentFutureImplementation,
+  NamedLibraryDeploymentFutureImplementation,
 } from "./module";
 import { isFuture } from "./utils";
 
@@ -103,6 +109,7 @@ export class IgnitionModuleBuilderImplementation<
   ): NamedContractDeploymentFuture<ContractNameT> {
     const id = options.id ?? contractName;
     const futureId = `${this._module.id}:${id}`;
+    options.libraries ??= {};
 
     this._assertUniqueContractId(futureId);
 
@@ -110,7 +117,8 @@ export class IgnitionModuleBuilderImplementation<
       futureId,
       this._module,
       contractName,
-      args
+      args,
+      options.libraries
     );
 
     for (const arg of args.filter(isFuture)) {
@@ -119,6 +127,12 @@ export class IgnitionModuleBuilderImplementation<
 
     for (const afterFuture of (options.after ?? []).filter(isFuture)) {
       future.dependencies.add(afterFuture);
+    }
+
+    for (const libraryFuture of Object.values(options.libraries).filter(
+      isFuture
+    )) {
+      future.dependencies.add(libraryFuture);
     }
 
     this._module.futures.add(future);
@@ -134,15 +148,17 @@ export class IgnitionModuleBuilderImplementation<
   ): ArtifactContractDeploymentFuture {
     const id = options.id ?? contractName;
     const futureId = `${this._module.id}:${id}`;
+    options.libraries ??= {};
 
-    this._assertUniqueContractId(futureId);
+    this._assertUniqueArtifactContractId(futureId);
 
     const future = new ArtifactContractDeploymentFutureImplementation(
       futureId,
       this._module,
       contractName,
       args,
-      artifact
+      artifact,
+      options.libraries
     );
 
     this._module.futures.add(future);
@@ -154,6 +170,78 @@ export class IgnitionModuleBuilderImplementation<
     for (const afterFuture of (options.after ?? []).filter(isFuture)) {
       future.dependencies.add(afterFuture);
     }
+
+    for (const libraryFuture of Object.values(options.libraries).filter(
+      isFuture
+    )) {
+      future.dependencies.add(libraryFuture);
+    }
+
+    return future;
+  }
+
+  public library<LibraryNameT extends string>(
+    libraryName: LibraryNameT,
+    options: LibraryOptions = {}
+  ): NamedLibraryDeploymentFuture<LibraryNameT> {
+    const id = options.id ?? libraryName;
+    const futureId = `${this._module.id}:${id}`;
+    options.libraries ??= {};
+
+    this._assertUniqueLibraryId(futureId);
+
+    const future = new NamedLibraryDeploymentFutureImplementation(
+      futureId,
+      this._module,
+      libraryName,
+      options.libraries
+    );
+
+    for (const afterFuture of (options.after ?? []).filter(isFuture)) {
+      future.dependencies.add(afterFuture);
+    }
+
+    for (const libraryFuture of Object.values(options.libraries).filter(
+      isFuture
+    )) {
+      future.dependencies.add(libraryFuture);
+    }
+
+    this._module.futures.add(future);
+
+    return future;
+  }
+
+  public libraryFromArtifact(
+    libraryName: string,
+    artifact: ArtifactType,
+    options: LibraryFromArtifactOptions = {}
+  ): ArtifactLibraryDeploymentFuture {
+    const id = options.id ?? libraryName;
+    const futureId = `${this._module.id}:${id}`;
+    options.libraries ??= {};
+
+    this._assertUniqueArtifactLibraryId(futureId);
+
+    const future = new ArtifactLibraryDeploymentFutureImplementation(
+      futureId,
+      this._module,
+      libraryName,
+      artifact,
+      options.libraries
+    );
+
+    for (const afterFuture of (options.after ?? []).filter(isFuture)) {
+      future.dependencies.add(afterFuture);
+    }
+
+    for (const libraryFuture of Object.values(options.libraries).filter(
+      isFuture
+    )) {
+      future.dependencies.add(libraryFuture);
+    }
+
+    this._module.futures.add(future);
 
     return future;
   }
@@ -185,18 +273,52 @@ export class IgnitionModuleBuilderImplementation<
     return submodule.results;
   }
 
-  private _assertUniqueContractId(futureId: string) {
+  private _assertUniqueFutureId(
+    futureId: string,
+    message: string,
+    func: (...[]: any[]) => any
+  ) {
     if (this._futureIds.has(futureId)) {
-      const validationError = new IgnitionValidationError(
-        `Contracts must have unique ids, ${futureId} has already been used, ensure the id passed is unique \`m.contract("MyContract", [], { id: "MyId"})\``
-      );
+      const validationError = new IgnitionValidationError(message);
 
       // Improve the stack trace to stop on module api level
-      Error.captureStackTrace(validationError, this.contract);
+      Error.captureStackTrace(validationError, func);
 
       throw validationError;
     }
 
     this._futureIds.add(futureId);
+  }
+
+  private _assertUniqueContractId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.contract("MyContract", [], { id: "MyId"})\``,
+      this.contract
+    );
+  }
+
+  private _assertUniqueArtifactContractId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.contractFromArtifact("MyContract", artifact, [], { id: "MyId"})\``,
+      this.contractFromArtifact
+    );
+  }
+
+  private _assertUniqueLibraryId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.library("MyLibrary", { id: "MyId"})\``,
+      this.library
+    );
+  }
+
+  private _assertUniqueArtifactLibraryId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.libraryFromArtifact("MyLibrary", artifact, { id: "MyId"})\``,
+      this.libraryFromArtifact
+    );
   }
 }

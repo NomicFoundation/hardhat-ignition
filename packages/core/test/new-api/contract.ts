@@ -110,6 +110,45 @@ describe("contract", () => {
     assert(anotherFuture.dependencies.has(exampleFuture!));
   });
 
+  it("should be able to pass a library as a dependency of a contract", () => {
+    const moduleWithDependentContractsDefinition = buildModule(
+      "Module1",
+      (m) => {
+        const example = m.library("Example");
+        const another = m.contract("Another", [], {
+          libraries: { Example: example },
+        });
+
+        return { example, another };
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const exampleFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1:Example"
+    );
+
+    const anotherFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1:Another"
+    );
+
+    if (
+      !(anotherFuture instanceof NamedContractDeploymentFutureImplementation)
+    ) {
+      assert.fail("Not a named contract deployment");
+    }
+
+    assert.equal(anotherFuture.dependencies.size, 1);
+    assert.equal(anotherFuture.libraries.Example.id, exampleFuture?.id);
+    assert(anotherFuture.dependencies.has(exampleFuture!));
+  });
+
   describe("passing id", () => {
     it("should be able to deploy the same contract twice by passing an id", () => {
       const moduleWithSameContractTwiceDefinition = buildModule(
@@ -152,7 +191,7 @@ describe("contract", () => {
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
-        /Contracts must have unique ids, Module1:SameContract has already been used/
+        /Duplicated id Module1:SameContract found in module Module1/
       );
     });
 
@@ -172,7 +211,7 @@ describe("contract", () => {
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
-        /Contracts must have unique ids, Module1:same has already been used/
+        /Duplicated id Module1:same found in module Module1/
       );
     });
   });

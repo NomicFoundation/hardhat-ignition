@@ -8,6 +8,9 @@ import {
   NamedContractDeploymentFuture,
   ArtifactContractDeploymentFuture,
   IgnitionModuleResult,
+  NamedLibraryDeploymentFuture,
+  ArtifactLibraryDeploymentFuture,
+  ContractFuture,
 } from "../types/module";
 
 export abstract class BaseFuture<
@@ -46,7 +49,8 @@ export class NamedContractDeploymentFutureImplementation<
     public readonly id: string,
     public readonly module: IgnitionModuleImplementation,
     public readonly contractName: ContractNameT,
-    public readonly constructorArgs: SolidityParamsType
+    public readonly constructorArgs: SolidityParamsType,
+    public readonly libraries: Record<string, ContractFuture<string>>
   ) {
     super(id, FutureType.NAMED_CONTRACT_DEPLOYMENT, module);
   }
@@ -63,9 +67,43 @@ export class ArtifactContractDeploymentFutureImplementation<
     public readonly module: IgnitionModuleImplementation,
     public readonly contractName: ContractNameT,
     public readonly constructorArgs: SolidityParamsType,
-    public readonly artifact: ArtifactType
+    public readonly artifact: ArtifactType,
+    public readonly libraries: Record<string, ContractFuture<string>>
   ) {
     super(id, FutureType.ARTIFACT_CONTRACT_DEPLOYMENT, module);
+  }
+}
+
+export class NamedLibraryDeploymentFutureImplementation<
+    LibraryNameT extends string
+  >
+  extends BaseFuture<FutureType.NAMED_LIBRARY_DEPLOYMENT, string>
+  implements NamedLibraryDeploymentFuture<LibraryNameT>
+{
+  constructor(
+    public readonly id: string,
+    public readonly module: IgnitionModuleImplementation,
+    public readonly contractName: LibraryNameT,
+    public readonly libraries: Record<string, ContractFuture<string>>
+  ) {
+    super(id, FutureType.NAMED_LIBRARY_DEPLOYMENT, module);
+  }
+}
+
+export class ArtifactLibraryDeploymentFutureImplementation<
+    LibraryNameT extends string
+  >
+  extends BaseFuture<FutureType.ARTIFACT_LIBRARY_DEPLOYMENT, string>
+  implements ArtifactLibraryDeploymentFuture
+{
+  constructor(
+    public readonly id: string,
+    public readonly module: IgnitionModuleImplementation,
+    public readonly contractName: LibraryNameT,
+    public readonly artifact: ArtifactType,
+    public readonly libraries: Record<string, ContractFuture<string>>
+  ) {
+    super(id, FutureType.ARTIFACT_LIBRARY_DEPLOYMENT, module);
   }
 }
 
