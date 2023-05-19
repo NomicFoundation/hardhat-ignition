@@ -1,3 +1,5 @@
+import { ArtifactType } from "../stubs";
+
 import { FutureType, IgnitionModule, IgnitionModuleResult } from "./module";
 
 /**
@@ -13,13 +15,6 @@ export type SerializedSolidityParamType = number | string | FutureToken;
  * @beta
  */
 export type SerializedSolidityParamsType = SerializedSolidityParamType[];
-
-/**
- * The serialized version of the artifact.
- *
- * @beta
- */
-export type SerializedArtifactType = any[];
 
 /**
  * In serialized form a pointer to a future stored at the top level
@@ -77,7 +72,7 @@ export interface SerializedArtifactContractDeploymentFuture
   type: FutureType.ARTIFACT_CONTRACT_DEPLOYMENT;
   contractName: string;
   constructorArgs: SerializedSolidityParamsType;
-  artifact: SerializedArtifactType;
+  artifact: ArtifactType;
   libraries: SerializedLibraries;
 }
 
@@ -102,7 +97,7 @@ export interface SerializedArtifactLibraryDeploymentFuture
   extends BaseSerializedFuture {
   type: FutureType.ARTIFACT_LIBRARY_DEPLOYMENT;
   contractName: string;
-  artifact: SerializedArtifactType;
+  artifact: ArtifactType;
   libraries: SerializedLibraries;
 }
 
@@ -140,7 +135,7 @@ export interface SerializedContractAtFuture extends BaseSerializedFuture {
   type: FutureType.CONTRACT_AT;
   contractName: string;
   address: string;
-  artifact: SerializedArtifactType;
+  artifact: ArtifactType;
 }
 
 /**
