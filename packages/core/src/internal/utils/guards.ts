@@ -1,6 +1,6 @@
 import type {
   CallableFuture,
-  ContractFuture,
+  ContractFutureOld,
   DependableFuture,
   DeploymentGraphFuture,
   EventParamFuture,
@@ -142,7 +142,7 @@ export function isCallable(
 
 export function isContract(
   future: DeploymentGraphFuture
-): future is ContractFuture {
+): future is ContractFutureOld {
   if (isProxy(future)) {
     return isContract(future.value);
   }
@@ -152,7 +152,7 @@ export function isContract(
 
 export function isLibrary(
   future: DeploymentGraphFuture
-): future is ContractFuture {
+): future is ContractFutureOld {
   if (isProxy(future)) {
     return isLibrary(future.value);
   }
