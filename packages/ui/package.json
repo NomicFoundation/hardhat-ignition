@@ -4,6 +4,7 @@
   "version": "0.0.13",
   "type": "module",
   "scripts": {
+    "predev": "npm run regenerate-deployment-example",
     "dev": "vite --force",
     "build": "tsc && vite build",
     "test": "exit 0",
