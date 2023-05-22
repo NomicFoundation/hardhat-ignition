@@ -368,7 +368,7 @@ export class IgnitionModuleBuilderImplementation<
     return future;
   }
 
-  public getParameter<ParamType extends SolidityParamType>(
+  public getParameter<ParamType extends SolidityParamType = any>(
     parameterName: string,
     defaultValue?: ParamType
   ): ParamType {
