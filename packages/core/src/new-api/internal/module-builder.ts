@@ -4,13 +4,14 @@ import { inspect } from "util";
 import { IgnitionValidationError } from "../../errors";
 import { ArtifactType, SolidityParamType, SolidityParamsType } from "../stubs";
 import {
+  ArtifactContractAtFuture,
   ArtifactContractDeploymentFuture,
   ArtifactLibraryDeploymentFuture,
-  ContractAtFuture,
   ContractFuture,
   IgnitionModule,
   IgnitionModuleResult,
   ModuleParameters,
+  NamedContractAtFuture,
   NamedContractCallFuture,
   NamedContractDeploymentFuture,
   NamedLibraryDeploymentFuture,
@@ -28,10 +29,11 @@ import {
 } from "../types/module-builder";
 
 import {
+  ArtifactContractAtFutureImplementation,
   ArtifactContractDeploymentFutureImplementation,
   ArtifactLibraryDeploymentFutureImplementation,
-  ContractAtFutureImplementation,
   IgnitionModuleImplementation,
+  NamedContractAtFutureImplementation,
   NamedContractCallFutureImplementation,
   NamedContractDeploymentFutureImplementation,
   NamedLibraryDeploymentFutureImplementation,
@@ -352,18 +354,48 @@ export class IgnitionModuleBuilderImplementation<
     return future;
   }
 
-  public contractAt(
-    contractName: string,
-    address: string,
-    artifact: ArtifactType,
+  public contractAt<ContractNameT extends string>(
+    contractName: ContractNameT,
+    address: string | NamedStaticCallFuture<string, string>,
     options: ContractAtOptions = {}
-  ): ContractAtFuture {
-    const id = options.id ?? address;
-    const futureId = `${this._module.id}:${contractName}:${id}`;
+  ): NamedContractAtFuture<ContractNameT> {
+    const id = options.id ?? contractName;
+    const futureId = `${this._module.id}:${id}`;
 
     this._assertUniqueContractAtId(futureId);
 
-    const future = new ContractAtFutureImplementation(
+    const future = new NamedContractAtFutureImplementation(
+      futureId,
+      this._module,
+      contractName,
+      address
+    );
+
+    for (const afterFuture of (options.after ?? []).filter(isFuture)) {
+      future.dependencies.add(afterFuture);
+    }
+
+    if (typeof address !== "string") {
+      future.dependencies.add(address);
+    }
+
+    this._module.futures.add(future);
+
+    return future;
+  }
+
+  public contractAtFromArtifact(
+    contractName: string,
+    address: string | NamedStaticCallFuture<string, string>,
+    artifact: ArtifactType,
+    options: ContractAtOptions = {}
+  ): ArtifactContractAtFuture {
+    const id = options.id ?? contractName;
+    const futureId = `${this._module.id}:${id}`;
+
+    this._assertUniqueContractAtFromArtifactId(futureId);
+
+    const future = new ArtifactContractAtFutureImplementation(
       futureId,
       this._module,
       contractName,
@@ -373,6 +405,10 @@ export class IgnitionModuleBuilderImplementation<
 
     for (const afterFuture of (options.after ?? []).filter(isFuture)) {
       future.dependencies.add(afterFuture);
+    }
+
+    if (typeof address !== "string") {
+      future.dependencies.add(address);
     }
 
     this._module.futures.add(future);
@@ -498,8 +534,16 @@ export class IgnitionModuleBuilderImplementation<
   private _assertUniqueContractAtId(futureId: string) {
     return this._assertUniqueFutureId(
       futureId,
-      `Contracts must have unique ids, ${futureId} has already been used, ensure the id passed is unique \`m.contractAt("MyContract", "0x123...", artifact, { id: "MyId"})\``,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.contractAt("MyContract", "0x123...", artifact, { id: "MyId"})\``,
       this.contractAt
+    );
+  }
+
+  private _assertUniqueContractAtFromArtifactId(futureId: string) {
+    return this._assertUniqueFutureId(
+      futureId,
+      `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.contractAtFromArtifact("MyContract", "0x123...", { id: "MyId"})\``,
+      this.contractAtFromArtifact
     );
   }
 }
