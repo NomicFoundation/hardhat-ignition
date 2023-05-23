@@ -66,6 +66,8 @@ export interface NamedContractDeploymentFuture<ContractNameT extends string>
   type: FutureType.NAMED_CONTRACT_DEPLOYMENT;
   constructorArgs: SolidityParamsType;
   libraries: Record<string, ContractFuture<string>>;
+  value: bigint;
+  from: string | undefined;
 }
 
 /**
@@ -80,6 +82,8 @@ export interface ArtifactContractDeploymentFuture
   artifact: ArtifactType;
   constructorArgs: SolidityParamsType;
   libraries: Record<string, ContractFuture<string>>;
+  value: bigint;
+  from: string | undefined;
 }
 
 /**
@@ -91,6 +95,7 @@ export interface NamedLibraryDeploymentFuture<LibraryNameT extends string>
   extends ContractFuture<LibraryNameT> {
   type: FutureType.NAMED_LIBRARY_DEPLOYMENT;
   libraries: Record<string, ContractFuture<string>>;
+  from: string | undefined;
 }
 
 /**
@@ -104,6 +109,7 @@ export interface ArtifactLibraryDeploymentFuture
   type: FutureType.ARTIFACT_LIBRARY_DEPLOYMENT;
   artifact: ArtifactType;
   libraries: Record<string, ContractFuture<string>>;
+  from: string | undefined;
 }
 
 /**
@@ -118,6 +124,8 @@ export interface NamedContractCallFuture<
   type: FutureType.NAMED_CONTRACT_CALL;
   contract: ContractFuture<ContractNameT>;
   args: SolidityParamsType;
+  value: bigint;
+  from: string | undefined;
 }
 
 /**
@@ -132,6 +140,7 @@ export interface NamedStaticCallFuture<
   type: FutureType.NAMED_STATIC_CALL;
   contract: ContractFuture<ContractNameT>;
   args: SolidityParamsType;
+  from: string | undefined;
 }
 
 /**

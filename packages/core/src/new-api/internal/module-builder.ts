@@ -132,6 +132,7 @@ export class IgnitionModuleBuilderImplementation<
     const id = options.id ?? contractName;
     const futureId = `${this._module.id}:${id}`;
     options.libraries ??= {};
+    options.value ??= BigInt(0);
 
     this._assertUniqueContractId(futureId);
 
@@ -140,7 +141,9 @@ export class IgnitionModuleBuilderImplementation<
       this._module,
       contractName,
       args,
-      options.libraries
+      options.libraries,
+      options.value,
+      options.from
     );
 
     for (const arg of args.filter(isFuture)) {
@@ -171,6 +174,7 @@ export class IgnitionModuleBuilderImplementation<
     const id = options.id ?? contractName;
     const futureId = `${this._module.id}:${id}`;
     options.libraries ??= {};
+    options.value ??= BigInt(0);
 
     this._assertUniqueArtifactContractId(futureId);
 
@@ -180,7 +184,9 @@ export class IgnitionModuleBuilderImplementation<
       contractName,
       args,
       artifact,
-      options.libraries
+      options.libraries,
+      options.value,
+      options.from
     );
 
     this._module.futures.add(future);
@@ -216,7 +222,8 @@ export class IgnitionModuleBuilderImplementation<
       futureId,
       this._module,
       libraryName,
-      options.libraries
+      options.libraries,
+      options.from
     );
 
     for (const afterFuture of (options.after ?? []).filter(isFuture)) {
@@ -250,7 +257,8 @@ export class IgnitionModuleBuilderImplementation<
       this._module,
       libraryName,
       artifact,
-      options.libraries
+      options.libraries,
+      options.from
     );
 
     for (const afterFuture of (options.after ?? []).filter(isFuture)) {
@@ -276,6 +284,7 @@ export class IgnitionModuleBuilderImplementation<
   ): NamedContractCallFuture<ContractNameT, FunctionNameT> {
     const id = options.id ?? functionName;
     const futureId = `${this._module.id}:${contractFuture.contractName}#${id}`;
+    options.value ??= BigInt(0);
 
     this._assertUniqueCallId(futureId);
 
@@ -284,7 +293,9 @@ export class IgnitionModuleBuilderImplementation<
       this._module,
       functionName,
       contractFuture,
-      args
+      args,
+      options.value,
+      options.from
     );
 
     future.dependencies.add(contractFuture);
@@ -318,7 +329,8 @@ export class IgnitionModuleBuilderImplementation<
       this._module,
       functionName,
       contractFuture,
-      args
+      args,
+      options.from
     );
 
     future.dependencies.add(contractFuture);
