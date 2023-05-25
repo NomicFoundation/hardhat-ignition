@@ -10,7 +10,7 @@ import {
   ParameterFuture,
   Virtual,
 } from "../../types/future";
-import { Artifact } from "../../types/hardhat";
+import { ArtifactOld } from "../../types/hardhat";
 
 import { AdjacencyList, VertexDescriptor } from "./graph";
 
@@ -91,7 +91,7 @@ export interface HardhatContractDeploymentVertex extends VertexDescriptor {
 export interface ArtifactContractDeploymentVertex extends VertexDescriptor {
   type: "ArtifactContract";
   scopeAdded: string;
-  artifact: Artifact;
+  artifact: ArtifactOld;
   args: InternalParamValue[];
   libraries: LibraryMap;
   after: DeploymentGraphFuture[];
@@ -135,7 +135,7 @@ export interface HardhatLibraryDeploymentVertex extends VertexDescriptor {
 export interface ArtifactLibraryDeploymentVertex extends VertexDescriptor {
   type: "ArtifactLibrary";
   scopeAdded: string;
-  artifact: Artifact;
+  artifact: ArtifactOld;
   args: InternalParamValue[];
   after: DeploymentGraphFuture[];
   from: string;
@@ -220,7 +220,7 @@ export interface SendVertex extends VertexDescriptor {
 export interface DeploymentBuilderOptions {
   chainId: number;
   accounts: string[];
-  artifacts: Artifact[];
+  artifacts: ArtifactOld[];
 }
 
 export interface CallPoints {

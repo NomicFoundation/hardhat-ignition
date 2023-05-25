@@ -22,7 +22,7 @@ import type {
   StaticContractCall,
   Virtual,
 } from "../../types/future";
-import type { Artifact } from "../../types/hardhat";
+import type { ArtifactOld } from "../../types/hardhat";
 import type { Module, ModuleDict } from "../../types/module";
 
 import { BigNumber, ethers } from "ethers";
@@ -72,7 +72,7 @@ import { DeploymentGraph } from "./DeploymentGraph";
 import { ScopeStack } from "./ScopeStack";
 
 interface ArtifactMap {
-  [contractName: string]: Artifact;
+  [contractName: string]: ArtifactOld;
 }
 
 /**
@@ -157,12 +157,12 @@ export class DeploymentBuilder implements IDeploymentBuilder {
   ): HardhatLibrary;
   public library(
     libraryName: string,
-    artifact: Artifact,
+    artifact: ArtifactOld,
     options?: ContractOptionsOld
   ): ArtifactLibrary;
   public library(
     libraryName: string,
-    artifactOrOptions?: ContractOptionsOld | Artifact,
+    artifactOrOptions?: ContractOptionsOld | ArtifactOld,
     givenOptions?: ContractOptionsOld
   ): HardhatLibrary | ArtifactLibrary {
     if (isArtifact(artifactOrOptions)) {
@@ -223,12 +223,12 @@ export class DeploymentBuilder implements IDeploymentBuilder {
   ): HardhatContract;
   public contract(
     contractName: string,
-    artifact: Artifact,
+    artifact: ArtifactOld,
     options?: ContractOptionsOld
   ): ArtifactContract;
   public contract(
     contractName: string,
-    artifactOrOptions?: Artifact | ContractOptionsOld,
+    artifactOrOptions?: ArtifactOld | ContractOptionsOld,
     givenOptions?: ContractOptionsOld
   ): HardhatContract | ArtifactContract {
     if (isArtifact(artifactOrOptions)) {
@@ -560,7 +560,7 @@ export class DeploymentBuilder implements IDeploymentBuilder {
     return paramFuture;
   }
 
-  public getArtifact(contractName: string): Artifact {
+  public getArtifact(contractName: string): ArtifactOld {
     const artifact = this.artifactMap[contractName];
 
     if (artifact === undefined) {

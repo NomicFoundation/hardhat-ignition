@@ -6,7 +6,7 @@ import {
   DeploymentGraphFuture,
   EventParamFuture,
 } from "../../types/future";
-import { Artifact } from "../../types/hardhat";
+import { ArtifactOld } from "../../types/hardhat";
 
 import { LibraryMap } from "./deploymentGraph";
 import {
@@ -91,7 +91,7 @@ export type ExecutionVertex =
  */
 export interface ContractDeployExecutionVertex extends VertexDescriptor {
   type: "ContractDeploy";
-  artifact: Artifact;
+  artifact: ArtifactOld;
   args: ArgValue[];
   libraries: LibraryMap;
   value: BigNumber;
@@ -117,7 +117,7 @@ export interface DeployedContractExecutionVertex extends VertexDescriptor {
  */
 export interface LibraryDeployExecutionVertex extends VertexDescriptor {
   type: "LibraryDeploy";
-  artifact: Artifact;
+  artifact: ArtifactOld;
   args: ArgValue[];
   signer: ethers.Signer;
 }
