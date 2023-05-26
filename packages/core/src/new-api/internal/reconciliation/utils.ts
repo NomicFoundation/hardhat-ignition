@@ -4,7 +4,6 @@ import {
   AccountRuntimeValue,
   Future,
   ModuleParameterRuntimeValue,
-  ModuleParameterType,
 } from "../../types/module";
 import { isAddress } from "../utils";
 
@@ -68,7 +67,7 @@ export function resolveModuleParameter(
   return moduleParamValue;
 }
 
-export function safeToString(potential: ModuleParameterType | undefined) {
+export function safeToString(potential: unknown) {
   if (potential === undefined) {
     return "undefined";
   }
