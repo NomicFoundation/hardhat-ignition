@@ -2,7 +2,14 @@ import assert from "assert";
 import { inspect } from "util";
 
 import { IgnitionValidationError } from "../../errors";
-import { isFuture } from "../type-guards";
+import {
+  isAccountRuntimeValue,
+  isAddressResolvableFuture,
+  isArtifactType,
+  isContractFuture,
+  isFuture,
+  isModuleParameterRuntimeStringValue,
+} from "../type-guards";
 import { Artifact } from "../types/artifact";
 import {
   AccountRuntimeValue,
@@ -162,7 +169,12 @@ export class IgnitionModuleBuilderImplementation<
     options.libraries ??= {};
     options.value ??= BigInt(0);
 
+    /* validation start */
     this._assertUniqueContractId(futureId);
+    this._assertValidLibraries(options.libraries, this.contract);
+    this._assertValidValue(options.value, this.contract);
+    this._assertValidFrom(options.from, this.contract);
+    /* validation end */
 
     const future = new NamedContractDeploymentFutureImplementation(
       futureId,
@@ -202,7 +214,13 @@ export class IgnitionModuleBuilderImplementation<
     options.libraries ??= {};
     options.value ??= BigInt(0);
 
+    /* validation start */
     this._assertUniqueArtifactContractId(futureId);
+    this._assertValidLibraries(options.libraries, this.contractFromArtifact);
+    this._assertValidValue(options.value, this.contractFromArtifact);
+    this._assertValidFrom(options.from, this.contractFromArtifact);
+    this._assertValidArtifact(artifact, this.contractFromArtifact);
+    /* validation end */
 
     const future = new ArtifactContractDeploymentFutureImplementation(
       futureId,
@@ -214,8 +232,6 @@ export class IgnitionModuleBuilderImplementation<
       options.value,
       options.from
     );
-
-    this._module.futures.add(future);
 
     for (const arg of getFutures(args)) {
       future.dependencies.add(arg);
@@ -229,6 +245,8 @@ export class IgnitionModuleBuilderImplementation<
       future.dependencies.add(libraryFuture);
     }
 
+    this._module.futures.add(future);
+
     return future;
   }
 
@@ -240,7 +258,11 @@ export class IgnitionModuleBuilderImplementation<
     const futureId = `${this._module.id}:${id}`;
     options.libraries ??= {};
 
+    /* validation start */
     this._assertUniqueLibraryId(futureId);
+    this._assertValidLibraries(options.libraries, this.library);
+    this._assertValidFrom(options.from, this.library);
+    /* validation end */
 
     const future = new NamedLibraryDeploymentFutureImplementation(
       futureId,
@@ -272,7 +294,12 @@ export class IgnitionModuleBuilderImplementation<
     const futureId = `${this._module.id}:${id}`;
     options.libraries ??= {};
 
+    /* validation start */
     this._assertUniqueArtifactLibraryId(futureId);
+    this._assertValidLibraries(options.libraries, this.libraryFromArtifact);
+    this._assertValidFrom(options.from, this.libraryFromArtifact);
+    this._assertValidArtifact(artifact, this.libraryFromArtifact);
+    /* validation end */
 
     const future = new ArtifactLibraryDeploymentFutureImplementation(
       futureId,
@@ -306,7 +333,12 @@ export class IgnitionModuleBuilderImplementation<
     const futureId = `${this._module.id}:${contractFuture.contractName}#${id}`;
     options.value ??= BigInt(0);
 
+    /* validation start */
     this._assertUniqueCallId(futureId);
+    this._assertValidValue(options.value, this.call);
+    this._assertValidFrom(options.from, this.call);
+    this._assertValidContract(contractFuture, this.call);
+    /* validation end */
 
     const future = new NamedContractCallFutureImplementation(
       futureId,
@@ -342,7 +374,12 @@ export class IgnitionModuleBuilderImplementation<
     const id = options.id ?? functionName;
     const futureId = `${this._module.id}:${contractFuture.contractName}#${id}`;
 
+    /* validation start */
     this._assertUniqueStaticCallId(futureId);
+    this._assertValidValue(options.value, this.staticCall);
+    this._assertValidFrom(options.from, this.staticCall);
+    this._assertValidContract(contractFuture, this.staticCall);
+    /* validation end */
 
     const future = new NamedStaticCallFutureImplementation(
       futureId,
@@ -379,7 +416,10 @@ export class IgnitionModuleBuilderImplementation<
     const id = options.id ?? contractName;
     const futureId = `${this._module.id}:${id}`;
 
+    /* validation start */
     this._assertUniqueContractAtId(futureId);
+    this._assertValidAddress(address, this.contractAt);
+    /* validation end */
 
     const future = new NamedContractAtFutureImplementation(
       futureId,
@@ -395,8 +435,6 @@ export class IgnitionModuleBuilderImplementation<
     if (isFuture(address)) {
       future.dependencies.add(address);
     }
-
-    // TODO: Validate the the runtime value's default type is string
 
     this._module.futures.add(future);
 
@@ -415,7 +453,11 @@ export class IgnitionModuleBuilderImplementation<
     const id = options.id ?? contractName;
     const futureId = `${this._module.id}:${id}`;
 
+    /* validation start */
     this._assertUniqueContractAtFromArtifactId(futureId);
+    this._assertValidAddress(address, this.contractAtFromArtifact);
+    this._assertValidArtifact(artifact, this.contractAtFromArtifact);
+    /* validation end */
 
     const future = new ArtifactContractAtFutureImplementation(
       futureId,
@@ -432,8 +474,6 @@ export class IgnitionModuleBuilderImplementation<
     if (isFuture(address)) {
       future.dependencies.add(address);
     }
-
-    // TODO: Validate the the runtime value's default type is string
 
     this._module.futures.add(future);
 
@@ -464,7 +504,9 @@ export class IgnitionModuleBuilderImplementation<
 
     const futureId = `${this._module.id}:${id}`;
 
+    /* validation start */
     this._assertUniqueReadEventArgumentId(futureId);
+    /* validation end */
 
     const future = new ReadEventArgumentFutureImplementation(
       futureId,
@@ -494,14 +536,21 @@ export class IgnitionModuleBuilderImplementation<
     options: SendDataOptions = {}
   ): SendDataFuture {
     const futureId = `${this._module.id}:${options.id ?? id}`;
+    const val = value ?? BigInt(0);
 
+    /* validation start */
     this._assertUniqueSendId(futureId);
+    this._assertValidAddress(to, this.send);
+    this._assertValidValue(val, this.send);
+    this._assertValidData(data, this.send);
+    this._assertValidFrom(options.from, this.send);
+    /* validation end */
 
     const future = new SendDataFutureImplementation(
       futureId,
       this._module,
       to,
-      value ?? BigInt(0),
+      val,
       data,
       options.from
     );
@@ -509,8 +558,6 @@ export class IgnitionModuleBuilderImplementation<
     if (isFuture(to)) {
       future.dependencies.add(to);
     }
-
-    // TODO: Validate the the runtime value's default type is string
 
     for (const afterFuture of options.after ?? []) {
       future.dependencies.add(afterFuture);
@@ -650,5 +697,87 @@ export class IgnitionModuleBuilderImplementation<
       `Duplicated id ${futureId} found in module ${this._module.id}, ensure the id passed is unique \`m.send("MyId", "0xabcd")\``,
       this.send
     );
+  }
+
+  private _assertValidLibraries(
+    libraries: Record<string, ContractFuture<string>>,
+    func: (...[]: any[]) => any
+  ) {
+    for (const [libraryName, libraryFuture] of Object.entries(libraries)) {
+      if (!isContractFuture(libraryFuture)) {
+        this._throwErrorWithStackTrace(
+          `Given library '${libraryName}' is not a valid Future`,
+          func
+        );
+      }
+    }
+  }
+
+  private _assertValidValue(value: bigint | any, func: (...[]: any[]) => any) {
+    if (typeof value !== "bigint") {
+      this._throwErrorWithStackTrace(
+        `Given value option '${value}' is not a \`bigint\``,
+        func
+      );
+    }
+  }
+
+  private _assertValidFrom(
+    from: string | AccountRuntimeValue | undefined,
+    func: (...[]: any[]) => any
+  ) {
+    if (
+      !isAccountRuntimeValue(from) &&
+      typeof from !== "string" &&
+      from !== undefined
+    ) {
+      this._throwErrorWithStackTrace(
+        `Invalid type for given option "from": ${typeof from}`,
+        func
+      );
+    }
+  }
+
+  private _assertValidArtifact(
+    artifact: Artifact,
+    func: (...[]: any[]) => any
+  ) {
+    if (!isArtifactType(artifact)) {
+      this._throwErrorWithStackTrace(`Invalid artifact given`, func);
+    }
+  }
+
+  private _assertValidContract(
+    contract: ContractFuture<string>,
+    func: (...[]: any[]) => any
+  ) {
+    if (!isContractFuture(contract)) {
+      this._throwErrorWithStackTrace(`Invalid contract given`, func);
+    }
+  }
+
+  private _assertValidAddress(
+    address:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>,
+    func: (...[]: any[]) => any
+  ) {
+    if (
+      typeof address !== "string" &&
+      !isModuleParameterRuntimeStringValue(address) &&
+      !isAddressResolvableFuture(address)
+    ) {
+      this._throwErrorWithStackTrace(`Invalid address given`, func);
+    }
+  }
+
+  private _assertValidData(
+    data: string | undefined,
+    func: (...[]: any[]) => any
+  ) {
+    if (typeof data !== "string" && data !== undefined) {
+      this._throwErrorWithStackTrace(`Invalid data given`, func);
+    }
   }
 }
