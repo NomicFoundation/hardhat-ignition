@@ -1,5 +1,6 @@
 import { assert } from "chai";
 
+import { Artifact } from "../../src";
 import { defineModule } from "../../src/new-api/define-module";
 import {
   AccountRuntimeValueImplementation,
@@ -10,7 +11,12 @@ import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 import { assertInstanceOf } from "./helpers";
 
 describe("libraryFromArtifact", () => {
-  const fakeArtifact: any = {};
+  const fakeArtifact: Artifact = {
+    abi: [],
+    contractName: "",
+    bytecode: "",
+    linkReferences: {},
+  };
 
   it("should be able to deploy with a library based on an artifact", () => {
     const moduleWithContractFromArtifactDefinition = defineModule(

@@ -1,5 +1,6 @@
 import { assert } from "chai";
 
+import { Artifact } from "../../src";
 import { defineModule } from "../../src/new-api/define-module";
 import { ModuleParameterRuntimeValueImplementation } from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
@@ -7,7 +8,12 @@ import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 import { assertInstanceOf } from "./helpers";
 
 describe("contractAtFromArtifactFromArtifact", () => {
-  const fakeArtifact: any = {};
+  const fakeArtifact: Artifact = {
+    abi: [],
+    contractName: "",
+    bytecode: "",
+    linkReferences: {},
+  };
 
   it("should be able to setup a contract at a given address", () => {
     const moduleWithContractFromArtifactDefinition = defineModule(

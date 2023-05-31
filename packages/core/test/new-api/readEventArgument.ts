@@ -1,13 +1,18 @@
 import { assert } from "chai";
 
-import { FutureType, ReadEventArgumentFuture } from "../../src";
+import { Artifact, FutureType, ReadEventArgumentFuture } from "../../src";
 import { defineModule } from "../../src/new-api/define-module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 
 describe("Read event argument", () => {
   describe("creating modules with it", () => {
     it("should support reading arguments from all the futures that can emit them", () => {
-      const fakeArtifact = {} as any;
+      const fakeArtifact: Artifact = {
+        abi: [],
+        contractName: "",
+        bytecode: "",
+        linkReferences: {},
+      };
 
       const defintion = defineModule("Module1", (m) => {
         const contract = m.contract("Contract");

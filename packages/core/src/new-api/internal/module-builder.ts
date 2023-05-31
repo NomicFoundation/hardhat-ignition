@@ -43,6 +43,7 @@ import {
   LibraryOptions,
   ReadEventArgumentOptions,
   SendDataOptions,
+  StaticCallOptions,
 } from "../types/module-builder";
 
 import {
@@ -369,14 +370,13 @@ export class IgnitionModuleBuilderImplementation<
     contractFuture: ContractFuture<ContractNameT>,
     functionName: FunctionNameT,
     args: ArgumentType[] = [],
-    options: CallOptions = {}
+    options: StaticCallOptions = {}
   ): NamedStaticCallFuture<ContractNameT, FunctionNameT> {
     const id = options.id ?? functionName;
     const futureId = `${this._module.id}:${contractFuture.contractName}#${id}`;
 
     /* validation start */
     this._assertUniqueStaticCallId(futureId);
-    this._assertValidValue(options.value, this.staticCall);
     this._assertValidFrom(options.from, this.staticCall);
     this._assertValidContract(contractFuture, this.staticCall);
     /* validation end */
