@@ -7,7 +7,7 @@ import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 
 import { assertInstanceOf } from "./helpers";
 
-describe("contractAtFromArtifactFromArtifact", () => {
+describe("contractAtFromArtifact", () => {
   const fakeArtifact: Artifact = {
     abi: [],
     contractName: "",
@@ -249,6 +249,52 @@ describe("contractAtFromArtifactFromArtifact", () => {
       assert.throws(
         () => constructor.construct(moduleDefinition),
         /Duplicated id Module1:same found in module Module1/
+      );
+    });
+  });
+
+  describe("validation", () => {
+    it("should not validate an invalid address", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractAtFromArtifact(
+            "Another",
+            42 as any,
+            fakeArtifact
+          );
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid address given/
+      );
+    });
+
+    it("should not validate an invalid artifact", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractAtFromArtifact(
+            "Another",
+            "",
+            {} as Artifact
+          );
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid artifact given/
       );
     });
   });

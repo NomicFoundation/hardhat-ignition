@@ -229,4 +229,24 @@ describe("contractAt", () => {
       );
     });
   });
+
+  describe("validation", () => {
+    it("should not validate an invalid address", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractAt("Another", 42 as any);
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid address given/
+      );
+    });
+  });
 });

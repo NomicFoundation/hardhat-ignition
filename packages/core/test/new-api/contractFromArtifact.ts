@@ -521,4 +521,87 @@ describe("contractFromArtifact", () => {
       );
     });
   });
+
+  describe("validation", () => {
+    it("should not validate a non-bignumber value option", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractFromArtifact("Another", fakeArtifact, [], {
+            value: 42 as any,
+          });
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Given value option '42' is not a `bigint`/
+      );
+    });
+
+    it("should not validate a non-address from option", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractFromArtifact("Another", fakeArtifact, [], {
+            from: 1 as any,
+          });
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid type for given option "from": number/
+      );
+    });
+
+    it("should not validate a non-contract library", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contract("Another", []);
+          const call = m.call(another, "test");
+
+          const test = m.contractFromArtifact("Test", fakeArtifact, [], {
+            libraries: { Call: call as any },
+          });
+
+          return { another, test };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Given library 'Call' is not a valid Future/
+      );
+    });
+
+    it("should not validate an invalid artifact", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractFromArtifact("Another", {} as Artifact, []);
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid artifact given/
+      );
+    });
+  });
 });

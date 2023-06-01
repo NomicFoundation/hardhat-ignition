@@ -477,4 +477,70 @@ describe("call", () => {
       );
     });
   });
+
+  describe("validation", () => {
+    it("should not validate a non-bignumber value option", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contract("Another", []);
+          m.call(another, "test", [], { value: 42 as any });
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Given value option '42' is not a `bigint`/
+      );
+    });
+
+    it("should not validate a non-address from option", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contract("Another", []);
+          m.call(another, "test", [], { from: 1 as any });
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid type for given option "from": number/
+      );
+    });
+
+    it("should not validate a non-contract", () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contract("Another", []);
+          const call = m.call(another, "test");
+
+          m.call(call as any, "test");
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+
+      assert.throws(
+        () => constructor.construct(moduleWithDependentContractsDefinition),
+        /Invalid contract given/
+      );
+    });
+
+    it("should not validate a non-existant hardhat contract");
+    it("should not validate a non-existant function");
+    it("should not validate a call with wrong number of arguments");
+    it("should not validate an overloaded call with wrong number of arguments");
+  });
 });
