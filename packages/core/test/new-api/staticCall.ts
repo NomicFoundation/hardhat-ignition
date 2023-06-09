@@ -2,11 +2,15 @@ import { assert } from "chai";
 
 import { defineModule } from "../../src/new-api/define-module";
 import {
+  AccountRuntimeValueImplementation,
+  ModuleParameterRuntimeValueImplementation,
   NamedContractCallFutureImplementation,
   NamedStaticCallFutureImplementation,
 } from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 import { FutureType } from "../../src/new-api/types/module";
+
+import { assertInstanceOf } from "./helpers";
 
 describe("static call", () => {
   it("should be able to setup a static call", () => {
@@ -18,7 +22,7 @@ describe("static call", () => {
       return { contract1 };
     });
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithASingleContract = constructor.construct(
       moduleWithASingleContractDefinition
     );
@@ -60,7 +64,7 @@ describe("static call", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -101,7 +105,7 @@ describe("static call", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -140,7 +144,7 @@ describe("static call", () => {
       return { contract1 };
     });
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithASingleContract = constructor.construct(
       moduleWithASingleContractDefinition
     );
@@ -163,19 +167,19 @@ describe("static call", () => {
     assert(callFuture.dependencies.has(staticCallFuture!));
   });
 
-  it("should be able to pass from as an option", () => {
+  it("should be able to pass a string as from option", () => {
     const moduleWithDependentContractsDefinition = defineModule(
       "Module1",
       (m) => {
         const example = m.contract("Example");
 
-        m.staticCall(example, "test", [], { from: m.accounts[1] });
+        m.staticCall(example, "test", [], { from: "0x2" });
 
         return { example };
       }
     );
 
-    const constructor = new ModuleConstructor(0, ["0x1", "0x2"]);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -193,6 +197,228 @@ describe("static call", () => {
     assert.equal(callFuture.from, "0x2");
   });
 
+  it("Should be able to pass an AccountRuntimeValue as from option", () => {
+    const moduleWithDependentContractsDefinition = defineModule(
+      "Module1",
+      (m) => {
+        const example = m.contract("Example");
+
+        m.staticCall(example, "test", [], { from: m.getAccount(1) });
+
+        return { example };
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const callFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1:Example#test"
+    );
+
+    if (!(callFuture instanceof NamedStaticCallFutureImplementation)) {
+      assert.fail("Not a named contract deployment");
+    }
+
+    assertInstanceOf(callFuture.from, AccountRuntimeValueImplementation);
+    assert.equal(callFuture.from.accountIndex, 1);
+  });
+
+  describe("Arguments", () => {
+    it("Should support base values as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [1, true, "string", 4n]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assert.deepEqual(future.args, [1, true, "string", 4n]);
+    });
+
+    it("Should support arrays as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [[1, 2, 3n]]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assert.deepEqual(future.args, [[1, 2, 3n]]);
+    });
+
+    it("Should support objects as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [{ a: 1, b: [1, 2] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assert.deepEqual(future.args, [{ a: 1, b: [1, 2] }]);
+    });
+
+    it("Should support futures as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [contract1]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assert.equal(future.args[0], module.results.contract1);
+    });
+
+    it("should support nested futures as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [{ arr: [contract1] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assert.equal((future.args[0] as any).arr[0], module.results.contract1);
+    });
+
+    it("should support AccountRuntimeValues as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const account1 = m.getAccount(1);
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [account1]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assertInstanceOf(future.args[0], AccountRuntimeValueImplementation);
+      assert.equal(future.args[0].accountIndex, 1);
+    });
+
+    it("should support nested AccountRuntimeValues as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const account1 = m.getAccount(1);
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [{ arr: [account1] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      const account = (future.args[0] as any).arr[0];
+
+      assertInstanceOf(account, AccountRuntimeValueImplementation);
+
+      assert.equal(account.accountIndex, 1);
+    });
+
+    it("should support ModuleParameterRuntimeValue as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const p = m.getParameter("p", 123);
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [p]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      assertInstanceOf(
+        future.args[0],
+        ModuleParameterRuntimeValueImplementation
+      );
+      assert.equal(future.args[0].name, "p");
+      assert.equal(future.args[0].defaultValue, 123);
+    });
+
+    it("should support nested ModuleParameterRuntimeValue as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const p = m.getParameter("p", 123);
+        const contract1 = m.contract("Contract1");
+        m.staticCall(contract1, "foo", [{ arr: [p] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const future = [...module.futures].find(
+        ({ type }) => type === FutureType.NAMED_STATIC_CALL
+      );
+
+      assertInstanceOf(future, NamedStaticCallFutureImplementation);
+      const param = (future.args[0] as any).arr[0];
+
+      assertInstanceOf(param, ModuleParameterRuntimeValueImplementation);
+      assert.equal(param.name, "p");
+      assert.equal(param.defaultValue, 123);
+    });
+  });
+
   describe("passing id", () => {
     it("should be able to statically call the same function twice by passing an id", () => {
       const moduleWithSameCallTwiceDefinition = defineModule("Module1", (m) => {
@@ -204,7 +430,7 @@ describe("static call", () => {
         return { sameContract1 };
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
       const moduleWithSameCallTwice = constructor.construct(
         moduleWithSameCallTwiceDefinition
       );
@@ -232,7 +458,7 @@ describe("static call", () => {
         return { sameContract1 };
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
@@ -248,7 +474,7 @@ describe("static call", () => {
         return { sameContract1 };
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),

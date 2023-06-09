@@ -1,5 +1,6 @@
 import { Artifact } from "./artifact";
 import {
+  AccountRuntimeValue,
   AddressResolvableFuture,
   ArgumentType,
   ArtifactContractAtFuture,
@@ -8,6 +9,7 @@ import {
   ContractFuture,
   Future,
   IgnitionModuleResult,
+  ModuleParameterRuntimeValue,
   ModuleParameterType,
   NamedContractAtFuture,
   NamedContractCallFuture,
@@ -42,7 +44,7 @@ export interface ContractOptions {
   after?: Future[];
   libraries?: Record<string, ContractFuture<string>>;
   value?: bigint;
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -55,7 +57,7 @@ export interface ContractFromArtifactOptions {
   after?: Future[];
   libraries?: Record<string, ContractFuture<string>>;
   value?: bigint;
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -67,7 +69,7 @@ export interface LibraryOptions {
   id?: string;
   after?: Future[];
   libraries?: Record<string, ContractFuture<string>>;
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -79,7 +81,7 @@ export interface LibraryFromArtifactOptions {
   id?: string;
   after?: Future[];
   libraries?: Record<string, ContractFuture<string>>;
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -91,7 +93,7 @@ export interface CallOptions {
   id?: string;
   after?: Future[];
   value?: bigint;
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -102,7 +104,7 @@ export interface CallOptions {
 export interface StaticCallOptions {
   id?: string;
   after?: Future[];
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -147,7 +149,7 @@ export interface ReadEventArgumentOptions {
 export interface SendDataOptions {
   id?: string;
   after?: Future[];
-  from?: string;
+  from?: string | AccountRuntimeValue;
 }
 
 /**
@@ -156,8 +158,12 @@ export interface SendDataOptions {
  * @beta
  */
 export interface IgnitionModuleBuilder {
-  chainId: number;
-  accounts: string[];
+  getAccount(accountIndex: number): AccountRuntimeValue;
+
+  getParameter<ParamTypeT extends ModuleParameterType = any>(
+    parameterName: string,
+    defaultValue?: ParamTypeT
+  ): ModuleParameterRuntimeValue<ParamTypeT>;
 
   contract<ContractNameT extends string>(
     contractName: ContractNameT,
@@ -199,21 +205,22 @@ export interface IgnitionModuleBuilder {
 
   contractAt<ContractNameT extends string>(
     contractName: ContractNameT,
-    address: string | NamedStaticCallFuture<string, string>,
+    address:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>,
     options?: ContractAtOptions
   ): NamedContractAtFuture<ContractNameT>;
 
   contractAtFromArtifact(
     contractName: string,
-    address: string | NamedStaticCallFuture<string, string>,
+    address:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>,
     artifact: Artifact,
     options?: ContractAtOptions
   ): ArtifactContractAtFuture;
-
-  getParameter<ParamType extends ModuleParameterType>(
-    parameterName: string,
-    defaultValue?: ParamType
-  ): ParamType;
 
   readEventArgument(
     futureToReadFrom:
@@ -227,7 +234,7 @@ export interface IgnitionModuleBuilder {
 
   send(
     id: string,
-    to: string | AddressResolvableFuture,
+    to: string | AddressResolvableFuture | ModuleParameterRuntimeValue<string>,
     value?: bigint,
     data?: string,
     options?: SendDataOptions

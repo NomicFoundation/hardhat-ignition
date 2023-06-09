@@ -1,10 +1,12 @@
 import { IgnitionError } from "../errors";
 
 import {
+  AccountRuntimeValueImplementation,
   ArtifactContractAtFutureImplementation,
   ArtifactContractDeploymentFutureImplementation,
   ArtifactLibraryDeploymentFutureImplementation,
   IgnitionModuleImplementation,
+  ModuleParameterRuntimeValueImplementation,
   NamedContractAtFutureImplementation,
   NamedContractCallFutureImplementation,
   NamedContractDeploymentFutureImplementation,
@@ -21,8 +23,10 @@ import {
   isAddressResolvableFuture,
   isContractFuture,
   isFuture,
-} from "./internal/utils";
+  isRuntimeValue,
+} from "./type-guards";
 import {
+  AccountRuntimeValue,
   AddressResolvableFuture,
   ArgumentType,
   ContractFuture,
@@ -30,10 +34,15 @@ import {
   FutureType,
   IgnitionModule,
   IgnitionModuleResult,
+  ModuleParameterRuntimeValue,
+  ModuleParameterType,
+  RuntimeValue,
+  RuntimeValueType,
 } from "./types/module";
 import {
   FutureToken,
   ModuleToken,
+  SerializedAccountRuntimeValue,
   SerializedArgumentType,
   SerializedArtifactContractAtFuture,
   SerializedArtifactContractDeploymentFuture,
@@ -41,12 +50,14 @@ import {
   SerializedBigInt,
   SerializedFuture,
   SerializedLibraries,
+  SerializedModuleParameterRuntimeValue,
   SerializedNamedContractAtFuture,
   SerializedNamedContractCallFuture,
   SerializedNamedContractDeploymentFuture,
   SerializedNamedLibraryDeploymentFuture,
   SerializedNamedStaticCallFuture,
   SerializedReadEventArgumentFuture,
+  SerializedRuntimeValue,
   SerializedSendDataFuture,
   SerializedStoredDeployment,
   SerializedStoredModule,
@@ -80,21 +91,16 @@ export class StoredDeploymentSerializer {
   ): SerializedStoredModule {
     return {
       id: userModule.id,
-      futures: Object.fromEntries(
-        Array.from(userModule.futures).map((future) => [
-          future.id,
-          this._serializeFuture(future),
-        ])
+      futures: Array.from(userModule.futures).map((future) =>
+        this._serializeFuture(future)
       ),
       submodules: Array.from(userModule.submodules).map(
         this._convertModuleToModuleToken
       ),
-      results: Object.fromEntries(
-        Object.entries(userModule.results).map(([key, future]) => [
-          key,
-          this._convertFutureToFutureToken(future),
-        ])
-      ),
+      results: Object.entries(userModule.results).map(([key, future]) => [
+        key,
+        this._convertFutureToFutureToken(future),
+      ]),
     };
   }
 
@@ -113,7 +119,9 @@ export class StoredDeploymentSerializer {
             constructorArgs: future.constructorArgs.map((arg) =>
               this._serializeArgument(arg)
             ),
-            from: future.from,
+            from: isRuntimeValue(future.from)
+              ? this._serializeAccountRuntimeValue(future.from)
+              : future.from,
             libraries: this._convertLibrariesToLibraryTokens(future.libraries),
             value: this._serializeBigint(future.value),
           };
@@ -133,7 +141,9 @@ export class StoredDeploymentSerializer {
             constructorArgs: future.constructorArgs.map((arg) =>
               this._serializeArgument(arg)
             ),
-            from: future.from,
+            from: isRuntimeValue(future.from)
+              ? this._serializeAccountRuntimeValue(future.from)
+              : future.from,
             libraries: this._convertLibrariesToLibraryTokens(future.libraries),
             value: this._serializeBigint(future.value),
           };
@@ -149,7 +159,9 @@ export class StoredDeploymentSerializer {
               this._convertFutureToFutureToken(d)
             ),
             contractName: future.contractName,
-            from: future.from,
+            from: isRuntimeValue(future.from)
+              ? this._serializeAccountRuntimeValue(future.from)
+              : future.from,
             libraries: this._convertLibrariesToLibraryTokens(future.libraries),
           };
         return serializedNamedLibraryDeploymentFuture;
@@ -165,7 +177,9 @@ export class StoredDeploymentSerializer {
             ),
             contractName: future.contractName,
             artifact: future.artifact,
-            from: future.from,
+            from: isRuntimeValue(future.from)
+              ? this._serializeAccountRuntimeValue(future.from)
+              : future.from,
             libraries: this._convertLibrariesToLibraryTokens(future.libraries),
           };
         return serializedArtifactLibraryDeploymentFuture;
@@ -183,7 +197,9 @@ export class StoredDeploymentSerializer {
             functionName: future.functionName,
             args: future.args.map((arg) => this._serializeArgument(arg)),
             value: this._serializeBigint(future.value),
-            from: future.from,
+            from: isRuntimeValue(future.from)
+              ? this._serializeAccountRuntimeValue(future.from)
+              : future.from,
           };
         return serializedNamedContractCallFuture;
 
@@ -199,7 +215,9 @@ export class StoredDeploymentSerializer {
             contract: this._convertFutureToFutureToken(future.contract),
             functionName: future.functionName,
             args: future.args.map((arg) => this._serializeArgument(arg)),
-            from: future.from,
+            from: isRuntimeValue(future.from)
+              ? this._serializeAccountRuntimeValue(future.from)
+              : future.from,
           };
         return serializedNamedStaticCallFuture;
 
@@ -215,6 +233,9 @@ export class StoredDeploymentSerializer {
             contractName: future.contractName,
             address: isFuture(future.address)
               ? this._convertFutureToFutureToken(future.address)
+              : isRuntimeValue(future.address) &&
+                future.address.type === RuntimeValueType.MODULE_PARAMETER
+              ? this._serializeModuleParamterRuntimeValue(future.address)
               : future.address,
           };
         return serializedNamedContractAtFuture;
@@ -232,6 +253,9 @@ export class StoredDeploymentSerializer {
             artifact: future.artifact,
             address: isFuture(future.address)
               ? this._convertFutureToFutureToken(future.address)
+              : isRuntimeValue(future.address) &&
+                future.address.type === RuntimeValueType.MODULE_PARAMETER
+              ? this._serializeModuleParamterRuntimeValue(future.address)
               : future.address,
           };
         return serializedArtifactContractAtFuture;
@@ -265,10 +289,14 @@ export class StoredDeploymentSerializer {
           ),
           to: isFuture(future.to)
             ? this._convertFutureToFutureToken(future.to)
+            : isRuntimeValue(future.to)
+            ? this._serializeModuleParamterRuntimeValue(future.to)
             : future.to,
           value: this._serializeBigint(future.value),
           data: future.data,
-          from: future.from,
+          from: isRuntimeValue(future.from)
+            ? this._serializeAccountRuntimeValue(future.from)
+            : future.from,
         };
         return serializedSendDataFuture;
     }
@@ -282,12 +310,10 @@ export class StoredDeploymentSerializer {
   private static _convertLibrariesToLibraryTokens(
     libraries: Record<string, ContractFuture<string>>
   ): SerializedLibraries {
-    return Object.fromEntries(
-      Object.entries(libraries).map(([key, lib]) => [
-        key,
-        this._convertFutureToFutureToken(lib),
-      ])
-    );
+    return Object.entries(libraries).map(([key, lib]) => [
+      key,
+      this._convertFutureToFutureToken(lib),
+    ]);
   }
 
   private static _serializeArgument(arg: ArgumentType): SerializedArgumentType {
@@ -297,6 +323,10 @@ export class StoredDeploymentSerializer {
 
     if (isFuture(arg)) {
       return this._convertFutureToFutureToken(arg);
+    }
+
+    if (isRuntimeValue(arg)) {
+      return this._serializeRuntimeValue(arg);
     }
 
     if (Array.isArray(arg)) {
@@ -312,8 +342,46 @@ export class StoredDeploymentSerializer {
     return arg;
   }
 
+  private static _serializeRuntimeValue(
+    arg: RuntimeValue
+  ): SerializedRuntimeValue {
+    if (arg.type === RuntimeValueType.ACCOUNT) {
+      return this._serializeAccountRuntimeValue(arg);
+    }
+
+    return this._serializeModuleParamterRuntimeValue(arg);
+  }
+
+  private static _serializeAccountRuntimeValue(
+    arg: AccountRuntimeValue
+  ): SerializedAccountRuntimeValue {
+    return { _kind: "AccountRuntimeValue", accountIndex: arg.accountIndex };
+  }
+
+  private static _serializeModuleParamterRuntimeValue(
+    arg: ModuleParameterRuntimeValue<ModuleParameterType>
+  ): SerializedModuleParameterRuntimeValue {
+    return {
+      _kind: "ModuleParameterRuntimeValue",
+      name: arg.name,
+      defaultValue:
+        arg.defaultValue === undefined
+          ? undefined
+          : this._jsonStringifyWithBigint(arg.defaultValue),
+    };
+  }
+
   private static _serializeBigint(n: bigint): SerializedBigInt {
     return { _kind: "bigint", value: n.toString(10) };
+  }
+
+  private static _jsonStringifyWithBigint(value: unknown, prettyPrint = true) {
+    return JSON.stringify(
+      value,
+      (_: string, v: any) =>
+        typeof v === "bigint" ? this._serializeBigint(v) : v,
+      prettyPrint ? 2 : undefined
+    );
   }
 
   private static _convertFutureToFutureToken(future: Future): FutureToken {
@@ -391,8 +459,6 @@ export class StoredDeploymentDeserializer {
         future.dependencies.add(dependency);
       }
 
-      future.module.futures.add(future);
-
       futuresLookup.set(future.id, future);
 
       if (isContractFuture(future)) {
@@ -407,15 +473,20 @@ export class StoredDeploymentDeserializer {
     for (const serializedModule of Object.values(
       serializedDeployment.modules
     )) {
-      for (const [name, futureToken] of Object.entries(
-        serializedModule.results
-      )) {
-        const mod = this._lookup(modulesLookup, serializedModule.id);
+      const mod = this._lookup(modulesLookup, serializedModule.id);
+
+      for (const [name, futureToken] of serializedModule.results) {
         const contract = this._lookup(
           contractFuturesLookup,
           futureToken.futureId
         );
+
         mod.results[name] = contract;
+      }
+
+      // Add futures to the module in the original order
+      for (const futureToken of serializedModule.futures) {
+        mod.futures.add(this._lookup(futuresLookup, futureToken.id));
       }
     }
 
@@ -497,6 +568,14 @@ export class StoredDeploymentDeserializer {
       return swappedFuture;
     }
 
+    if (this._isSerializedAccountRuntimeValue(arg)) {
+      return this._deserializeAccountRuntimeValue(arg);
+    }
+
+    if (this._isSerializedModuleParameterRuntimeValue(arg)) {
+      return this._deserializeModuleParameterRuntimeValue(arg);
+    }
+
     if (this._isSerializedBigInt(arg)) {
       return this._deserializedBigint(arg);
     }
@@ -519,6 +598,16 @@ export class StoredDeploymentDeserializer {
 
   private static _deserializedBigint(n: SerializedBigInt): bigint {
     return BigInt(n.value);
+  }
+
+  private static _jsonParseWithBigint(jsonString: string): unknown {
+    return JSON.parse(jsonString, (k, v) => {
+      if (this._isSerializedBigInt(v)) {
+        return this._deserializedBigint(v);
+      }
+
+      return v;
+    });
   }
 
   private static _isSerializedFutureToken(
@@ -565,13 +654,15 @@ export class StoredDeploymentDeserializer {
             this._deserializeArgument(arg, futuresLookup)
           ),
           Object.fromEntries(
-            Object.entries(serializedFuture.libraries).map(([name, lib]) => [
+            serializedFuture.libraries.map(([name, lib]) => [
               name,
               this._lookup(contractFuturesLookup, lib.futureId),
             ])
           ),
           this._deserializedBigint(serializedFuture.value),
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
       case FutureType.ARTIFACT_CONTRACT_DEPLOYMENT:
         return new ArtifactContractDeploymentFutureImplementation(
@@ -583,13 +674,15 @@ export class StoredDeploymentDeserializer {
           ),
           serializedFuture.artifact,
           Object.fromEntries(
-            Object.entries(serializedFuture.libraries).map(([name, lib]) => [
+            serializedFuture.libraries.map(([name, lib]) => [
               name,
               this._lookup(contractFuturesLookup, lib.futureId),
             ])
           ),
           this._deserializedBigint(serializedFuture.value),
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
       case FutureType.NAMED_LIBRARY_DEPLOYMENT:
         return new NamedLibraryDeploymentFutureImplementation(
@@ -597,12 +690,14 @@ export class StoredDeploymentDeserializer {
           mod,
           serializedFuture.contractName,
           Object.fromEntries(
-            Object.entries(serializedFuture.libraries).map(([name, lib]) => [
+            serializedFuture.libraries.map(([name, lib]) => [
               name,
               this._lookup(contractFuturesLookup, lib.futureId),
             ])
           ),
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
       case FutureType.ARTIFACT_LIBRARY_DEPLOYMENT:
         return new ArtifactLibraryDeploymentFutureImplementation(
@@ -611,12 +706,14 @@ export class StoredDeploymentDeserializer {
           serializedFuture.contractName,
           serializedFuture.artifact,
           Object.fromEntries(
-            Object.entries(serializedFuture.libraries).map(([name, lib]) => [
+            serializedFuture.libraries.map(([name, lib]) => [
               name,
               this._lookup(contractFuturesLookup, lib.futureId),
             ])
           ),
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
       case FutureType.NAMED_CONTRACT_CALL:
         return new NamedContractCallFutureImplementation(
@@ -631,7 +728,9 @@ export class StoredDeploymentDeserializer {
             this._deserializeArgument(arg, futuresLookup)
           ),
           this._deserializedBigint(serializedFuture.value),
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
       case FutureType.NAMED_STATIC_CALL:
         return new NamedStaticCallFutureImplementation(
@@ -645,7 +744,9 @@ export class StoredDeploymentDeserializer {
           serializedFuture.args.map((arg) =>
             this._deserializeArgument(arg, futuresLookup)
           ),
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
       case FutureType.NAMED_CONTRACT_AT:
         return new NamedContractAtFutureImplementation(
@@ -657,6 +758,12 @@ export class StoredDeploymentDeserializer {
                 addressResolvableFutureLookup,
                 serializedFuture.address.futureId
               )
+            : this._isSerializedModuleParameterRuntimeValue(
+                serializedFuture.address
+              )
+            ? (this._deserializeModuleParameterRuntimeValue(
+                serializedFuture.address
+              ) as ModuleParameterRuntimeValue<string>) // This is unsafe, but we only serialize valid valus
             : serializedFuture.address
         );
       case FutureType.ARTIFACT_CONTRACT_AT:
@@ -669,6 +776,12 @@ export class StoredDeploymentDeserializer {
                 addressResolvableFutureLookup,
                 serializedFuture.address.futureId
               )
+            : this._isSerializedModuleParameterRuntimeValue(
+                serializedFuture.address
+              )
+            ? (this._deserializeModuleParameterRuntimeValue(
+                serializedFuture.address
+              ) as ModuleParameterRuntimeValue<string>) // This is unsafe, but we only serialize valid valus
             : serializedFuture.address,
           serializedFuture.artifact
         );
@@ -697,10 +810,16 @@ export class StoredDeploymentDeserializer {
                 addressResolvableFutureLookup,
                 serializedFuture.to.futureId
               )
+            : this._isSerializedModuleParameterRuntimeValue(serializedFuture.to)
+            ? (this._deserializeModuleParameterRuntimeValue(
+                serializedFuture.to
+              ) as ModuleParameterRuntimeValue<string>) // This is unsafe, but we only serialize valid valus
             : serializedFuture.to,
           this._deserializedBigint(serializedFuture.value),
           serializedFuture.data,
-          serializedFuture.from
+          this._isSerializedAccountRuntimeValue(serializedFuture.from)
+            ? this._deserializeAccountRuntimeValue(serializedFuture.from)
+            : serializedFuture.from
         );
     }
   }
@@ -713,5 +832,46 @@ export class StoredDeploymentDeserializer {
     }
 
     return value;
+  }
+
+  private static _isSerializedAccountRuntimeValue(
+    v: unknown
+  ): v is SerializedAccountRuntimeValue {
+    return (
+      v instanceof Object && "_kind" in v && v._kind === "AccountRuntimeValue"
+    );
+  }
+
+  private static _deserializeAccountRuntimeValue(
+    serialized: SerializedAccountRuntimeValue
+  ): AccountRuntimeValue {
+    return new AccountRuntimeValueImplementation(serialized.accountIndex);
+  }
+
+  private static _isSerializedModuleParameterRuntimeValue(
+    v: unknown
+  ): v is SerializedModuleParameterRuntimeValue {
+    return (
+      v instanceof Object &&
+      "_kind" in v &&
+      v._kind === "ModuleParameterRuntimeValue"
+    );
+  }
+
+  private static _deserializeModuleParameterRuntimeValue(
+    serialized: SerializedModuleParameterRuntimeValue
+  ): ModuleParameterRuntimeValue<ModuleParameterType> {
+    let defaultValue: ModuleParameterType | undefined;
+    if (serialized.defaultValue !== undefined) {
+      // We cast here because we receive an `unknow`, but we known it came from serializing a ModuleParameterType
+      defaultValue = this._jsonParseWithBigint(
+        serialized.defaultValue
+      ) as ModuleParameterType;
+    }
+
+    return new ModuleParameterRuntimeValueImplementation(
+      serialized.name,
+      defaultValue
+    );
   }
 }

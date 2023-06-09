@@ -2,8 +2,10 @@ import assert from "assert";
 import { inspect } from "util";
 
 import { IgnitionValidationError } from "../../errors";
+import { isFuture } from "../type-guards";
 import { Artifact } from "../types/artifact";
 import {
+  AccountRuntimeValue,
   AddressResolvableFuture,
   ArgumentType,
   ArtifactContractAtFuture,
@@ -12,6 +14,7 @@ import {
   ContractFuture,
   IgnitionModule,
   IgnitionModuleResult,
+  ModuleParameterRuntimeValue,
   ModuleParameterType,
   ModuleParameters,
   NamedContractAtFuture,
@@ -36,10 +39,12 @@ import {
 } from "../types/module-builder";
 
 import {
+  AccountRuntimeValueImplementation,
   ArtifactContractAtFutureImplementation,
   ArtifactContractDeploymentFutureImplementation,
   ArtifactLibraryDeploymentFutureImplementation,
   IgnitionModuleImplementation,
+  ModuleParameterRuntimeValueImplementation,
   NamedContractAtFutureImplementation,
   NamedContractCallFutureImplementation,
   NamedContractDeploymentFutureImplementation,
@@ -71,8 +76,6 @@ export class ModuleConstructor {
   private _modules: Map<string, IgnitionModule> = new Map();
 
   constructor(
-    public readonly chainId: number,
-    public readonly accounts: string[],
     public readonly parameters: { [moduleId: string]: ModuleParameters } = {}
   ) {}
 
@@ -105,8 +108,6 @@ export class ModuleConstructor {
       new IgnitionModuleBuilderImplementation(
         this,
         mod,
-        this.chainId,
-        this.accounts,
         this.parameters[moduleDefintion.id]
       )
     );
@@ -132,11 +133,23 @@ export class IgnitionModuleBuilderImplementation<
       ResultsContractNameT,
       IgnitionModuleResultsT
     >,
-    public readonly chainId: number,
-    public readonly accounts: string[],
     public readonly parameters: ModuleParameters = {}
   ) {
     this._futureIds = new Set<string>();
+  }
+
+  public getAccount(accountIndex: number): AccountRuntimeValue {
+    return new AccountRuntimeValueImplementation(accountIndex);
+  }
+
+  public getParameter<ParamTypeT extends ModuleParameterType = any>(
+    parameterName: string,
+    defaultValue?: ParamTypeT
+  ): ModuleParameterRuntimeValue<ParamTypeT> {
+    return new ModuleParameterRuntimeValueImplementation(
+      parameterName,
+      defaultValue
+    );
   }
 
   public contract<ContractNameT extends string>(
@@ -357,7 +370,10 @@ export class IgnitionModuleBuilderImplementation<
 
   public contractAt<ContractNameT extends string>(
     contractName: ContractNameT,
-    address: string | NamedStaticCallFuture<string, string>,
+    address:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>,
     options: ContractAtOptions = {}
   ): NamedContractAtFuture<ContractNameT> {
     const id = options.id ?? contractName;
@@ -376,9 +392,11 @@ export class IgnitionModuleBuilderImplementation<
       future.dependencies.add(afterFuture);
     }
 
-    if (typeof address !== "string") {
+    if (isFuture(address)) {
       future.dependencies.add(address);
     }
+
+    // TODO: Validate the the runtime value's default type is string
 
     this._module.futures.add(future);
 
@@ -387,7 +405,10 @@ export class IgnitionModuleBuilderImplementation<
 
   public contractAtFromArtifact(
     contractName: string,
-    address: string | NamedStaticCallFuture<string, string>,
+    address:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>,
     artifact: Artifact,
     options: ContractAtOptions = {}
   ): ArtifactContractAtFuture {
@@ -408,29 +429,15 @@ export class IgnitionModuleBuilderImplementation<
       future.dependencies.add(afterFuture);
     }
 
-    if (typeof address !== "string") {
+    if (isFuture(address)) {
       future.dependencies.add(address);
     }
+
+    // TODO: Validate the the runtime value's default type is string
 
     this._module.futures.add(future);
 
     return future;
-  }
-
-  public getParameter<ParamType extends ModuleParameterType = any>(
-    parameterName: string,
-    defaultValue?: ParamType
-  ): ParamType {
-    const param = this.parameters[parameterName] ?? defaultValue;
-
-    if (param === undefined) {
-      this._throwErrorWithStackTrace(
-        `Module parameter '${parameterName}' is required, but none was given`,
-        this.getParameter
-      );
-    }
-
-    return param as ParamType;
   }
 
   public readEventArgument(
@@ -481,7 +488,7 @@ export class IgnitionModuleBuilderImplementation<
 
   public send(
     id: string,
-    to: string | AddressResolvableFuture,
+    to: string | AddressResolvableFuture | ModuleParameterRuntimeValue<string>,
     value?: bigint,
     data?: string,
     options: SendDataOptions = {}
@@ -499,9 +506,11 @@ export class IgnitionModuleBuilderImplementation<
       options.from
     );
 
-    if (typeof to !== "string") {
+    if (isFuture(to)) {
       future.dependencies.add(to);
     }
+
+    // TODO: Validate the the runtime value's default type is string
 
     for (const afterFuture of options.after ?? []) {
       future.dependencies.add(afterFuture);

@@ -13,7 +13,8 @@ export type BaseArgumentType =
   | boolean
   | ContractFuture<string>
   | NamedStaticCallFuture<string, string>
-  | ReadEventArgumentFuture;
+  | ReadEventArgumentFuture
+  | RuntimeValue;
 
 /**
  * Argument type that smart contracts can receive in their constructors and functions.
@@ -31,16 +32,16 @@ export type ArgumentType =
  * @beta
  */
 export enum FutureType {
-  NAMED_CONTRACT_DEPLOYMENT,
-  ARTIFACT_CONTRACT_DEPLOYMENT,
-  NAMED_LIBRARY_DEPLOYMENT,
-  ARTIFACT_LIBRARY_DEPLOYMENT,
-  NAMED_CONTRACT_CALL,
-  NAMED_STATIC_CALL,
-  NAMED_CONTRACT_AT,
-  ARTIFACT_CONTRACT_AT,
-  READ_EVENT_ARGUMENT,
-  SEND_DATA,
+  NAMED_CONTRACT_DEPLOYMENT = "NAMED_CONTRACT_DEPLOYMENT",
+  ARTIFACT_CONTRACT_DEPLOYMENT = "ARTIFACT_CONTRACT_DEPLOYMENT",
+  NAMED_LIBRARY_DEPLOYMENT = "NAMED_LIBRARY_DEPLOYMENT",
+  ARTIFACT_LIBRARY_DEPLOYMENT = "ARTIFACT_LIBRARY_DEPLOYMENT",
+  NAMED_CONTRACT_CALL = "NAMED_CONTRACT_CALL",
+  NAMED_STATIC_CALL = "NAMED_STATIC_CALL",
+  NAMED_CONTRACT_AT = "NAMED_CONTRACT_AT",
+  ARTIFACT_CONTRACT_AT = "ARTIFACT_CONTRACT_AT",
+  READ_EVENT_ARGUMENT = "READ_EVENT_ARGUMENT",
+  SEND_DATA = "SEND_DATA",
 }
 
 /**
@@ -121,7 +122,7 @@ export interface NamedContractDeploymentFuture<ContractNameT extends string> {
   constructorArgs: ArgumentType[];
   libraries: Record<string, ContractFuture<string>>;
   value: bigint;
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -140,7 +141,7 @@ export interface ArtifactContractDeploymentFuture {
   constructorArgs: ArgumentType[];
   libraries: Record<string, ContractFuture<string>>;
   value: bigint;
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -155,7 +156,7 @@ export interface NamedLibraryDeploymentFuture<LibraryNameT extends string> {
   dependencies: Set<Future>;
   contractName: LibraryNameT;
   libraries: Record<string, ContractFuture<string>>;
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -172,7 +173,7 @@ export interface ArtifactLibraryDeploymentFuture {
   contractName: string;
   artifact: Artifact;
   libraries: Record<string, ContractFuture<string>>;
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -192,7 +193,7 @@ export interface NamedContractCallFuture<
   functionName: FunctionNameT;
   args: ArgumentType[];
   value: bigint;
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -211,7 +212,7 @@ export interface NamedStaticCallFuture<
   contract: ContractFuture<ContractNameT>;
   functionName: FunctionNameT;
   args: ArgumentType[];
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -225,7 +226,10 @@ export interface NamedContractAtFuture<ContractNameT extends string> {
   module: IgnitionModule;
   dependencies: Set<Future>;
   contractName: ContractNameT;
-  address: string | AddressResolvableFuture;
+  address:
+    | string
+    | AddressResolvableFuture
+    | ModuleParameterRuntimeValue<string>;
 }
 
 /**
@@ -240,7 +244,10 @@ export interface ArtifactContractAtFuture {
   module: IgnitionModule;
   dependencies: Set<Future>;
   contractName: string;
-  address: string | AddressResolvableFuture;
+  address:
+    | string
+    | AddressResolvableFuture
+    | ModuleParameterRuntimeValue<string>;
   artifact: Artifact;
 }
 
@@ -272,10 +279,10 @@ export interface SendDataFuture {
   id: string;
   module: IgnitionModule;
   dependencies: Set<Future>;
-  to: string | AddressResolvableFuture;
+  to: string | AddressResolvableFuture | ModuleParameterRuntimeValue<string>;
   value: bigint;
   data: string | undefined;
-  from: string | undefined;
+  from: string | AccountRuntimeValue | undefined;
 }
 
 /**
@@ -294,6 +301,48 @@ export type ModuleParameterType =
   | BaseModuleParameterType
   | ModuleParameterType[]
   | { [field: string]: ModuleParameterType };
+
+/**
+ * The different runtime values supported by Ignition.
+ *
+ * @beta
+ */
+export enum RuntimeValueType {
+  ACCOUNT = "ACCOUNT",
+  MODULE_PARAMETER = "MODULE_PARAMETER",
+}
+
+/**
+ * A value that's only available during deployment.
+ *
+ * @beta
+ */
+export type RuntimeValue =
+  | AccountRuntimeValue
+  | ModuleParameterRuntimeValue<ModuleParameterType>;
+
+/**
+ * A local account.
+ *
+ * @beta
+ */
+export interface AccountRuntimeValue {
+  type: RuntimeValueType.ACCOUNT;
+  accountIndex: number;
+}
+
+/**
+ * A module parameter.
+ *
+ * @beta
+ */
+export interface ModuleParameterRuntimeValue<
+  ParamTypeT extends ModuleParameterType
+> {
+  type: RuntimeValueType.MODULE_PARAMETER;
+  name: string;
+  defaultValue: ParamTypeT | undefined;
+}
 
 /**
  * An object containing the parameters passed into the module.

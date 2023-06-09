@@ -3,8 +3,9 @@ import {
   FunctionCallFuture,
   Future,
   StoredDeployment,
+  isDeploymentFuture,
+  isFunctionCallFuture,
 } from "@ignored/ignition-core/ui-helpers";
-import { isFunctionCallFuture, isDeploymentFuture } from "../utils/guards";
 
 export function getFutureById(
   deployment: StoredDeployment,

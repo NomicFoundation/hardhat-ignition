@@ -21,7 +21,8 @@ export type SerializedBaseArgumentType =
   | SerializedBigInt
   | string
   | boolean
-  | FutureToken;
+  | FutureToken
+  | SerializedRuntimeValue;
 
 /**
  * The serialized version of ArgumentType
@@ -79,7 +80,7 @@ export interface SerializedNamedContractDeploymentFuture
   constructorArgs: SerializedArgumentType[];
   libraries: SerializedLibraries;
   value: SerializedBigInt;
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
 }
 
 /**
@@ -95,7 +96,7 @@ export interface SerializedArtifactContractDeploymentFuture
   artifact: Artifact;
   libraries: SerializedLibraries;
   value: SerializedBigInt;
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
 }
 
 /**
@@ -108,7 +109,7 @@ export interface SerializedNamedLibraryDeploymentFuture
   type: FutureType.NAMED_LIBRARY_DEPLOYMENT;
   contractName: string;
   libraries: SerializedLibraries;
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
 }
 
 /**
@@ -122,7 +123,7 @@ export interface SerializedArtifactLibraryDeploymentFuture
   contractName: string;
   artifact: Artifact;
   libraries: SerializedLibraries;
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
 }
 
 /**
@@ -137,7 +138,7 @@ export interface SerializedNamedContractCallFuture
   contract: FutureToken;
   args: SerializedArgumentType[];
   value: SerializedBigInt;
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
 }
 
 /**
@@ -150,7 +151,7 @@ export interface SerializedNamedStaticCallFuture extends BaseSerializedFuture {
   functionName: string;
   contract: FutureToken;
   args: SerializedArgumentType[];
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
 }
 
 /**
@@ -161,7 +162,7 @@ export interface SerializedNamedStaticCallFuture extends BaseSerializedFuture {
 export interface SerializedNamedContractAtFuture extends BaseSerializedFuture {
   type: FutureType.NAMED_CONTRACT_AT;
   contractName: string;
-  address: string | FutureToken;
+  address: string | FutureToken | SerializedModuleParameterRuntimeValue;
 }
 
 /**
@@ -173,7 +174,7 @@ export interface SerializedArtifactContractAtFuture
   extends BaseSerializedFuture {
   type: FutureType.ARTIFACT_CONTRACT_AT;
   contractName: string;
-  address: string | FutureToken;
+  address: string | FutureToken | SerializedModuleParameterRuntimeValue;
   artifact: Artifact;
 }
 
@@ -199,10 +200,40 @@ export interface SerializedReadEventArgumentFuture
  */
 export interface SerializedSendDataFuture extends BaseSerializedFuture {
   type: FutureType.SEND_DATA;
-  to: string | FutureToken;
+  to: string | FutureToken | SerializedModuleParameterRuntimeValue;
   value: SerializedBigInt;
   data: string | undefined;
-  from: string | undefined;
+  from: string | SerializedAccountRuntimeValue | undefined;
+}
+
+/**
+ * The srialized version of RuntimeValue.
+ *
+ * @beta
+ */
+export type SerializedRuntimeValue =
+  | SerializedAccountRuntimeValue
+  | SerializedModuleParameterRuntimeValue;
+
+/**
+ * The serialized version of AccountRuntimeValue.
+ *
+ * @beta
+ */
+export interface SerializedAccountRuntimeValue {
+  _kind: "AccountRuntimeValue";
+  accountIndex: number;
+}
+
+/**
+ * The serialized version of ModuleParameterRuntimeValue.
+ *
+ * @beta
+ */
+export interface SerializedModuleParameterRuntimeValue {
+  _kind: "ModuleParameterRuntimeValue";
+  name: string;
+  defaultValue: string | undefined;
 }
 
 /**
@@ -254,27 +285,21 @@ export interface SerializedStoredModule {
  *
  * @beta
  */
-export interface SerializedStoredSubmodules {
-  [key: string]: SerializedStoredModule;
-}
+export type SerializedStoredSubmodules = SerializedStoredModule[];
 
 /**
  * The serialized futures that are executed in deploying a module.
  *
  * @beta
  */
-export interface SerializedStoredFutures {
-  [key: string]: SerializedFuture;
-}
+export type SerializedStoredFutures = SerializedFuture[];
 
 /**
  * The serialized results of a module.
  *
  * @beta
  */
-export interface SerializedStoredResults {
-  [key: string]: FutureToken;
-}
+export type SerializedStoredResults = Array<[name: string, token: FutureToken]>;
 
 /**
  * The serialized libraries, where each library
@@ -282,9 +307,7 @@ export interface SerializedStoredResults {
  *
  * @beta
  */
-export interface SerializedLibraries {
-  [key: string]: FutureToken;
-}
+export type SerializedLibraries = Array<[name: string, token: FutureToken]>;
 
 /**
  * The set of serialized future types

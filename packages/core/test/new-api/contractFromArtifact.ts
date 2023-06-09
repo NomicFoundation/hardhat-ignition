@@ -1,8 +1,14 @@
 import { assert } from "chai";
 
 import { defineModule } from "../../src/new-api/define-module";
-import { ArtifactContractDeploymentFutureImplementation } from "../../src/new-api/internal/module";
+import {
+  AccountRuntimeValueImplementation,
+  ArtifactContractDeploymentFutureImplementation,
+  ModuleParameterRuntimeValueImplementation,
+} from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
+
+import { assertInstanceOf } from "./helpers";
 
 describe("contractFromArtifact", () => {
   const fakeArtifact: any = {};
@@ -21,7 +27,7 @@ describe("contractFromArtifact", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithContractFromArtifact = constructor.construct(
       moduleWithContractFromArtifactDefinition
     );
@@ -61,7 +67,7 @@ describe("contractFromArtifact", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -88,7 +94,7 @@ describe("contractFromArtifact", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -115,7 +121,7 @@ describe("contractFromArtifact", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -153,7 +159,7 @@ describe("contractFromArtifact", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -173,19 +179,19 @@ describe("contractFromArtifact", () => {
     assert.equal(anotherFuture.value, BigInt(42));
   });
 
-  it("should be able to pass from as an option", () => {
+  it("should be able to pass a string as from option", () => {
     const moduleWithDependentContractsDefinition = defineModule(
       "Module1",
       (m) => {
         const another = m.contractFromArtifact("Another", fakeArtifact, [], {
-          from: m.accounts[1],
+          from: "0x2",
         });
 
         return { another };
       }
     );
 
-    const constructor = new ModuleConstructor(0, ["0x1", "0x2"]);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -203,6 +209,219 @@ describe("contractFromArtifact", () => {
     }
 
     assert.equal(anotherFuture.from, "0x2");
+  });
+
+  it("Should be able to pass an AccountRuntimeValue as from option", () => {
+    const moduleWithDependentContractsDefinition = defineModule(
+      "Module1",
+      (m) => {
+        const another = m.contractFromArtifact("Another", fakeArtifact, [], {
+          from: m.getAccount(1),
+        });
+
+        return { another };
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const anotherFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1:Another"
+    );
+
+    if (
+      !(anotherFuture instanceof ArtifactContractDeploymentFutureImplementation)
+    ) {
+      assert.fail("Not an artifact contract deployment");
+    }
+
+    assertInstanceOf(anotherFuture.from, AccountRuntimeValueImplementation);
+    assert.equal(anotherFuture.from.accountIndex, 1);
+  });
+
+  describe("Arguments", () => {
+    it("Should support base values as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          1,
+          true,
+          "string",
+          4n,
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.deepEqual(module.results.contract1.constructorArgs, [
+        1,
+        true,
+        "string",
+        4n,
+      ]);
+    });
+
+    it("Should support arrays as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          [1, 2, 3n],
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.deepEqual(module.results.contract1.constructorArgs[0], [1, 2, 3n]);
+    });
+
+    it("Should support objects as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          { a: 1, b: [1, 2] },
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.deepEqual(module.results.contract1.constructorArgs[0], {
+        a: 1,
+        b: [1, 2],
+      });
+    });
+
+    it("Should support futures as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        const contract2 = m.contractFromArtifact("Contract2", fakeArtifact, [
+          contract1,
+        ]);
+
+        return { contract1, contract2 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.equal(
+        module.results.contract2.constructorArgs[0],
+        module.results.contract1
+      );
+    });
+
+    it("should support nested futures as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        const contract2 = m.contractFromArtifact("Contract2", fakeArtifact, [
+          { arr: [contract1] },
+        ]);
+
+        return { contract1, contract2 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.equal(
+        (module.results.contract2.constructorArgs[0] as any).arr[0],
+        module.results.contract1
+      );
+    });
+
+    it("should support AccountRuntimeValues as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const account1 = m.getAccount(1);
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          account1,
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assertInstanceOf(
+        module.results.contract1.constructorArgs[0],
+        AccountRuntimeValueImplementation
+      );
+      assert.equal(module.results.contract1.constructorArgs[0].accountIndex, 1);
+    });
+
+    it("should support nested AccountRuntimeValues as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const account1 = m.getAccount(1);
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          { arr: [account1] },
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const account = (module.results.contract1.constructorArgs[0] as any)
+        .arr[0];
+
+      assertInstanceOf(account, AccountRuntimeValueImplementation);
+
+      assert.equal(account.accountIndex, 1);
+    });
+
+    it("should support ModuleParameterRuntimeValue as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const p = m.getParameter("p", 123);
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          p,
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assertInstanceOf(
+        module.results.contract1.constructorArgs[0],
+        ModuleParameterRuntimeValueImplementation
+      );
+      assert.equal(module.results.contract1.constructorArgs[0].name, "p");
+      assert.equal(
+        module.results.contract1.constructorArgs[0].defaultValue,
+        123
+      );
+    });
+
+    it("should support nested ModuleParameterRuntimeValue as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const p = m.getParameter("p", 123);
+        const contract1 = m.contractFromArtifact("Contract1", fakeArtifact, [
+          { arr: [p] },
+        ]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const param = (module.results.contract1.constructorArgs[0] as any).arr[0];
+      assertInstanceOf(param, ModuleParameterRuntimeValueImplementation);
+      assert.equal(param.name, "p");
+      assert.equal(param.defaultValue, 123);
+    });
   });
 
   describe("passing id", () => {
@@ -229,7 +448,7 @@ describe("contractFromArtifact", () => {
         }
       );
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
       const moduleWithSameContractTwice = constructor.construct(
         moduleWithSameContractTwiceDefinition
       );
@@ -259,7 +478,7 @@ describe("contractFromArtifact", () => {
 
         return { sameContract1, sameContract2 };
       });
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
@@ -288,7 +507,7 @@ describe("contractFromArtifact", () => {
 
         return { sameContract1, sameContract2 };
       });
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),

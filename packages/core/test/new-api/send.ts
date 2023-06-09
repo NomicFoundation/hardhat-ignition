@@ -1,9 +1,15 @@
 import { assert } from "chai";
 
 import { defineModule } from "../../src/new-api/define-module";
-import { SendDataFutureImplementation } from "../../src/new-api/internal/module";
+import {
+  AccountRuntimeValueImplementation,
+  ModuleParameterRuntimeValueImplementation,
+  SendDataFutureImplementation,
+} from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 import { FutureType } from "../../src/new-api/types/module";
+
+import { assertInstanceOf } from "./helpers";
 
 describe("send", () => {
   it("should be able to setup a send", () => {
@@ -13,7 +19,7 @@ describe("send", () => {
       return {};
     });
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithASingleContract = constructor.construct(
       moduleWithASingleContractDefinition
     );
@@ -52,7 +58,7 @@ describe("send", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -86,7 +92,7 @@ describe("send", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -119,7 +125,7 @@ describe("send", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -137,17 +143,17 @@ describe("send", () => {
     assert.equal(sendFuture.value, BigInt(42));
   });
 
-  it("should be able to pass from as an option", () => {
+  it("should be able to pass a string as from option", () => {
     const moduleWithDependentContractsDefinition = defineModule(
       "Module1",
       (m) => {
-        m.send("test send", "0xtest", 0n, "", { from: m.accounts[1] });
+        m.send("test send", "0xtest", 0n, "", { from: "0x2" });
 
         return {};
       }
     );
 
-    const constructor = new ModuleConstructor(0, ["0x1", "0x2"]);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -165,6 +171,66 @@ describe("send", () => {
     assert.equal(sendFuture.from, "0x2");
   });
 
+  it("Should be able to pass an AccountRuntimeValue as from option", () => {
+    const moduleWithDependentContractsDefinition = defineModule(
+      "Module1",
+      (m) => {
+        m.send("test send", "0xtest", 0n, "", { from: m.getAccount(1) });
+
+        return {};
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const sendFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1:test send"
+    );
+
+    if (!(sendFuture instanceof SendDataFutureImplementation)) {
+      assert.fail("Not a send data future");
+    }
+
+    assertInstanceOf(sendFuture.from, AccountRuntimeValueImplementation);
+    assert.equal(sendFuture.from.accountIndex, 1);
+  });
+
+  it("Should be able to pass a module param as address", () => {
+    const moduleDefinition = defineModule("Module", (m) => {
+      const paramWithDefault = m.getParameter("addressWithDefault", "0x000000");
+      const paramWithoutDefault = m.getParameter("addressWithoutDefault");
+
+      m.send("C", paramWithDefault);
+      m.send("C2", paramWithoutDefault);
+
+      return {};
+    });
+
+    const constructor = new ModuleConstructor();
+    const module = constructor.construct(moduleDefinition);
+
+    const futureC = Array.from(module.futures).find((f) => f.id === "Module:C");
+    assertInstanceOf(futureC, SendDataFutureImplementation);
+
+    const futureC2 = Array.from(module.futures).find(
+      (f) => f.id === "Module:C2"
+    );
+    assertInstanceOf(futureC2, SendDataFutureImplementation);
+
+    assertInstanceOf(futureC.to, ModuleParameterRuntimeValueImplementation);
+    assert.equal(futureC.to.name, "addressWithDefault");
+    assert.equal(futureC.to.defaultValue, "0x000000");
+
+    assertInstanceOf(futureC2.to, ModuleParameterRuntimeValueImplementation);
+    assert.equal(futureC2.to.name, "addressWithoutDefault");
+    assert.equal(futureC2.to.defaultValue, undefined);
+  });
+
   describe("passing id", () => {
     it("should be able to call the same function twice by passing an id", () => {
       const moduleWithSameCallTwiceDefinition = defineModule("Module1", (m) => {
@@ -174,7 +240,7 @@ describe("send", () => {
         return {};
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
       const moduleWithSameCallTwice = constructor.construct(
         moduleWithSameCallTwiceDefinition
       );
@@ -201,7 +267,7 @@ describe("send", () => {
         return {};
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
@@ -216,7 +282,7 @@ describe("send", () => {
         return {};
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),

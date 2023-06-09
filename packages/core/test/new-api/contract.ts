@@ -1,9 +1,15 @@
 import { assert } from "chai";
 
 import { defineModule } from "../../src/new-api/define-module";
-import { NamedContractDeploymentFutureImplementation } from "../../src/new-api/internal/module";
+import {
+  AccountRuntimeValueImplementation,
+  ModuleParameterRuntimeValueImplementation,
+  NamedContractDeploymentFutureImplementation,
+} from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
 import { FutureType } from "../../src/new-api/types/module";
+
+import { assertInstanceOf } from "./helpers";
 
 describe("contract", () => {
   it("should be able to setup a deploy contract call", () => {
@@ -13,7 +19,7 @@ describe("contract", () => {
       return { contract1 };
     });
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithASingleContract = constructor.construct(
       moduleWithASingleContractDefinition
     );
@@ -49,7 +55,7 @@ describe("contract", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -85,7 +91,7 @@ describe("contract", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -123,7 +129,7 @@ describe("contract", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -159,7 +165,7 @@ describe("contract", () => {
       }
     );
 
-    const constructor = new ModuleConstructor(0, []);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -179,17 +185,17 @@ describe("contract", () => {
     assert.equal(anotherFuture.value, BigInt(42));
   });
 
-  it("should be able to pass from as an option", () => {
+  it("should be able to pass a string as from option", () => {
     const moduleWithDependentContractsDefinition = defineModule(
       "Module1",
       (m) => {
-        const another = m.contract("Another", [], { from: m.accounts[1] });
+        const another = m.contract("Another", [], { from: "0x2" });
 
         return { another };
       }
     );
 
-    const constructor = new ModuleConstructor(0, ["0x1", "0x2"]);
+    const constructor = new ModuleConstructor();
     const moduleWithDependentContracts = constructor.construct(
       moduleWithDependentContractsDefinition
     );
@@ -209,6 +215,196 @@ describe("contract", () => {
     assert.equal(anotherFuture.from, "0x2");
   });
 
+  it("Should be able to pass an AccountRuntimeValue as from option", () => {
+    const moduleWithDependentContractsDefinition = defineModule(
+      "Module1",
+      (m) => {
+        const another = m.contract("Another", [], { from: m.getAccount(1) });
+
+        return { another };
+      }
+    );
+
+    const constructor = new ModuleConstructor();
+    const moduleWithDependentContracts = constructor.construct(
+      moduleWithDependentContractsDefinition
+    );
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const anotherFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1:Another"
+    );
+
+    if (
+      !(anotherFuture instanceof NamedContractDeploymentFutureImplementation)
+    ) {
+      assert.fail("Not a named contract deployment");
+    }
+
+    assertInstanceOf(anotherFuture.from, AccountRuntimeValueImplementation);
+    assert.equal(anotherFuture.from.accountIndex, 1);
+  });
+
+  describe("Arguments", () => {
+    it("Should support base values as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1", [1, true, "string", 4n]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.deepEqual(module.results.contract1.constructorArgs, [
+        1,
+        true,
+        "string",
+        4n,
+      ]);
+    });
+
+    it("Should support arrays as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1", [[1, 2, 3n]]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.deepEqual(module.results.contract1.constructorArgs[0], [1, 2, 3n]);
+    });
+
+    it("Should support objects as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1", [{ a: 1, b: [1, 2] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.deepEqual(module.results.contract1.constructorArgs[0], {
+        a: 1,
+        b: [1, 2],
+      });
+    });
+
+    it("Should support futures as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        const contract2 = m.contract("Contract2", [contract1]);
+
+        return { contract1, contract2 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.equal(
+        module.results.contract2.constructorArgs[0],
+        module.results.contract1
+      );
+    });
+
+    it("should support nested futures as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const contract1 = m.contract("Contract1");
+        const contract2 = m.contract("Contract2", [{ arr: [contract1] }]);
+
+        return { contract1, contract2 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assert.equal(
+        (module.results.contract2.constructorArgs[0] as any).arr[0],
+        module.results.contract1
+      );
+    });
+
+    it("should support AccountRuntimeValues as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const account1 = m.getAccount(1);
+        const contract1 = m.contract("Contract1", [account1]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assertInstanceOf(
+        module.results.contract1.constructorArgs[0],
+        AccountRuntimeValueImplementation
+      );
+      assert.equal(module.results.contract1.constructorArgs[0].accountIndex, 1);
+    });
+
+    it("should support nested AccountRuntimeValues as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const account1 = m.getAccount(1);
+        const contract1 = m.contract("Contract1", [{ arr: [account1] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const account = (module.results.contract1.constructorArgs[0] as any)
+        .arr[0];
+
+      assertInstanceOf(account, AccountRuntimeValueImplementation);
+
+      assert.equal(account.accountIndex, 1);
+    });
+
+    it("should support ModuleParameterRuntimeValue as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const p = m.getParameter("p", 123);
+        const contract1 = m.contract("Contract1", [p]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      assertInstanceOf(
+        module.results.contract1.constructorArgs[0],
+        ModuleParameterRuntimeValueImplementation
+      );
+      assert.equal(module.results.contract1.constructorArgs[0].name, "p");
+      assert.equal(
+        module.results.contract1.constructorArgs[0].defaultValue,
+        123
+      );
+    });
+
+    it("should support nested ModuleParameterRuntimeValue as arguments", () => {
+      const moduleDefinition = defineModule("Module", (m) => {
+        const p = m.getParameter("p", 123);
+        const contract1 = m.contract("Contract1", [{ arr: [p] }]);
+
+        return { contract1 };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDefinition);
+
+      const param = (module.results.contract1.constructorArgs[0] as any).arr[0];
+      assertInstanceOf(param, ModuleParameterRuntimeValueImplementation);
+      assert.equal(param.name, "p");
+      assert.equal(param.defaultValue, 123);
+    });
+  });
+
   describe("passing id", () => {
     it("should be able to deploy the same contract twice by passing an id", () => {
       const moduleWithSameContractTwiceDefinition = defineModule(
@@ -223,7 +419,7 @@ describe("contract", () => {
         }
       );
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
       const moduleWithSameContractTwice = constructor.construct(
         moduleWithSameContractTwiceDefinition
       );
@@ -247,7 +443,7 @@ describe("contract", () => {
         return { sameContract1, sameContract2 };
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
@@ -267,7 +463,7 @@ describe("contract", () => {
         return { sameContract1, sameContract2 };
       });
 
-      const constructor = new ModuleConstructor(0, []);
+      const constructor = new ModuleConstructor();
 
       assert.throws(
         () => constructor.construct(moduleDefinition),
