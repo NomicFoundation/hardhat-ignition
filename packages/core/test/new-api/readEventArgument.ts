@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { Artifact, FutureType, ReadEventArgumentFuture } from "../../src";
 import { defineModule } from "../../src/new-api/define-module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
+import { validateReadEventArgument } from "../../src/new-api/internal/validation/futures/validateReadEventArgument";
 
 describe("Read event argument", () => {
   describe("creating modules with it", () => {
@@ -210,6 +211,66 @@ describe("Read event argument", () => {
 
       assert.include(futuresIds, "Module1:Example#EventName#arg1#0");
       assert.include(futuresIds, "Module1:second");
+    });
+  });
+
+  describe("validation", () => {
+    it("should not validate a non-existant hardhat contract", async () => {
+      const fakeArtifact: Artifact = {
+        abi: [],
+        contractName: "",
+        bytecode: "",
+        linkReferences: {},
+      };
+
+      const moduleDef = defineModule("Module1", (m) => {
+        const another = m.contractFromArtifact("Another", fakeArtifact, []);
+        m.readEventArgument(another, "test", "arg");
+
+        return { another };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDef);
+      const future = module
+        .getFutures()
+        .find((v) => v.type === FutureType.READ_EVENT_ARGUMENT);
+
+      await assert.isRejected(
+        validateReadEventArgument(future as any, {
+          load: async () => ({} as any),
+        }),
+        /Artifact for contract 'Another' is invalid/
+      );
+    });
+
+    it("should not validate a non-existant event", async () => {
+      const fakeArtifact: Artifact = {
+        abi: [],
+        contractName: "",
+        bytecode: "",
+        linkReferences: {},
+      };
+
+      const moduleDef = defineModule("Module1", (m) => {
+        const another = m.contractFromArtifact("Another", fakeArtifact, []);
+        m.readEventArgument(another, "test", "arg");
+
+        return { another };
+      });
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(moduleDef);
+      const future = module
+        .getFutures()
+        .find((v) => v.type === FutureType.READ_EVENT_ARGUMENT);
+
+      await assert.isRejected(
+        validateReadEventArgument(future as any, {
+          load: async () => fakeArtifact,
+        }),
+        /Contract 'Another' doesn't have an event test/
+      );
     });
   });
 });

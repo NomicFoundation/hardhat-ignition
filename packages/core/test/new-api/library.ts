@@ -6,6 +6,7 @@ import {
   NamedLibraryDeploymentFutureImplementation,
 } from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
+import { validateNamedLibraryDeployment } from "../../src/new-api/internal/validation/futures/validateNamedLibraryDeployment";
 import { FutureType } from "../../src/new-api/types/module";
 
 import { assertInstanceOf } from "./helpers";
@@ -290,6 +291,28 @@ describe("library", () => {
       );
     });
 
-    it("should not validate a non-existant hardhat library");
+    it("should not validate an invalid artifact", async () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.library("Another");
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(
+        moduleWithDependentContractsDefinition
+      );
+      const [future] = module.getFutures();
+
+      await assert.isRejected(
+        validateNamedLibraryDeployment(future as any, {
+          load: async () => ({} as any),
+        }),
+        /Artifact for contract 'Another' is invalid/
+      );
+    });
   });
 });

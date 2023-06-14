@@ -8,6 +8,7 @@ import {
   ModuleParameterRuntimeValueImplementation,
 } from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
+import { validateArtifactContractDeployment } from "../../src/new-api/internal/validation/futures/validateArtifactContractDeployment";
 
 import { assertInstanceOf } from "./helpers";
 
@@ -601,6 +602,34 @@ describe("contractFromArtifact", () => {
       assert.throws(
         () => constructor.construct(moduleWithDependentContractsDefinition),
         /Invalid artifact given/
+      );
+    });
+
+    it("should not validate an incorrect number of constructor args", async () => {
+      const moduleWithContractFromArtifactDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const contract1 = m.contractFromArtifact(
+            "Test",
+            fakeArtifact,
+            [1, 2, 3]
+          );
+
+          return { contract1 };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(
+        moduleWithContractFromArtifactDefinition
+      );
+      const [future] = module.getFutures();
+
+      await assert.isRejected(
+        validateArtifactContractDeployment(future as any, {
+          load: async () => fakeArtifact,
+        }),
+        /The constructor of the contract 'Test' expects 0 arguments but 3 were given/
       );
     });
   });

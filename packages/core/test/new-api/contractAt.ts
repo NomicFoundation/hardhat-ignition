@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { defineModule } from "../../src/new-api/define-module";
 import { ModuleParameterRuntimeValueImplementation } from "../../src/new-api/internal/module";
 import { ModuleConstructor } from "../../src/new-api/internal/module-builder";
+import { validateNamedContractAt } from "../../src/new-api/internal/validation/futures/validateNamedContractAt";
 
 import { assertInstanceOf } from "./helpers";
 
@@ -246,6 +247,30 @@ describe("contractAt", () => {
       assert.throws(
         () => constructor.construct(moduleWithDependentContractsDefinition),
         /Invalid address given/
+      );
+    });
+
+    it("should not validate an invalid artifact", async () => {
+      const moduleWithDependentContractsDefinition = defineModule(
+        "Module1",
+        (m) => {
+          const another = m.contractAt("Another", "");
+
+          return { another };
+        }
+      );
+
+      const constructor = new ModuleConstructor();
+      const module = constructor.construct(
+        moduleWithDependentContractsDefinition
+      );
+      const [future] = module.getFutures();
+
+      await assert.isRejected(
+        validateNamedContractAt(future as any, {
+          load: async () => fakeArtifact,
+        }),
+        /Artifact for contract 'Another' is invalid/
       );
     });
   });
