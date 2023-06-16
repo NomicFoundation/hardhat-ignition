@@ -41,8 +41,6 @@ export async function validate(
         return validateReadEventArgument(future, artifactLoader);
       case FutureType.SEND_DATA:
         return validateSendData(future, artifactLoader);
-      default:
-        throw new IgnitionValidationError(`Unknown future type`);
     }
   }
 }

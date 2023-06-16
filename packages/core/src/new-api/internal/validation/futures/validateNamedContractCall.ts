@@ -9,7 +9,10 @@ export async function validateNamedContractCall(
   future: NamedContractCallFuture<string, string>,
   artifactLoader: ArtifactResolver
 ) {
-  const artifact = await artifactLoader.load(future.contract.contractName);
+  const artifact =
+    "artifact" in future.contract
+      ? future.contract.artifact
+      : await artifactLoader.load(future.contract.contractName);
 
   if (!isArtifactType(artifact)) {
     throw new IgnitionValidationError(

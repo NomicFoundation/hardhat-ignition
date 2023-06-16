@@ -8,7 +8,7 @@ import {
   isArtifactType,
   isContractFuture,
   isFuture,
-  isModuleParameterRuntimeStringValue,
+  isModuleParameterRuntimeValue,
 } from "../type-guards";
 import { Artifact } from "../types/artifact";
 import {
@@ -765,7 +765,7 @@ export class IgnitionModuleBuilderImplementation<
   ) {
     if (
       typeof address !== "string" &&
-      !isModuleParameterRuntimeStringValue(address) &&
+      !isModuleParameterRuntimeValue(address) &&
       !isAddressResolvableFuture(address)
     ) {
       this._throwErrorWithStackTrace(`Invalid address given`, func);

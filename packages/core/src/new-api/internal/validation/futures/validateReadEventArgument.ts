@@ -9,7 +9,10 @@ export async function validateReadEventArgument(
   future: ReadEventArgumentFuture,
   artifactLoader: ArtifactResolver
 ) {
-  const artifact = await artifactLoader.load(future.emitter.contractName);
+  const artifact =
+    "artifact" in future.emitter
+      ? future.emitter.artifact
+      : await artifactLoader.load(future.emitter.contractName);
 
   if (!isArtifactType(artifact)) {
     throw new IgnitionValidationError(

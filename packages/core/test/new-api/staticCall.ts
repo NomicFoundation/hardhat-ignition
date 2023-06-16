@@ -527,15 +527,8 @@ describe("static call", () => {
     });
 
     it("should not validate a non-existant hardhat contract", async () => {
-      const fakeArtifact: Artifact = {
-        abi: [],
-        contractName: "",
-        bytecode: "",
-        linkReferences: {},
-      };
-
       const moduleDef = defineModule("Module1", (m) => {
-        const another = m.contractFromArtifact("Another", fakeArtifact, []);
+        const another = m.contract("Another", []);
         m.staticCall(another, "test");
 
         return { another };

@@ -214,16 +214,15 @@ export function isAccountRuntimeValue(
 }
 
 /**
- * Returns true if potential is of type ModuleParameterRuntimeValue<string>.
+ * Returns true if potential is of type ModuleParameterRuntimeValue<any>.
  *
  * @beta
  */
-export function isModuleParameterRuntimeStringValue(
+export function isModuleParameterRuntimeValue(
   potential: unknown
-): potential is ModuleParameterRuntimeValue<string> {
+): potential is ModuleParameterRuntimeValue<any> {
   return (
     isRuntimeValue(potential) &&
-    potential.type === RuntimeValueType.MODULE_PARAMETER &&
-    typeof potential.defaultValue === "string"
+    potential.type === RuntimeValueType.MODULE_PARAMETER
   );
 }
