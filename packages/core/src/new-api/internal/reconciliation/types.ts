@@ -1,5 +1,6 @@
 import { Artifact } from "../../types/artifact";
-import { Future, ModuleParameters } from "../../types/module";
+import { DeploymentParameters } from "../../types/deployer";
+import { Future } from "../../types/module";
 import { ExecutionState, ExecutionStateMap } from "../types/execution-state";
 
 export interface ReconciliationFailure {
@@ -27,7 +28,7 @@ export interface ReconciliationResult {
 
 export interface ReconciliationContext {
   executionStateMap: ExecutionStateMap;
-  deploymentParameters: { [key: string]: ModuleParameters };
+  deploymentParameters: DeploymentParameters;
   accounts: string[];
   moduleArtifactMap: ArtifactMap;
   storedArtifactMap: ArtifactMap;

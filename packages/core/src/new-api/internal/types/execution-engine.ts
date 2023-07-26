@@ -1,9 +1,6 @@
 import { ArtifactResolver } from "../../types/artifact";
-import {
-  IgnitionModule,
-  IgnitionModuleResult,
-  ModuleParameters,
-} from "../../types/module";
+import { DeploymentParameters } from "../../types/deployer";
+import { IgnitionModule, IgnitionModuleResult } from "../../types/module";
 
 import { ChainDispatcher } from "./chain-dispatcher";
 import { DeploymentLoader } from "./deployment-loader";
@@ -30,7 +27,7 @@ export interface ExecutionEngineState {
   module: IgnitionModule<string, string, IgnitionModuleResult<string>>;
   executionStateMap: ExecutionStateMap;
   accounts: string[];
-  deploymentParameters: { [key: string]: ModuleParameters };
+  deploymentParameters: DeploymentParameters;
   strategy: ExecutionStrategy;
   artifactResolver: ArtifactResolver;
   deploymentLoader: DeploymentLoader;
