@@ -1,4 +1,5 @@
-import { Artifact, BuildInfo } from "./artifact";
+import { Artifact, BuildInfo } from "../../types/artifact";
+
 import { Journal } from "./journal";
 
 /**

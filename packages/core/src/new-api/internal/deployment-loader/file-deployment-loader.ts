@@ -2,9 +2,9 @@ import { ensureDir, pathExists, readFile, writeFile } from "fs-extra";
 import path from "path";
 
 import { Artifact, BuildInfo } from "../../types/artifact";
-import { DeploymentLoader } from "../../types/deployment-loader";
-import { Journal } from "../../types/journal";
 import { FileJournal } from "../journal/file-journal";
+import { DeploymentLoader } from "../types/deployment-loader";
+import { Journal } from "../types/journal";
 
 export class FileDeploymentLoader implements DeploymentLoader {
   public journal: Journal;

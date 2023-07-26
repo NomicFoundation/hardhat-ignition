@@ -7,17 +7,20 @@ import { Deployer } from "../../src/new-api/internal/deployer";
 import { AccountsState } from "../../src/new-api/internal/execution/execution-engine";
 import { MemoryJournal } from "../../src/new-api/internal/journal/memory-journal";
 import { ChainDispatcher } from "../../src/new-api/internal/types/chain-dispatcher";
+import { DeploymentLoader } from "../../src/new-api/internal/types/deployment-loader";
 import {
   OnchainState,
   OnchainStatuses,
 } from "../../src/new-api/internal/types/execution-state";
 import {
+  Journal,
+  JournalableMessage,
+} from "../../src/new-api/internal/types/journal";
+import {
   DeploymentResult,
   DeploymentResultContract,
   DeploymentResultContracts,
 } from "../../src/new-api/types/deployer";
-import { DeploymentLoader } from "../../src/new-api/types/deployment-loader";
-import { Journal, JournalableMessage } from "../../src/new-api/types/journal";
 
 export const exampleAccounts: string[] = [
   "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",

@@ -17,8 +17,6 @@ import {
 } from "../type-guards";
 import { Artifact, ArtifactResolver } from "../types/artifact";
 import { DeployConfig, DeploymentResult } from "../types/deployer";
-import { DeploymentLoader } from "../types/deployment-loader";
-import { Journal } from "../types/journal";
 
 import { Batcher } from "./batcher";
 import { ExecutionEngine } from "./execution/execution-engine";
@@ -30,12 +28,14 @@ import { Reconciler } from "./reconciliation/reconciler";
 import { ArtifactMap } from "./reconciliation/types";
 import { isContractExecutionStateArray } from "./type-guards";
 import { ChainDispatcher } from "./types/chain-dispatcher";
+import { DeploymentLoader } from "./types/deployment-loader";
 import { ExecutionStrategy } from "./types/execution-engine";
 import {
   ContractAtExecutionState,
   DeploymentExecutionState,
   ExecutionStateMap,
 } from "./types/execution-state";
+import { Journal } from "./types/journal";
 import { TransactionLookupTimer } from "./types/transaction-timer";
 import { assertIgnitionInvariant } from "./utils/assertions";
 import { getFuturesFromModule } from "./utils/get-futures-from-module";
