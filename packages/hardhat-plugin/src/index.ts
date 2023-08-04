@@ -5,6 +5,7 @@ import {
   wipe,
 } from "@ignored/ignition-core";
 import "@nomicfoundation/hardhat-ethers";
+import setupDebug from "debug";
 import { existsSync, readdirSync, readJSONSync } from "fs-extra";
 import { extendConfig, extendEnvironment, task } from "hardhat/config";
 import { lazyObject } from "hardhat/plugins";
@@ -18,6 +19,8 @@ import { writePlan } from "./plan/write-plan";
 import { open } from "./utils/open";
 
 import "./type-extensions";
+
+const debug = setupDebug("hardhat-ignition:index");
 
 // eslint-disable-next-line import/no-unused-modules
 export { buildModule } from "@ignored/ignition-core";
@@ -132,6 +135,12 @@ task("deploy")
           hre.network.name === "hardhat"
             ? undefined
             : path.join(hre.config.paths.ignition, "deployments", deploymentId);
+
+        debug(
+          deploymentDir === undefined
+            ? `Running ephermeral deploy`
+            : `Running file based deployment againt ${deploymentDir}`
+        );
 
         const artifactResolver = new HardhatArtifactResolver(hre);
 

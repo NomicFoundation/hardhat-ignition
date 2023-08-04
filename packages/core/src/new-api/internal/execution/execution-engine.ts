@@ -1,3 +1,4 @@
+import setupDebug from "debug";
 import { isAddress } from "ethers";
 import groupBy from "lodash/groupBy";
 import identity from "lodash/identity";
@@ -94,6 +95,8 @@ interface InflightTransaction {
   hash: string;
 }
 
+const debug = setupDebug("ignition-core:ExecutionEngine");
+
 export class ExecutionEngine {
   public async execute(state: ExecutionEngineState): Promise<DeploymentResult> {
     const { batches, module } = state;
@@ -103,6 +106,7 @@ export class ExecutionEngine {
 
     const futures = getFuturesFromModule(module);
 
+    debug("Run initial nonce check");
     await this._checkNonces(state, futures);
 
     // Record start of the run (which resets timeout to started)
@@ -110,9 +114,12 @@ export class ExecutionEngine {
       type: JournalMessageType.RUN_START,
     };
 
+    debug("Starting run");
     await this._apply(state, startRun);
 
     for (const batch of batches) {
+      debug(`Starting new batch of ${batch.length} futures`);
+
       // TODO: consider changing batcher to return futures rather than ids
       const executionBatch = batch.map((futureId) =>
         this._lookupFuture(futures, futureId)
@@ -321,11 +328,17 @@ export class ExecutionEngine {
         state
       );
 
+      debug(`Initializing execution state for ${initMessage.futureId}`);
       await this._apply(state, initMessage);
     }
 
     while (!this._isBatchComplete(state, batch)) {
       const sortedFutures: Future[] = sortFuturesByNonces(batch, state);
+      debug(
+        `Starting new batch cycle for ${sortedFutures
+          .map((sf) => sf.id)
+          .join(", ")}`
+      );
 
       const results = await this._submitOrCheckFutures(sortedFutures, state);
 

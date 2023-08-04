@@ -1,6 +1,8 @@
 import type { ContractFuture, IgnitionModuleResult } from "../types/module";
 import type { IgnitionModuleDefinition } from "../types/module-builder";
 
+import setupDebug from "debug";
+
 import { IgnitionError } from "../../errors";
 import {
   isArtifactContractAtFuture,
@@ -40,6 +42,8 @@ import { isContractExecutionStateArray } from "./type-guards";
 import { assertIgnitionInvariant } from "./utils/assertions";
 import { getFuturesFromModule } from "./utils/get-futures-from-module";
 import { validate } from "./validation/validate";
+
+const debug = setupDebug("ignition-core:deployer");
 
 /**
  * Run an Igntition deployment.
@@ -89,8 +93,10 @@ export class Deployer {
     deploymentParameters: DeploymentParameters,
     accounts: string[]
   ): Promise<DeploymentResult> {
+    debug("Running deploy");
     const module = this._moduleConstructor.construct(moduleDefinition);
 
+    debug("Validating constructed Ignition Module");
     await validate(
       module,
       this._artifactResolver,
@@ -98,10 +104,12 @@ export class Deployer {
       accounts
     );
 
+    debug("Load journal into execution state");
     const previousStateMap = await this._loadExecutionStateFrom(
       this._deploymentLoader
     );
 
+    debug("Run reconciliation");
     const contracts = getFuturesFromModule(module).filter(isContractFuture);
     const contractStates = contracts
       .map((contract) => previousStateMap[contract.id])
@@ -140,8 +148,10 @@ export class Deployer {
       // TODO: indicate to UI that warnings should be shown
     }
 
+    debug("Generate batching for run");
     const batches = Batcher.batch(module, previousStateMap);
 
+    debug("Start execution");
     return this._executionEngine.execute({
       config: this._config,
       block: { number: -1, hash: "-" },
