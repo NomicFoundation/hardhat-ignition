@@ -1,4 +1,5 @@
 import { FutureLevelJournalMessage } from "./future-level-journal-message";
+import { NetworkLevelJournalMessage } from "./network-level-journal-message";
 import { RunLevelJournalMessage } from "./run-level-journal-message";
 import { TransactionLevelJournalMessage } from "./transaction-level-journal-message";
 
@@ -21,7 +22,8 @@ export interface Journal {
 export type JournalableMessage =
   | RunLevelJournalMessage
   | FutureLevelJournalMessage
-  | TransactionLevelJournalMessage;
+  | TransactionLevelJournalMessage
+  | NetworkLevelJournalMessage;
 
 /**
  * The types of journal messages.
@@ -41,4 +43,5 @@ export enum JournalMessageType {
   ONCHAIN_TRANSACTION_ACCEPT = "onchain-transaction-accept",
   ONCHAIN_TRANSACTION_RESET = "onchain-transaction-reset",
   ONCHAIN_RESULT = "onchain-result",
+  NETWORK_INTERACTION_START = "network-interaction-start",
 }

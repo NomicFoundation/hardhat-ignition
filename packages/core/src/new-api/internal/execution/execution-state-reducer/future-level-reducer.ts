@@ -100,6 +100,7 @@ function initialiseExecutionStateFor(
       strategy: futureStart.strategy,
       status: ExecutionStatus.STARTED,
       dependencies: new Set(futureStart.dependencies),
+      networkInteractions: [],
       history: [],
       onchain: {
         status: OnchainStatuses.EXECUTE,

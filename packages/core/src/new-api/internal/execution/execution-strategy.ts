@@ -33,6 +33,7 @@ import {
   StaticCallExecutionSuccess,
   StaticCallInteractionMessage,
 } from "../journal/types";
+import { StartNetworkInteractionMessage } from "../journal/types/network-level-journal-message";
 import {
   isCallExecutionState,
   isContractAtExecutionState,
@@ -42,6 +43,10 @@ import {
   isStaticCallExecutionState,
 } from "../type-guards";
 import { assertIgnitionInvariant } from "../utils/assertions";
+import {
+  NetworkInteractionType,
+  OnchainInteraction,
+} from "./transaction-types";
 
 export class BasicExecutionStrategy implements ExecutionStrategy {
   public executeStrategy({
@@ -51,7 +56,7 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
     executionState: ExecutionState;
     sender?: string;
   }): AsyncGenerator<
-    OnchainInteractionMessage,
+    OnchainInteractionMessage | StartNetworkInteractionMessage,
     OnchainInteractionMessage | ExecutionSuccess,
     OnchainResultMessage | null
   > {
@@ -92,7 +97,7 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
     executionState: DeploymentExecutionState;
     sender?: string;
   }): AsyncGenerator<
-    DeployContractInteractionMessage,
+    DeployContractInteractionMessage | StartNetworkInteractionMessage,
     DeployedContractExecutionSuccess,
     OnchainDeployContractSuccessMessage | null
   > {
@@ -101,20 +106,38 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
       "Sender must be defined for deployment execution"
     );
 
-    const deployContract: DeployContractInteractionMessage = {
-      type: JournalMessageType.ONCHAIN_ACTION,
-      subtype: "deploy-contract",
-      futureId: deploymentExecutionState.id,
-      executionId: 1,
-      contractName: deploymentExecutionState.contractName,
-      value: deploymentExecutionState.value.toString(),
-      args: deploymentExecutionState.constructorArgs,
-      artifactFutureId: deploymentExecutionState.artifactFutureId,
-      libraries: deploymentExecutionState.libraries,
+    const deployNetworkInteraction: Omit<
+      OnchainInteraction,
+      "nonce" | "transactions"
+    > = {
+      id: 1,
+      type: NetworkInteractionType.ONCHAIN_INTERACTION,
       from: sender,
+      value: deploymentExecutionState.value,
+      to: undefined, // Undefined when it's a deployment transaction
+      data: "",
     };
 
-    const result = yield deployContract;
+    const startNetworkInteraction: StartNetworkInteractionMessage = {
+      type: JournalMessageType.NETWORK_INTERACTION_START,
+      futureId: deploymentExecutionState.id,
+      interaction: deployNetworkInteraction,
+    };
+
+    // const deployContract: DeployContractInteractionMessage = {
+    //   type: JournalMessageType.ONCHAIN_ACTION,
+    //   subtype: "deploy-contract",
+    //   futureId: deploymentExecutionState.id,
+    //   executionId: 1,
+    //   contractName: deploymentExecutionState.contractName,
+    //   value: deploymentExecutionState.value.toString(),
+    //   args: deploymentExecutionState.constructorArgs,
+    //   artifactFutureId: deploymentExecutionState.artifactFutureId,
+    //   libraries: deploymentExecutionState.libraries,
+    //   from: sender,
+    // };
+
+    const result = yield startNetworkInteraction;
 
     if (result === null) {
       throw new IgnitionError("No result yielded");

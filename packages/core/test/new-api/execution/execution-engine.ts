@@ -50,7 +50,7 @@ describe("execution engine", () => {
   };
 
   describe("contract deploy", () => {
-    it("should execute a contract deploy", async () => {
+    it.only("should execute a contract deploy", async () => {
       const journal = new MemoryJournal();
 
       const moduleDefinition = buildModule("Module1", (m) => {

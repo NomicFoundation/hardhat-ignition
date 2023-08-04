@@ -26,6 +26,7 @@ describe("Reconciliation - named contract call", () => {
     strategy: "basic",
     status: ExecutionStatus.STARTED,
     dependencies: new Set<string>(),
+    networkInteractions: [],
     history: [],
     onchain: initOnchainState,
     artifactFutureId: "./artifact.json",

@@ -43,6 +43,10 @@ import {
   StaticCallInteractionMessage,
   TransactionLevelJournalMessage,
 } from "../journal/types";
+import {
+  NetworkLevelJournalMessage,
+  StartNetworkInteractionMessage,
+} from "../journal/types/network-level-journal-message";
 import { serializeReplacer } from "../journal/utils/serialize-replacer";
 import { assertIgnitionInvariant } from "../utils/assertions";
 import { collectLibrariesAndLink } from "../utils/collectLibrariesAndLink";
@@ -53,7 +57,8 @@ interface OnchainStateTransitionContinue {
     | ExecutionSuccess
     | ExecutionTimeout
     | ExecutionFailure
-    | TransactionLevelJournalMessage;
+    | TransactionLevelJournalMessage
+    | NetworkLevelJournalMessage;
 }
 
 interface OnchainStateTransitionPause {
@@ -62,9 +67,9 @@ interface OnchainStateTransitionPause {
 
 type OnchainStateTransition = (
   state: ExecutionEngineState,
-  next: TransactionLevelJournalMessage | null,
+  next: TransactionLevelJournalMessage | NetworkLevelJournalMessage | null,
   strategyInst: AsyncGenerator<
-    OnchainInteractionMessage,
+    OnchainInteractionMessage | StartNetworkInteractionMessage,
     ExecutionSuccess | OnchainInteractionMessage,
     OnchainResultMessage | null
   >
@@ -82,9 +87,10 @@ export const onchainStateTransitions: OnchainStateTransitions = {
       )}`
     );
 
-    const onchainRequest: OnchainInteractionMessage | ExecutionSuccess = (
-      await strategyInst.next(next)
-    ).value;
+    const onchainRequest:
+      | OnchainInteractionMessage
+      | StartNetworkInteractionMessage
+      | ExecutionSuccess = (await strategyInst.next(next)).value;
 
     return { status: "continue", next: onchainRequest };
   },

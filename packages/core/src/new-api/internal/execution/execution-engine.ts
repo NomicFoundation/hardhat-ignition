@@ -76,10 +76,13 @@ import {
 import { resolveModuleParameter } from "../utils/resolve-module-parameter";
 import { sleep } from "../utils/sleep";
 
+import { isStartNetworkInteractionMessage } from "../journal/type-guards/network-level-journal-message";
+import { NetworkLevelJournalMessage } from "../journal/types/network-level-journal-message";
 import { executionStateReducer } from "./execution-state-reducer";
 import { ExecutionStategyCycler } from "./execution-strategy-cycler";
 import { onchainStateTransitions } from "./onchain-state-transitions";
 import { sortFuturesByNonces } from "./sort-futures-by-nonces";
+import { NetworkInteraction } from "./transaction-types";
 
 type ExecutionBatch = Future[];
 
@@ -444,9 +447,26 @@ export class ExecutionEngine {
       return lastMessage;
     }
 
-    let next: TransactionLevelJournalMessage | null = lastMessage;
+    let next:
+      | TransactionLevelJournalMessage
+      | NetworkLevelJournalMessage
+      | null = lastMessage;
 
     while (true) {
+      const executionState = state.executionStateMap[future.id];
+
+      if (
+        isDeploymentExecutionState(executionState) &&
+        next !== null &&
+        isStartNetworkInteractionMessage(next)
+      ) {
+        const latestNetworkInteraction: NetworkInteraction | undefined =
+          this._findLatestNetworkInteractionFor(executionState);
+
+        // TODO: pick up here
+        console.log("latestNetworkInteraction", latestNetworkInteraction);
+      }
+
       const onchainState = state.executionStateMap[future.id].onchain;
 
       assertIgnitionInvariant(
@@ -472,6 +492,12 @@ export class ExecutionEngine {
 
       next = response.next;
     }
+  }
+
+  private _findLatestNetworkInteractionFor(
+    executionState: DeploymentExecutionState
+  ): NetworkInteraction | undefined {
+    return maxBy(executionState.networkInteractions, "id");
   }
 
   private async _fastForwardToLastMessage(

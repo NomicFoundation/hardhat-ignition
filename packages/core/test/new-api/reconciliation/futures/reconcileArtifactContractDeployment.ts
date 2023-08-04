@@ -32,6 +32,7 @@ describe("Reconciliation - artifact contract", () => {
     strategy: "basic",
     status: ExecutionStatus.STARTED,
     dependencies: new Set<string>(),
+    networkInteractions: [],
     history: [],
     onchain: initOnchainState,
     artifactFutureId: "./artifact.json",

@@ -34,6 +34,7 @@ import {
   isStaticCallStartMessage,
   isWipeMessage,
 } from "../type-guards";
+import { isStartNetworkInteractionMessage } from "../type-guards/network-level-journal-message";
 import { JournalableMessage } from "../types";
 
 export function logJournalableMessage(message: JournalableMessage): void {
@@ -241,6 +242,12 @@ export function logJournalableMessage(message: JournalableMessage): void {
 
   if (isWipeMessage(message)) {
     return console.log(`wiping journal`);
+  }
+
+  if (isStartNetworkInteractionMessage(message)) {
+    return console.log(
+      `start network interaction - futureId: '${message.futureId}' - interactionId: ${message.interaction.id}' - interactionType ${message.interaction.type}`
+    );
   }
 
   assertNeverJournalableMessag(message);

@@ -19,6 +19,8 @@ import {
   OnchainResultMessage,
   TransactionLevelJournalMessage,
 } from "../journal/types";
+import { StartNetworkInteractionMessage } from "../journal/types/network-level-journal-message";
+import { NetworkInteraction } from "./transaction-types";
 
 /**
  * The execution history of a future is a sequence of onchain interactions.
@@ -70,6 +72,7 @@ export interface DeploymentExecutionState
   value: bigint;
   from: string | undefined;
   contractAddress?: string; // The result
+  networkInteractions: NetworkInteraction[];
   txId?: string; // also stored after success for use when reading events
 }
 
@@ -273,7 +276,7 @@ export interface ExecutionStrategy {
     executionState,
     sender,
   }: ExecutionStrategyContext) => AsyncGenerator<
-    OnchainInteractionMessage,
+    OnchainInteractionMessage | StartNetworkInteractionMessage,
     OnchainInteractionMessage | ExecutionSuccess,
     OnchainResultMessage | null
   >;

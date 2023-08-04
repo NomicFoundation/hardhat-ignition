@@ -27,6 +27,7 @@ describe("Reconciliation - named static call", () => {
     status: ExecutionStatus.STARTED,
     dependencies: new Set<string>(),
     history: [],
+    networkInteractions: [],
     onchain: initOnchainState,
     artifactFutureId: "./artifact.json",
     contractName: "Contract1",

@@ -6,6 +6,10 @@ import {
   OnchainResultMessage,
   TransactionLevelJournalMessage,
 } from "../journal/types";
+import {
+  NetworkLevelJournalMessage,
+  StartNetworkInteractionMessage,
+} from "../journal/types/network-level-journal-message";
 export class ExecutionStategyCycler {
   /**
    * Given a execution strategy and history of on chain transactions
@@ -14,17 +18,21 @@ export class ExecutionStategyCycler {
   public static async fastForward(
     exState: ExecutionState,
     strategyInst: AsyncGenerator<
-      OnchainInteractionMessage,
+      OnchainInteractionMessage | StartNetworkInteractionMessage,
       ExecutionSuccess | OnchainInteractionMessage,
       OnchainResultMessage | null
     >
   ): Promise<{
     strategyInst: AsyncGenerator<
-      OnchainInteractionMessage,
+      OnchainInteractionMessage | StartNetworkInteractionMessage,
       ExecutionSuccess | OnchainInteractionMessage,
       OnchainResultMessage | null
     >;
-    lastMessage: TransactionLevelJournalMessage | ExecutionSuccess | null;
+    lastMessage:
+      | TransactionLevelJournalMessage
+      | NetworkLevelJournalMessage
+      | ExecutionSuccess
+      | null;
   }> {
     // On the first run the responsibilite for initializing the
     // execution strategy is the state machine
@@ -33,9 +41,10 @@ export class ExecutionStategyCycler {
     }
 
     // As there are messages, do an initialization first
-    let lastMessage: TransactionLevelJournalMessage | ExecutionSuccess = (
-      await strategyInst.next(null)
-    ).value;
+    let lastMessage:
+      | TransactionLevelJournalMessage
+      | NetworkLevelJournalMessage
+      | ExecutionSuccess = (await strategyInst.next(null)).value;
 
     for (const transactionMessage of exState.history) {
       lastMessage = transactionMessage;
