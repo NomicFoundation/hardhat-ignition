@@ -51,7 +51,10 @@ export async function deploy({
       ? new EphemeralDeploymentLoader(artifactResolver, verbose)
       : new FileDeploymentLoader(deploymentDir, verbose);
 
-  const chainDispatcher = new ChainDispatcherImpl(buildAdaptersFrom(provider));
+  const chainDispatcher = new ChainDispatcherImpl(
+    buildAdaptersFrom(provider),
+    provider
+  );
 
   const deployer = new Deployer({
     config,

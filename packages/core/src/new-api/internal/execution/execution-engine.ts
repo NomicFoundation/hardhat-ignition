@@ -78,8 +78,10 @@ import { sleep } from "../utils/sleep";
 
 import { isStartNetworkInteractionMessage } from "../journal/type-guards/network-level-journal-message";
 import { NetworkLevelJournalMessage } from "../journal/types/network-level-journal-message";
+import { determineNextActionFor } from "./determineNextActionFor";
 import { executionStateReducer } from "./execution-state-reducer";
 import { ExecutionStategyCycler } from "./execution-strategy-cycler";
+import { networkInteractionActions } from "./network-interaction-actions";
 import { onchainStateTransitions } from "./onchain-state-transitions";
 import { sortFuturesByNonces } from "./sort-futures-by-nonces";
 import { NetworkInteraction } from "./transaction-types";
@@ -463,8 +465,22 @@ export class ExecutionEngine {
         const latestNetworkInteraction: NetworkInteraction | undefined =
           this._findLatestNetworkInteractionFor(executionState);
 
-        // TODO: pick up here
-        console.log("latestNetworkInteraction", latestNetworkInteraction);
+        assertIgnitionInvariant(
+          latestNetworkInteraction !== undefined,
+          "Undefined should be handled elsewhere"
+        );
+
+        const nextAction = determineNextActionFor(latestNetworkInteraction);
+
+        networkInteractionActions[nextAction](latestNetworkInteraction, {
+          chainDispatcher: state.chainDispatcher,
+          decode: (response: any): Promise<any> => {
+            return state.strategy.decode(response, {
+              executionState,
+              deploymentLoader: state.deploymentLoader,
+            });
+          },
+        });
       }
 
       const onchainState = state.executionStateMap[future.id].onchain;
@@ -1136,6 +1152,8 @@ export class ExecutionEngine {
 
     const futureContext = {
       executionState: exState,
+      deploymentLoader: state.deploymentLoader,
+      chainDispatcher: state.chainDispatcher,
       sender,
     };
 

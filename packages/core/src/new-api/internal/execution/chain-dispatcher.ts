@@ -12,13 +12,14 @@ import { ArgumentType } from "../../types/module";
 import { Adapters } from "../types/adapters";
 import { assertIgnitionInvariant } from "../utils/assertions";
 
+import { EIP1193Provider } from "../../types/provider";
 import { AccountsState } from "./execution-engine";
-import { ChainDispatcher } from "./types";
+import { BytesLike, ChainDispatcher } from "./types";
 
 export class ChainDispatcherImpl implements ChainDispatcher {
   private _accountsState: AccountsState;
 
-  constructor(private _adapters: Adapters) {
+  constructor(private _adapters: Adapters, public provider: EIP1193Provider) {
     this._accountsState = {};
   }
 
@@ -207,5 +208,39 @@ export class ChainDispatcherImpl implements ChainDispatcher {
     txHash: string
   ): Promise<TransactionResponse | null | undefined> {
     return this._adapters.transactions.getTransaction(txHash);
+  }
+
+  public async encodeDeployment({
+    constructorArgs,
+    abi,
+    bytecode,
+    from,
+    value,
+  }: {
+    constructorArgs: any[];
+    abi: any[];
+    bytecode: any;
+    from: string;
+    value: bigint;
+  }): Promise<BytesLike> {
+    const signer: Signer = await this._adapters.signer.getSigner(from);
+
+    const Factory = new ContractFactory(abi, bytecode, signer);
+
+    console.log("value - ", value);
+    console.log("constructorArgs - ", constructorArgs);
+    console.log("abi - ", abi);
+    const tx = await Factory.getDeployTransaction({
+      // value: ethers.BigNumber.from(value.toString()),
+    });
+
+    console.log("Tx ------->", tx);
+
+    assertIgnitionInvariant(
+      tx.data !== undefined,
+      "Unable to construct transaction while encoding deployment data"
+    );
+
+    return tx.data;
   }
 }

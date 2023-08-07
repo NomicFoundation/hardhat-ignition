@@ -6,7 +6,12 @@ import {
   TransactionResponse,
 } from "ethers";
 
-import { ArgumentType, Artifact, ArtifactResolver } from "../../src";
+import {
+  ArgumentType,
+  Artifact,
+  ArtifactResolver,
+  EIP1193Provider,
+} from "../../src";
 import { Deployer } from "../../src/new-api/internal/deployer";
 import { DeploymentLoader } from "../../src/new-api/internal/deployment-loader/types";
 import { AccountsState } from "../../src/new-api/internal/execution/execution-engine";
@@ -273,6 +278,7 @@ export function setupMockChainDispatcher({
 }
 
 export class MockChainDispatcher implements ChainDispatcher {
+  public provider: EIP1193Provider;
   private _accountsState: AccountsState;
   private _sentTxs: { [key: string]: TransactionRequest };
   private _currentBlock: number;
@@ -310,6 +316,7 @@ export class MockChainDispatcher implements ChainDispatcher {
     this._sentTxs = {};
 
     this._currentBlock = 1;
+    this.provider = null as any; // TODO: fix for tests
   }
 
   public getEventArgument(
@@ -458,5 +465,12 @@ export class MockChainDispatcher implements ChainDispatcher {
 
   public async getLatestTransactionCount(_address: string): Promise<number> {
     return 0;
+  }
+
+  public async encodeDeployment({}: {
+    abi: any[];
+    from: string;
+  }): Promise<string> {
+    return "TBD";
   }
 }

@@ -1,6 +1,9 @@
+import { ethers } from "ethers";
 import { IgnitionError } from "../../../errors";
+import { DeploymentLoader } from "../deployment-loader/types";
 import {
   CallExecutionState,
+  ChainDispatcher,
   ContractAtExecutionState,
   DeploymentExecutionState,
   ExecutionState,
@@ -43,17 +46,48 @@ import {
   isStaticCallExecutionState,
 } from "../type-guards";
 import { assertIgnitionInvariant } from "../utils/assertions";
+import { collectLibrariesAndLink } from "../utils/collectLibrariesAndLink";
 import {
   NetworkInteractionType,
   OnchainInteraction,
 } from "./transaction-types";
 
 export class BasicExecutionStrategy implements ExecutionStrategy {
+  public async decode(
+    response: any,
+    {
+      executionState,
+      deploymentLoader,
+    }: { executionState: ExecutionState; deploymentLoader: DeploymentLoader }
+  ): Promise<any> {
+    assertIgnitionInvariant(
+      isDeploymentExecutionState(executionState),
+      "Only deployment execution state expected during decode"
+    );
+
+    const artifact = await deploymentLoader.loadArtifact(
+      executionState.artifactFutureId
+    );
+
+    let iface = ethers.Interface.from(artifact.abi);
+
+    // const errorResult = iface.decodeErrorResult(iface.deploy, response);
+
+    console.log("--------------------------> before error result");
+    // console.log("errorResult", errorResult);
+
+    return response;
+  }
+
   public executeStrategy({
     executionState,
+    chainDispatcher,
+    deploymentLoader,
     sender,
   }: {
     executionState: ExecutionState;
+    chainDispatcher: ChainDispatcher;
+    deploymentLoader: DeploymentLoader;
     sender?: string;
   }): AsyncGenerator<
     OnchainInteractionMessage | StartNetworkInteractionMessage,
@@ -61,7 +95,12 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
     OnchainResultMessage | null
   > {
     if (isDeploymentExecutionState(executionState)) {
-      return this._executeDeployment({ executionState, sender });
+      return this._executeDeployment({
+        executionState,
+        chainDispatcher,
+        deploymentLoader,
+        sender,
+      });
     }
 
     if (isCallExecutionState(executionState)) {
@@ -92,9 +131,13 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
 
   private async *_executeDeployment({
     executionState: deploymentExecutionState,
+    chainDispatcher,
+    deploymentLoader,
     sender,
   }: {
     executionState: DeploymentExecutionState;
+    chainDispatcher: ChainDispatcher;
+    deploymentLoader: DeploymentLoader;
     sender?: string;
   }): AsyncGenerator<
     DeployContractInteractionMessage | StartNetworkInteractionMessage,
@@ -106,6 +149,27 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
       "Sender must be defined for deployment execution"
     );
 
+    const artifact = await deploymentLoader.loadArtifact(
+      deploymentExecutionState.artifactFutureId
+    );
+
+    const abi = artifact.abi;
+    const args = deploymentExecutionState.constructorArgs;
+    const value = BigInt(deploymentExecutionState.value);
+    const libraries = deploymentExecutionState.libraries;
+
+    const linkedByteCode = await collectLibrariesAndLink(artifact, libraries);
+
+    const tx = await chainDispatcher.constructDeployTransaction(
+      linkedByteCode,
+      abi,
+      args,
+      value,
+      sender
+    );
+
+    const data = (await tx).data;
+
     const deployNetworkInteraction: Omit<
       OnchainInteraction,
       "nonce" | "transactions"
@@ -115,7 +179,7 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
       from: sender,
       value: deploymentExecutionState.value,
       to: undefined, // Undefined when it's a deployment transaction
-      data: "",
+      data: data as string,
     };
 
     const startNetworkInteraction: StartNetworkInteractionMessage = {
@@ -123,19 +187,6 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
       futureId: deploymentExecutionState.id,
       interaction: deployNetworkInteraction,
     };
-
-    // const deployContract: DeployContractInteractionMessage = {
-    //   type: JournalMessageType.ONCHAIN_ACTION,
-    //   subtype: "deploy-contract",
-    //   futureId: deploymentExecutionState.id,
-    //   executionId: 1,
-    //   contractName: deploymentExecutionState.contractName,
-    //   value: deploymentExecutionState.value.toString(),
-    //   args: deploymentExecutionState.constructorArgs,
-    //   artifactFutureId: deploymentExecutionState.artifactFutureId,
-    //   libraries: deploymentExecutionState.libraries,
-    //   from: sender,
-    // };
 
     const result = yield startNetworkInteraction;
 

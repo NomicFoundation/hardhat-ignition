@@ -12,6 +12,7 @@ import {
   IgnitionModuleResult,
   SolidityParameterType,
 } from "../../types/module";
+import { EIP1193Provider } from "../../types/provider";
 import { DeploymentLoader } from "../deployment-loader/types";
 import {
   ExecutionSuccess,
@@ -195,6 +196,8 @@ export interface OnchainState {
 }
 
 export interface ChainDispatcher {
+  provider: EIP1193Provider;
+
   getPendingTransactionCount(address: string): Promise<number>;
 
   getLatestTransactionCount(address: string): Promise<number>;
@@ -246,6 +249,20 @@ export interface ChainDispatcher {
     emitterAddress: string,
     abi: any[]
   ): Promise<SolidityParameterType>;
+
+  encodeDeployment({
+    constructorArgs,
+    abi,
+    bytecode,
+    from,
+    value,
+  }: {
+    constructorArgs: any[];
+    abi: any[];
+    bytecode: any;
+    from: string;
+    value: bigint;
+  }): Promise<BytesLike>;
 }
 
 export interface ExecutionEngineState {
@@ -268,10 +285,20 @@ export interface ExecutionEngineState {
 
 export interface ExecutionStrategyContext {
   executionState: ExecutionState;
+  chainDispatcher: ChainDispatcher;
+  deploymentLoader: DeploymentLoader;
   sender?: string;
 }
 
 export interface ExecutionStrategy {
+  decode(
+    response: any,
+    {
+      executionState,
+      deploymentLoader,
+    }: { executionState: ExecutionState; deploymentLoader: DeploymentLoader }
+  ): Promise<any>;
+
   executeStrategy: ({
     executionState,
     sender,
@@ -314,3 +341,5 @@ export interface TransactionLookupTimer {
    */
   getTimedOutTransactions(): TransactionLookup[];
 }
+
+export type BytesLike = ArrayLike<number> | string;
