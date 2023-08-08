@@ -66,7 +66,7 @@ The deployed contract can be given an endowment of _Eth_ by passing the value of
 
 ```tsx
 const token = m.contract("Token", [], {
-  value: BigInt(ethers.utils.parseUnits("1").toString()),
+  value: BigInt(ethers.parseUnits("1").toString()),
 });
 ```
 
@@ -146,7 +146,7 @@ Similar to `ethers`, a call can transfer `Eth` by passing a `value` under the op
 
 ```tsx
 m.call(exchange, "deposit", [], {
-  value: BigInt(ethers.utils.parseUnits("1").toString()),
+  value: BigInt(ethers.parseUnits("1").toString()),
 });
 ```
 
@@ -156,7 +156,7 @@ It's also possible to transfer `Eth` to a given address via a regular Ethereum t
 
 ```tsx
 m.sendETH(exchange, {
-  value: ethers.utils.parseUnits("1"),
+  value: ethers.parseUnits("1"),
 });
 ```
 
@@ -225,7 +225,7 @@ module.exports = buildModule("Multisig", (m) => {
     from: owner,
   });
 
-  const value = BigInt(ethers.utils.parseUnits("100").toString());
+  const value = BigInt(ethers.parseUnits("100").toString());
   const fund = m.send("fund", multisig, value, undefined, { from: notAnOwner });
 
   const call = m.call(multisig, "authorize", [], { from: alsoAnOwner });
