@@ -21,6 +21,8 @@ import {
   TransactionLevelJournalMessage,
 } from "../journal/types";
 import { StartNetworkInteractionMessage } from "../journal/types/network-level-journal-message";
+import { CallErrorResult } from "./call-result-decoding/call";
+import { ExecutionError } from "./call-result-decoding/result-decoding";
 import { NetworkInteraction } from "./transaction-types";
 
 /**
@@ -291,13 +293,12 @@ export interface ExecutionStrategyContext {
 }
 
 export interface ExecutionStrategy {
-  decode(
-    response: any,
-    {
-      executionState,
-      deploymentLoader,
-    }: { executionState: ExecutionState; deploymentLoader: DeploymentLoader }
-  ): Promise<any>;
+  decodeError(
+    executionState: ExecutionState,
+    _networkInteraction: NetworkInteraction,
+    callErrorResult: CallErrorResult,
+    deploymentLoader: DeploymentLoader
+  ): Promise<ExecutionError>;
 
   executeStrategy: ({
     executionState,

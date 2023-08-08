@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { IgnitionError } from "../../../errors";
 import { DeploymentLoader } from "../deployment-loader/types";
 import {
@@ -47,19 +46,24 @@ import {
 } from "../type-guards";
 import { assertIgnitionInvariant } from "../utils/assertions";
 import { collectLibrariesAndLink } from "../utils/collectLibrariesAndLink";
+import { CallErrorResult } from "./call-result-decoding/call";
 import {
+  ExecutionError,
+  decodeError,
+} from "./call-result-decoding/result-decoding";
+import {
+  NetworkInteraction,
   NetworkInteractionType,
   OnchainInteraction,
 } from "./transaction-types";
 
 export class BasicExecutionStrategy implements ExecutionStrategy {
-  public async decode(
-    response: any,
-    {
-      executionState,
-      deploymentLoader,
-    }: { executionState: ExecutionState; deploymentLoader: DeploymentLoader }
-  ): Promise<any> {
+  public async decodeError(
+    executionState: ExecutionState,
+    _networkInteraction: NetworkInteraction,
+    callErrorResult: CallErrorResult,
+    deploymentLoader: DeploymentLoader
+  ): Promise<ExecutionError> {
     assertIgnitionInvariant(
       isDeploymentExecutionState(executionState),
       "Only deployment execution state expected during decode"
@@ -69,14 +73,18 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
       executionState.artifactFutureId
     );
 
-    let iface = ethers.Interface.from(artifact.abi);
+    const error = decodeError(
+      callErrorResult.returnData,
+      artifact.abi,
+      callErrorResult.isCustomError
+    );
 
-    // const errorResult = iface.decodeErrorResult(iface.deploy, response);
+    assertIgnitionInvariant(
+      error !== undefined,
+      "Error decoding failed for a non-error"
+    );
 
-    console.log("--------------------------> before error result");
-    // console.log("errorResult", errorResult);
-
-    return response;
+    return error;
   }
 
   public executeStrategy({

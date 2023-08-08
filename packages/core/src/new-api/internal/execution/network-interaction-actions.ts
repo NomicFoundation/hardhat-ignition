@@ -1,4 +1,7 @@
+import { IgnitionError } from "../../../errors";
 import { EIP1193Provider } from "../../types/provider";
+import { CallErrorResult, call } from "./call-result-decoding/call";
+import { ExecutionError } from "./call-result-decoding/result-decoding";
 import { NetworkInteractionAction } from "./determineNextActionFor";
 import { NetworkInteraction } from "./transaction-types";
 import { ChainDispatcher } from "./types";
@@ -17,10 +20,12 @@ export const networkInteractionActions: {
     networkInteraction: NetworkInteraction,
     {
       chainDispatcher,
-      decode,
+      decodeError,
     }: {
       chainDispatcher: ChainDispatcher;
-      decode: (response: any) => Promise<any>;
+      decodeError: (
+        callErrorResult: CallErrorResult
+      ) => Promise<ExecutionError>;
     }
   ) => any;
 } = {
@@ -31,77 +36,89 @@ async function requestNetworkInteraction(
   networkInteraction: NetworkInteraction,
   {
     chainDispatcher,
-    decode,
+    decodeError,
   }: {
     chainDispatcher: ChainDispatcher;
-    decode: (response: any) => Promise<any>;
+    decodeError: (callErrorResult: CallErrorResult) => Promise<ExecutionError>;
   }
 ) {
-  // TODO: geth will return the error as data, hh network will throw an error
-
-  console.log("------------------> running simulation");
-
   // run simulation
-  const simulateResult = await simulateTransaction({
-    networkInteraction,
-    provider: chainDispatcher.provider,
-  });
+  try {
+    console.log("Starting simulate ---------------------->");
+    const simulateResult = await simulateTransaction({
+      networkInteraction,
+      provider: chainDispatcher.provider,
+      decodeError,
+    });
 
-  // console.log("simulateResult", simulateResult);
+    console.log("simulateResult", simulateResult);
 
-  const gasEstimate = await estimateGasForTransaction({
-    networkInteraction,
-    provider: chainDispatcher.provider,
-  });
+    if (simulateResult !== undefined) {
+      throw new IgnitionError(`Simulation failed: ${simulateResult.type}`);
+    }
 
-  console.log("gasEstimate", gasEstimate);
+    const gasEstimate = await estimateGasForTransaction({
+      networkInteraction,
+      provider: chainDispatcher.provider,
+    });
 
-  const result = await sendTransaction({
-    networkInteraction,
-    provider: chainDispatcher.provider,
-    gasEstimate,
-  });
+    console.log("gasEstimate", gasEstimate);
 
-  console.log("result", result);
+    const hash = await sendTransaction({
+      networkInteraction,
+      provider: chainDispatcher.provider,
+      gasEstimate,
+    });
 
-  // let iface = new ethers.utils.Interface(abi);
+    console.log("hash", hash);
 
-  // console.log("iface", iface);
+    const txPolled = await chainDispatcher.getTransactionReceipt(
+      hash as string
+    );
 
-  // estimate gas
+    console.log("txPolled", txPolled);
+
+    // let iface = new ethers.utils.Interface(abi);
+
+    // console.log("iface", iface);
+
+    // estimate gas
+    process.exit(0);
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
   // send tx
 }
 
+/**
+ * Simulate transaction with a high gas to determine if it would  throw.
+ * @param params.networkInteraction The network interaction to simulate
+ * @param params.provider the provider to use to simulate the transaction
+ * @returns either an ExecutionError on revert or undefined if the simulation succeeds
+ */
 async function simulateTransaction({
   networkInteraction,
   provider,
+  decodeError,
 }: {
   networkInteraction: NetworkInteraction;
   provider: EIP1193Provider;
-}): Promise<string> {
-  try {
-    return provider.request({
-      method: "eth_call",
-      params: [
-        { to: networkInteraction.to, data: networkInteraction.data },
-        "pending",
-      ],
-    }) as Promise<string>;
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "data" in error &&
-      typeof error.data === "object" &&
-      error.data !== null &&
-      "data" in error.data &&
-      typeof error.data.data === "string"
-    ) {
-      return error.data.data;
-    }
+  decodeError: (callErrorResult: CallErrorResult) => Promise<ExecutionError>;
+}): Promise<ExecutionError | undefined> {
+  const result = await call(
+    provider,
+    { to: networkInteraction.to, data: networkInteraction.data },
+    "pending"
+  );
 
-    throw error;
+  if (typeof result === "string") {
+    return undefined;
   }
+
+  const decoded = await decodeError(result);
+
+  return decoded;
 }
 
 async function estimateGasForTransaction({
@@ -133,8 +150,9 @@ async function sendTransaction({
 }) {
   const tx = {
     to: networkInteraction.to,
+    from: networkInteraction.from,
     data: networkInteraction.data,
-    gas: gasEstimate.toString(),
+    gasLimit: gasEstimate.toString(),
     value: networkInteraction.value.toString(),
   };
 

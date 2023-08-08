@@ -51,7 +51,7 @@ describe.only("call result decoding", function () {
   }
 
   describe("Successful calls — Decoding results", () => {
-    it("Should decode both named un unnamed outputs", async function () {
+    it("Should decode both named and unnamed outputs", async function () {
       const functionName = "withNamedAndUnamedOutputs";
       const abi = JSON.parse(contract.interface.formatJson()); // TODO: This should be fetched from the deployment
       const to = await contract.getAddress();

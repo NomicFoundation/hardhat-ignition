@@ -78,6 +78,8 @@ import { sleep } from "../utils/sleep";
 
 import { isStartNetworkInteractionMessage } from "../journal/type-guards/network-level-journal-message";
 import { NetworkLevelJournalMessage } from "../journal/types/network-level-journal-message";
+import { CallErrorResult } from "./call-result-decoding/call";
+import { ExecutionError } from "./call-result-decoding/result-decoding";
 import { determineNextActionFor } from "./determineNextActionFor";
 import { executionStateReducer } from "./execution-state-reducer";
 import { ExecutionStategyCycler } from "./execution-strategy-cycler";
@@ -474,11 +476,15 @@ export class ExecutionEngine {
 
         networkInteractionActions[nextAction](latestNetworkInteraction, {
           chainDispatcher: state.chainDispatcher,
-          decode: (response: any): Promise<any> => {
-            return state.strategy.decode(response, {
+          decodeError: (
+            callErrorResult: CallErrorResult
+          ): Promise<ExecutionError> => {
+            return state.strategy.decodeError(
               executionState,
-              deploymentLoader: state.deploymentLoader,
-            });
+              latestNetworkInteraction,
+              callErrorResult,
+              state.deploymentLoader
+            );
           },
         });
       }
