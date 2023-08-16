@@ -66,7 +66,7 @@ describe("libraries", () => {
     assert.equal(libBasedAddtion, 6);
   });
 
-  it("should deploy a contract with an existing library", async function () {
+  it.only("should deploy a contract with an existing library", async function () {
     const libraryModuleDefinition = buildModule("LibraryModule", (m) => {
       const rubbishMath = m.library("RubbishMath");
 
@@ -77,6 +77,9 @@ describe("libraries", () => {
 
     const libAddress = libDeployResult.rubbishMath.address;
     const libAbi = libDeployResult.rubbishMath.abi;
+
+    console.log("libDeployResult.rubbishMath");
+    console.log(libDeployResult.rubbishMath);
 
     const moduleDefinition = buildModule("ConsumingLibModule", (m) => {
       const rubbishMath = m.contractAt("RubbishMath", libAddress, libAbi);
