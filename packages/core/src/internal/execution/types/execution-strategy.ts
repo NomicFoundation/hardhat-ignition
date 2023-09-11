@@ -209,6 +209,8 @@ export type StaticCallStrategyGenerator = AsyncGenerator<
  *
  *    If this was the latest request, the execution strategy should return a successful result
  *    or a `StrategyErrorExecutionResult`.
+ *
+ *  @beta
  */
 export interface ExecutionStrategy {
   /**

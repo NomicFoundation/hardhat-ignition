@@ -8,6 +8,7 @@ import { EphemeralDeploymentLoader } from "./internal/deployment-loader/ephemera
 import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployment-loader";
 import { BasicExecutionStrategy } from "./internal/execution/basic-execution-strategy";
 import { EIP1193JsonRpcClient } from "./internal/execution/jsonrpc-client";
+import { ExecutionStrategy } from "./internal/execution/types/execution-strategy";
 import { getDefaultSender } from "./internal/execution/utils/get-default-sender";
 import { checkAutominedNetwork } from "./internal/utils/check-automined-network";
 import { validateStageOne } from "./internal/validation/validateStageOne";
@@ -39,6 +40,7 @@ export async function deploy<
   provider,
   executionEventListener,
   deploymentDir,
+  strategy,
   ignitionModule,
   deploymentParameters,
   accounts,
@@ -49,6 +51,7 @@ export async function deploy<
   provider: EIP1193Provider;
   executionEventListener?: ExecutionEventListener;
   deploymentDir?: string;
+  strategy?: ExecutionStrategy;
   ignitionModule: IgnitionModule<
     ModuleIdT,
     ContractNameT,
@@ -96,9 +99,11 @@ export async function deploy<
       ? new EphemeralDeploymentLoader(artifactResolver, executionEventListener)
       : new FileDeploymentLoader(deploymentDir, executionEventListener);
 
-  const executionStrategy = new BasicExecutionStrategy((artifactId) =>
-    deploymentLoader.loadArtifact(artifactId)
-  );
+  const executionStrategy =
+    strategy ??
+    new BasicExecutionStrategy((artifactId) =>
+      deploymentLoader.loadArtifact(artifactId)
+    );
 
   const jsonRpcClient = new EIP1193JsonRpcClient(provider);
 
