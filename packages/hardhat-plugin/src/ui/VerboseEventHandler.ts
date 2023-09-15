@@ -8,6 +8,7 @@ import {
   DeploymentExecutionStateCompleteEvent,
   DeploymentExecutionStateInitializeEvent,
   DeploymentStartEvent,
+  DeploymentWarningsEvent,
   ExecutionEventListener,
   ExecutionEventNetworkInteractionType,
   ExecutionEventResultType,
@@ -249,6 +250,10 @@ export class VerboseEventHandler implements ExecutionEventListener {
 
   public deploymentComplete(_event: DeploymentCompleteEvent): void {
     console.log(`Deployment complete`);
+  }
+
+  public deploymentWarnings(event: DeploymentWarningsEvent): void {
+    console.log(`Deployment produced warnings:\n${event.warnings.join("  -")}`);
   }
 
   public setModuleId(event: SetModuleIdEvent): void {

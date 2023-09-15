@@ -11,6 +11,7 @@ import {
   DeploymentResult,
   DeploymentResultType,
   DeploymentStartEvent,
+  DeploymentWarningsEvent,
   ExecutionEventListener,
   ExecutionEventResult,
   ExecutionEventResultType,
@@ -68,6 +69,7 @@ export class UiEventHandler implements ExecutionEventListener {
     moduleName: null,
     batches: [],
     result: null,
+    warnings: [],
   };
 
   constructor(private _deploymentParams: DeploymentParameters = {}) {}
@@ -330,6 +332,13 @@ export class UiEventHandler implements ExecutionEventListener {
       status: UiStateDeploymentStatus.COMPLETE,
       result: event.result,
       batches: this._applyResultToBatches(this.state.batches, event.result),
+    };
+  }
+
+  public deploymentWarnings(event: DeploymentWarningsEvent): void {
+    this.state = {
+      ...this.state,
+      warnings: [...this.state.warnings, ...event.warnings],
     };
   }
 
