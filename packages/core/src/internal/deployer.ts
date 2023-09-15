@@ -174,7 +174,9 @@ export class Deployer {
     }
 
     if (reconciliationResult.missingExecutedFutures.length > 0) {
-      // TODO: indicate to UI that warnings should be shown
+      this._emitDeploymentWarningsEvent(
+        reconciliationResult.missingExecutedFutures
+      );
     }
 
     const batches = Batcher.batch(ignitionModule, deploymentState);
@@ -272,6 +274,17 @@ export class Deployer {
     this._executionEventListener.deploymentStart({
       type: ExecutionEventType.DEPLOYMENT_START,
       moduleName: moduleId,
+    });
+  }
+
+  private _emitDeploymentWarningsEvent(warnings: string[]): void {
+    if (this._executionEventListener === undefined) {
+      return;
+    }
+
+    this._executionEventListener.deploymentWarnings({
+      type: ExecutionEventType.DEPLOYMENT_WARNINGS,
+      warnings,
     });
   }
 
