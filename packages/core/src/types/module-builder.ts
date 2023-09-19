@@ -31,7 +31,10 @@ export interface ContractOptions {
   id?: string;
   after?: Future[];
   libraries?: Record<string, ContractFuture<string>>;
-  value?: bigint | ModuleParameterRuntimeValue<bigint>;
+  value?:
+    | bigint
+    | ModuleParameterRuntimeValue<bigint>
+    | StaticCallFuture<string, string>;
   from?: string | AccountRuntimeValue;
 }
 
@@ -55,7 +58,10 @@ export interface LibraryOptions {
 export interface CallOptions {
   id?: string;
   after?: Future[];
-  value?: bigint | ModuleParameterRuntimeValue<bigint>;
+  value?:
+    | bigint
+    | ModuleParameterRuntimeValue<bigint>
+    | StaticCallFuture<string, string>;
   from?: string | AccountRuntimeValue;
 }
 

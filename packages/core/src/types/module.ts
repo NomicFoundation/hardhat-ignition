@@ -135,7 +135,10 @@ export interface NamedArtifactContractDeploymentFuture<
   contractName: ContractNameT;
   constructorArgs: ArgumentType[];
   libraries: Record<string, ContractFuture<string>>;
-  value: bigint | ModuleParameterRuntimeValue<bigint>;
+  value:
+    | bigint
+    | ModuleParameterRuntimeValue<bigint>
+    | StaticCallFuture<string, string>;
   from: string | AccountRuntimeValue | undefined;
 }
 
@@ -154,7 +157,10 @@ export interface ContractDeploymentFuture {
   artifact: Artifact;
   constructorArgs: ArgumentType[];
   libraries: Record<string, ContractFuture<string>>;
-  value: bigint | ModuleParameterRuntimeValue<bigint>;
+  value:
+    | bigint
+    | ModuleParameterRuntimeValue<bigint>
+    | StaticCallFuture<string, string>;
   from: string | AccountRuntimeValue | undefined;
 }
 
@@ -208,7 +214,10 @@ export interface ContractCallFuture<
   contract: ContractFuture<ContractNameT>;
   functionName: FunctionNameT;
   args: ArgumentType[];
-  value: bigint | ModuleParameterRuntimeValue<bigint>;
+  value:
+    | bigint
+    | ModuleParameterRuntimeValue<bigint>
+    | StaticCallFuture<string, string>;
   from: string | AccountRuntimeValue | undefined;
 }
 

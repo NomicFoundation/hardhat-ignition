@@ -62,7 +62,10 @@ export class NamedContractDeploymentFutureImplementation<
     public readonly contractName: ContractNameT,
     public readonly constructorArgs: ArgumentType[],
     public readonly libraries: Record<string, ContractFuture<string>>,
-    public readonly value: bigint | ModuleParameterRuntimeValue<bigint>,
+    public readonly value:
+      | bigint
+      | ModuleParameterRuntimeValue<bigint>
+      | StaticCallFuture<string, string>,
     public readonly from: string | AccountRuntimeValue | undefined
   ) {
     super(id, FutureType.NAMED_ARTIFACT_CONTRACT_DEPLOYMENT, module);
@@ -82,7 +85,10 @@ export class ArtifactContractDeploymentFutureImplementation<
     public readonly constructorArgs: ArgumentType[],
     public readonly artifact: Artifact,
     public readonly libraries: Record<string, ContractFuture<string>>,
-    public readonly value: bigint | ModuleParameterRuntimeValue<bigint>,
+    public readonly value:
+      | bigint
+      | ModuleParameterRuntimeValue<bigint>
+      | StaticCallFuture<string, string>,
     public readonly from: string | AccountRuntimeValue | undefined
   ) {
     super(id, FutureType.CONTRACT_DEPLOYMENT, module);
@@ -137,7 +143,10 @@ export class NamedContractCallFutureImplementation<
     public readonly functionName: FunctionNameT,
     public readonly contract: ContractFuture<ContractNameT>,
     public readonly args: ArgumentType[],
-    public readonly value: bigint | ModuleParameterRuntimeValue<bigint>,
+    public readonly value:
+      | bigint
+      | ModuleParameterRuntimeValue<bigint>
+      | StaticCallFuture<string, string>,
     public readonly from: string | AccountRuntimeValue | undefined
   ) {
     super(id, FutureType.CONTRACT_CALL, module);
