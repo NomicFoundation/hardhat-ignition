@@ -8,6 +8,7 @@ import {
   ModuleParameterRuntimeValueImplementation,
   NamedContractDeploymentFutureImplementation,
   NamedStaticCallFutureImplementation,
+  ReadEventArgumentFutureImplementation,
 } from "../src/internal/module";
 import { getFuturesFromModule } from "../src/internal/utils/get-futures-from-module";
 import { FutureType } from "../src/types/module";
@@ -203,6 +204,36 @@ describe("contract", () => {
     }
 
     assertInstanceOf(anotherFuture.value, NamedStaticCallFutureImplementation);
+  });
+
+  it("Should be able to pass a ReadEventArgumentFuture as a value option", () => {
+    const moduleWithDependentContracts = buildModule("Module1", (m) => {
+      const contract = m.contract("Contract");
+      const eventArg = m.readEventArgument(contract, "TestEvent", "eventArg");
+
+      const another = m.contract("Another", [], {
+        value: eventArg,
+      });
+
+      return { another };
+    });
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const anotherFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1#Another"
+    );
+
+    if (
+      !(anotherFuture instanceof NamedContractDeploymentFutureImplementation)
+    ) {
+      assert.fail("Not a named contract deployment");
+    }
+
+    assertInstanceOf(
+      anotherFuture.value,
+      ReadEventArgumentFutureImplementation
+    );
   });
 
   it("should be able to pass a string as from option", () => {

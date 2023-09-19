@@ -55,6 +55,14 @@ contract StaticCallValue {
   }
 }
 
+contract EventArgValue {
+  event EventValue(uint256 value);
+
+  constructor() {
+    emit EventValue(42);
+  }
+}
+
 contract PassingValue {
   constructor() payable {}
 
