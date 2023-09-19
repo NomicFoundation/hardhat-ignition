@@ -7,6 +7,7 @@ import {
   AccountRuntimeValueImplementation,
   ModuleParameterRuntimeValueImplementation,
   NamedContractDeploymentFutureImplementation,
+  NamedStaticCallFutureImplementation,
 } from "../src/internal/module";
 import { getFuturesFromModule } from "../src/internal/utils/get-futures-from-module";
 import { FutureType } from "../src/types/module";
@@ -175,6 +176,33 @@ describe("contract", () => {
       anotherFuture.value,
       ModuleParameterRuntimeValueImplementation
     );
+  });
+
+  it("Should be able to pass a StaticCallFuture as a value option", () => {
+    const moduleWithDependentContracts = buildModule("Module1", (m) => {
+      const contract = m.contract("Contract");
+      const staticCall = m.staticCall(contract, "test");
+
+      const another = m.contract("Another", [], {
+        value: staticCall,
+      });
+
+      return { another };
+    });
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const anotherFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1#Another"
+    );
+
+    if (
+      !(anotherFuture instanceof NamedContractDeploymentFutureImplementation)
+    ) {
+      assert.fail("Not a named contract deployment");
+    }
+
+    assertInstanceOf(anotherFuture.value, NamedStaticCallFutureImplementation);
   });
 
   it("should be able to pass a string as from option", () => {

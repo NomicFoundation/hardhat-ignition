@@ -984,12 +984,8 @@ class IgnitionModuleBuilderImplementation<
       | any,
     func: (...[]: any[]) => any
   ) {
-    if (isFuture(value) && !isNamedStaticCallFuture(value)) {
-      this._throwErrorWithStackTrace(
-        `Invalid future type given as value option: '${value.type}'`,
-        func
-      );
-    } else if (
+    if (
+      !isNamedStaticCallFuture(value) &&
       !isModuleParameterRuntimeValue(value) &&
       typeof value !== "bigint"
     ) {
