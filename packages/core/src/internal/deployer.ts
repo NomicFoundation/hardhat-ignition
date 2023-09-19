@@ -174,7 +174,7 @@ export class Deployer {
     }
 
     if (reconciliationResult.missingExecutedFutures.length > 0) {
-      this._emitDeploymentWarningsEvent(
+      this._emitReconciliationWarningsEvent(
         reconciliationResult.missingExecutedFutures
       );
     }
@@ -277,13 +277,13 @@ export class Deployer {
     });
   }
 
-  private _emitDeploymentWarningsEvent(warnings: string[]): void {
+  private _emitReconciliationWarningsEvent(warnings: string[]): void {
     if (this._executionEventListener === undefined) {
       return;
     }
 
-    this._executionEventListener.deploymentWarnings({
-      type: ExecutionEventType.DEPLOYMENT_WARNINGS,
+    this._executionEventListener.reconciliationWarnings({
+      type: ExecutionEventType.RECONCILIATION_WARNINGS,
       warnings,
     });
   }

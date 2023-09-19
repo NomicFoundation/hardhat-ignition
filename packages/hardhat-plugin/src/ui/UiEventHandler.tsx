@@ -11,7 +11,6 @@ import {
   DeploymentResult,
   DeploymentResultType,
   DeploymentStartEvent,
-  DeploymentWarningsEvent,
   ExecutionEventListener,
   ExecutionEventResult,
   ExecutionEventResultType,
@@ -23,6 +22,7 @@ import {
   OnchainInteractionReplacedByUserEvent,
   OnchainInteractionTimeoutEvent,
   ReadEventArgExecutionStateInitializeEvent,
+  ReconciliationWarningsEvent,
   RunStartEvent,
   SendDataExecutionStateCompleteEvent,
   SendDataExecutionStateInitializeEvent,
@@ -335,7 +335,7 @@ export class UiEventHandler implements ExecutionEventListener {
     };
   }
 
-  public deploymentWarnings(event: DeploymentWarningsEvent): void {
+  public reconciliationWarnings(event: ReconciliationWarningsEvent): void {
     this.state = {
       ...this.state,
       warnings: [...this.state.warnings, ...event.warnings],
