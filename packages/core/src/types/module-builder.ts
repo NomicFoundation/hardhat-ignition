@@ -34,7 +34,8 @@ export interface ContractOptions {
   value?:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
-    | StaticCallFuture<string, string>;
+    | StaticCallFuture<string, string>
+    | ReadEventArgumentFuture;
   from?: string | AccountRuntimeValue;
 }
 
@@ -61,7 +62,8 @@ export interface CallOptions {
   value?:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
-    | StaticCallFuture<string, string>;
+    | StaticCallFuture<string, string>
+    | ReadEventArgumentFuture;
   from?: string | AccountRuntimeValue;
 }
 

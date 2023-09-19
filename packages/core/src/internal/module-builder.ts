@@ -11,6 +11,7 @@ import {
   isFuture,
   isModuleParameterRuntimeValue,
   isNamedStaticCallFuture,
+  isReadEventArgumentFuture,
 } from "../type-guards";
 import { Artifact } from "../types/artifact";
 import {
@@ -981,10 +982,12 @@ class IgnitionModuleBuilderImplementation<
       | bigint
       | ModuleParameterRuntimeValue<bigint>
       | StaticCallFuture<string, string>
+      | ReadEventArgumentFuture
       | any,
     func: (...[]: any[]) => any
   ) {
     if (
+      !isReadEventArgumentFuture(value) &&
       !isNamedStaticCallFuture(value) &&
       !isModuleParameterRuntimeValue(value) &&
       typeof value !== "bigint"

@@ -138,7 +138,8 @@ export interface NamedArtifactContractDeploymentFuture<
   value:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
-    | StaticCallFuture<string, string>;
+    | StaticCallFuture<string, string>
+    | ReadEventArgumentFuture;
   from: string | AccountRuntimeValue | undefined;
 }
 
@@ -160,7 +161,8 @@ export interface ContractDeploymentFuture {
   value:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
-    | StaticCallFuture<string, string>;
+    | StaticCallFuture<string, string>
+    | ReadEventArgumentFuture;
   from: string | AccountRuntimeValue | undefined;
 }
 
@@ -217,7 +219,8 @@ export interface ContractCallFuture<
   value:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
-    | StaticCallFuture<string, string>;
+    | StaticCallFuture<string, string>
+    | ReadEventArgumentFuture;
   from: string | AccountRuntimeValue | undefined;
 }
 

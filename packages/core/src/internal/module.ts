@@ -65,7 +65,8 @@ export class NamedContractDeploymentFutureImplementation<
     public readonly value:
       | bigint
       | ModuleParameterRuntimeValue<bigint>
-      | StaticCallFuture<string, string>,
+      | StaticCallFuture<string, string>
+      | ReadEventArgumentFuture,
     public readonly from: string | AccountRuntimeValue | undefined
   ) {
     super(id, FutureType.NAMED_ARTIFACT_CONTRACT_DEPLOYMENT, module);
@@ -88,7 +89,8 @@ export class ArtifactContractDeploymentFutureImplementation<
     public readonly value:
       | bigint
       | ModuleParameterRuntimeValue<bigint>
-      | StaticCallFuture<string, string>,
+      | StaticCallFuture<string, string>
+      | ReadEventArgumentFuture,
     public readonly from: string | AccountRuntimeValue | undefined
   ) {
     super(id, FutureType.CONTRACT_DEPLOYMENT, module);
@@ -146,7 +148,8 @@ export class NamedContractCallFutureImplementation<
     public readonly value:
       | bigint
       | ModuleParameterRuntimeValue<bigint>
-      | StaticCallFuture<string, string>,
+      | StaticCallFuture<string, string>
+      | ReadEventArgumentFuture,
     public readonly from: string | AccountRuntimeValue | undefined
   ) {
     super(id, FutureType.CONTRACT_CALL, module);

@@ -12,6 +12,7 @@ import {
   ContractFuture,
   Future,
   ModuleParameterRuntimeValue,
+  ReadEventArgumentFuture,
   SolidityParameterType,
   StaticCallFuture,
 } from "../../../../types/module";
@@ -37,7 +38,8 @@ export function resolveValue(
   givenValue:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
-    | StaticCallFuture<string, string>,
+    | StaticCallFuture<string, string>
+    | ReadEventArgumentFuture,
   deploymentParameters: DeploymentParameters,
   deploymentState: DeploymentState
 ): bigint {
