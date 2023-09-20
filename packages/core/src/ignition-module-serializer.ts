@@ -29,6 +29,7 @@ import {
   AccountRuntimeValue,
   AddressResolvableFuture,
   ArgumentType,
+  ContractCallFuture,
   ContractDeploymentFuture,
   ContractFuture,
   Future,
@@ -37,8 +38,8 @@ import {
   IgnitionModuleResult,
   ModuleParameterRuntimeValue,
   ModuleParameterType,
-  ContractCallFuture,
   NamedArtifactContractDeploymentFuture,
+  ReadEventArgumentFuture,
   RuntimeValueType,
   StaticCallFuture,
 } from "./types/module";
@@ -648,10 +649,9 @@ export class IgnitionModuleDeserializer {
             ])
           ),
           this._isSerializedFutureToken(serializedFuture.value)
-            ? (this._lookup(
-                futuresLookup,
-                serializedFuture.value.futureId
-              ) as StaticCallFuture<string, string>)
+            ? (this._lookup(futuresLookup, serializedFuture.value.futureId) as
+                | StaticCallFuture<string, string>
+                | ReadEventArgumentFuture)
             : this._isSerializedModuleParameterRuntimeValue(
                 serializedFuture.value
               )
@@ -679,10 +679,9 @@ export class IgnitionModuleDeserializer {
             ])
           ),
           this._isSerializedFutureToken(serializedFuture.value)
-            ? (this._lookup(
-                futuresLookup,
-                serializedFuture.value.futureId
-              ) as StaticCallFuture<string, string>)
+            ? (this._lookup(futuresLookup, serializedFuture.value.futureId) as
+                | StaticCallFuture<string, string>
+                | ReadEventArgumentFuture)
             : this._isSerializedModuleParameterRuntimeValue(
                 serializedFuture.value
               )
@@ -738,10 +737,9 @@ export class IgnitionModuleDeserializer {
             this._deserializeArgument(arg, futuresLookup)
           ),
           this._isSerializedFutureToken(serializedFuture.value)
-            ? (this._lookup(
-                futuresLookup,
-                serializedFuture.value.futureId
-              ) as StaticCallFuture<string, string>)
+            ? (this._lookup(futuresLookup, serializedFuture.value.futureId) as
+                | StaticCallFuture<string, string>
+                | ReadEventArgumentFuture)
             : this._isSerializedModuleParameterRuntimeValue(
                 serializedFuture.value
               )

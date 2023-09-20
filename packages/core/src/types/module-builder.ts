@@ -3,27 +3,27 @@ import {
   AccountRuntimeValue,
   AddressResolvableFuture,
   ArgumentType,
-  ContractAtFuture,
-  ContractDeploymentFuture,
-  LibraryDeploymentFuture,
   CallableContractFuture,
+  ContractAtFuture,
+  ContractCallFuture,
+  ContractDeploymentFuture,
   ContractFuture,
   Future,
   IgnitionModule,
   IgnitionModuleResult,
+  LibraryDeploymentFuture,
   ModuleParameterRuntimeValue,
   ModuleParameterType,
   NamedArtifactContractAtFuture,
-  ContractCallFuture,
   NamedArtifactContractDeploymentFuture,
   NamedArtifactLibraryDeploymentFuture,
-  StaticCallFuture,
   ReadEventArgumentFuture,
   SendDataFuture,
+  StaticCallFuture,
 } from "./module";
 
 /**
- * The options for a `contract` call.
+ * The options for a `contract` deployment.
  *
  * @beta
  */
