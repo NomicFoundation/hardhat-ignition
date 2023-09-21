@@ -20,9 +20,9 @@ export const FutureBlock: React.FC<{
   }, [future.id, navigate]);
 
   return (
-    <ActionBtn futureType={future.type} onClick={navigateToFuture}>
+    <FutureBtn futureType={future.type} onClick={navigateToFuture}>
       <Text>{displayText}</Text>
-    </ActionBtn>
+    </FutureBtn>
   );
 };
 
@@ -73,7 +73,7 @@ const Text = styled.p`
   margin: 0;
 `;
 
-const ActionBtn = styled.div<{ futureType: FutureType }>`
+const FutureBtn = styled.div<{ futureType: FutureType }>`
   border: 1px solid black;
   padding: 1rem;
   font-weight: bold;
