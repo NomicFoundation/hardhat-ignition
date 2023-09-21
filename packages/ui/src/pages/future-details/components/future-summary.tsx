@@ -3,7 +3,8 @@ import {
   FutureType,
   isFuture,
 } from "@nomicfoundation/ignition-core/ui-helpers";
-import { PageTitle, Panel } from "../../../components/shared";
+import { Link } from "react-router-dom";
+import { Breadcrumb, PageTitle, Panel } from "../../../components/shared";
 import { SummaryHeader } from "../../../components/summary-header";
 import { argumentTypeToString } from "../../../utils/argumentTypeToString";
 
@@ -16,6 +17,10 @@ export const FutureSummary: React.FC<{
     <div>
       <header>
         <PageTitle>{title}</PageTitle>
+
+        <Breadcrumb>
+          <Link to={"/"}>Overview</Link> / {future.id}
+        </Breadcrumb>
       </header>
 
       <Panel>
