@@ -24,7 +24,7 @@ export const VisualizationDetails: React.FC<{
         <Mermaid ignitionModule={ignitionModule} />
       </div>
 
-      <h3>Actions</h3>
+      <h3>Futures</h3>
       <Actions>
         {futures.map((future) => (
           <Action key={future.id} future={future} />
