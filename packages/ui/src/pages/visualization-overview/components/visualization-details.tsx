@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import styled from "styled-components";
 import { Mermaid } from "../../../components/mermaid";
 import { getAllFuturesForModule } from "../../../queries/futures";
-import { Action } from "./action";
+import { FutureBlock } from "./future-block";
 
 export const VisualizationDetails: React.FC<{
   ignitionModule: IgnitionModule<string, string, IgnitionModuleResult<string>>;
@@ -27,7 +27,7 @@ export const VisualizationDetails: React.FC<{
       <h3>Futures</h3>
       <Actions>
         {futures.map((future) => (
-          <Action key={future.id} future={future} />
+          <FutureBlock key={future.id} future={future} />
         ))}
       </Actions>
     </div>
