@@ -1,8 +1,10 @@
 import {
+  Future,
   IgnitionModule,
   IgnitionModuleResult,
 } from "@nomicfoundation/ignition-core/ui-helpers";
 import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { SummaryHeader } from "../../../components/summary-header";
 import {
@@ -27,9 +29,8 @@ export const VisualizationSummary: React.FC<{
       <SummaryHeader />
 
       <p>
-        The successful completion of the deployment will send{" "}
-        {deployFutures.length + callFutures.length}
-        transactions:
+        The successful completion of the deployment will apply{" "}
+        {deployFutures.length + callFutures.length} updates on-chain:
       </p>
 
       <SummaryColumns>
@@ -39,7 +40,9 @@ export const VisualizationSummary: React.FC<{
             <ul>
               {deployFutures.map((deploy) => (
                 <li key={deploy.id}>
-                  {deploy.contractName} ({deploy.module.id})
+                  <Link to={toFutureDetailsUrl(deploy)}>
+                    <strong>{deploy.id}</strong>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -51,7 +54,11 @@ export const VisualizationSummary: React.FC<{
             <h4>{callFutures.length} calls</h4>
             <ul>
               {callFutures.map((call) => (
-                <li key={call.id}>{call.id}</li>
+                <li key={call.id}>
+                  <Link to={toFutureDetailsUrl(call)}>
+                    <strong>{call.id}</strong>
+                  </Link>
+                </li>
               ))}
             </ul>
           </SummaryColumn>
@@ -61,17 +68,17 @@ export const VisualizationSummary: React.FC<{
   );
 };
 
+function toFutureDetailsUrl(future: Future): string {
+  return `/future/${encodeURIComponent(future.id)}`;
+}
+
 const SummaryColumns = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 `;
 
 const SummaryColumn = styled.div`
   h4 {
     text-decoration: underline;
-  }
-
-  ul {
-    list-style-type: none;
   }
 `;
