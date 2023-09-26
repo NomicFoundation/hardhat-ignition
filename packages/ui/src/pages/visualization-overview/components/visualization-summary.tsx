@@ -1,10 +1,8 @@
 import {
-  Future,
   IgnitionModule,
   IgnitionModuleResult,
 } from "@nomicfoundation/ignition-core/ui-helpers";
 import React, { useMemo } from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { SummaryHeader } from "../../../components/summary-header";
 import {
@@ -40,9 +38,7 @@ export const VisualizationSummary: React.FC<{
             <ul>
               {deployFutures.map((deploy) => (
                 <li key={deploy.id}>
-                  <Link to={toFutureDetailsUrl(deploy)}>
-                    <strong>{deploy.id}</strong>
-                  </Link>
+                  <strong>{deploy.id}</strong>
                 </li>
               ))}
             </ul>
@@ -55,9 +51,7 @@ export const VisualizationSummary: React.FC<{
             <ul>
               {callFutures.map((call) => (
                 <li key={call.id}>
-                  <Link to={toFutureDetailsUrl(call)}>
-                    <strong>{call.id}</strong>
-                  </Link>
+                  <strong>{call.id}</strong>
                 </li>
               ))}
             </ul>
@@ -67,10 +61,6 @@ export const VisualizationSummary: React.FC<{
     </div>
   );
 };
-
-function toFutureDetailsUrl(future: Future): string {
-  return `/future/${encodeURIComponent(future.id)}`;
-}
 
 const SummaryColumns = styled.div`
   display: grid;

@@ -1,27 +1,39 @@
 import {
+  ArgumentType,
   Future,
   FutureType,
   isFuture,
 } from "@nomicfoundation/ignition-core/ui-helpers";
-import React, { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import styled, { css } from "styled-components";
 import { argumentTypeToString } from "../../../utils/argumentTypeToString";
 
 export const FutureBlock: React.FC<{
   future: Future;
-}> = ({ future }) => {
-  const navigate = useNavigate();
+  toggleState: Record<string, boolean>;
+  setToggled: (id: string) => void;
+}> = ({ future, toggleState, setToggled }) => {
+  const futureId = future.id;
+  const toggled = toggleState[futureId];
 
   const displayText = toDisplayText(future);
 
-  const navigateToFuture = useCallback(() => {
-    return navigate(`/future/${encodeURIComponent(future.id)}`);
-  }, [future.id, navigate]);
+  const fontWeight = toggled ? "normal" : "bold";
+
+  const isLibrary =
+    future.type === FutureType.LIBRARY_DEPLOYMENT ||
+    future.type === FutureType.NAMED_ARTIFACT_LIBRARY_DEPLOYMENT;
 
   return (
-    <FutureBtn futureType={future.type} onClick={navigateToFuture}>
+    <FutureBtn futureType={future.type}>
+      {!isLibrary && (
+        <ToggleBtn setToggled={() => setToggled(futureId)} toggled={toggled} />
+      )}
       <Text>{displayText}</Text>
+      <Text style={{ float: "right", fontWeight }}>[{future.module.id}]</Text>
+      {toggled && (
+        <FutureDetailsSection future={future} setToggled={setToggled} />
+      )}
     </FutureBtn>
   );
 };
@@ -69,19 +81,15 @@ function toDisplayText(future: Future): string {
   }
 }
 
-const Text = styled.p`
+const Text = styled.div`
   margin: 0;
+  display: inline;
 `;
 
 const FutureBtn = styled.div<{ futureType: FutureType }>`
   border: 1px solid black;
   padding: 1rem;
-  font-weight: bold;
-
-  &:hover {
-    background: blue;
-    cursor: pointer;
-  }
+  font-weight: normal;
 
   ${(props) =>
     [
@@ -104,3 +112,121 @@ const FutureBtn = styled.div<{ futureType: FutureType }>`
       color: black;
     `}
 `;
+
+const ToggleBtn: React.FC<{
+  toggled: boolean;
+  setToggled: () => void;
+}> = ({ toggled, setToggled }) => {
+  return (
+    <Text
+      onClick={setToggled}
+      style={{ fontSize: "1.5rem", cursor: "pointer" }}
+    >
+      {toggled ? "- " : "+ "}
+    </Text>
+  );
+};
+
+const FutureDetailsSection: React.FC<{
+  future: Future;
+  setToggled: (id: string) => void;
+}> = ({ future, setToggled }) => {
+  switch (future.type) {
+    case FutureType.NAMED_ARTIFACT_CONTRACT_DEPLOYMENT:
+    case FutureType.CONTRACT_DEPLOYMENT:
+      return (
+        <div>
+          <p>Constructor Arguments</p>
+          <ul>
+            {Object.entries(future.constructorArgs).map(([, arg]) => (
+              <Argument setToggled={setToggled} arg={arg} />
+            ))}
+          </ul>
+        </div>
+      );
+    case FutureType.NAMED_ARTIFACT_LIBRARY_DEPLOYMENT:
+    case FutureType.LIBRARY_DEPLOYMENT:
+      return null;
+    case FutureType.CONTRACT_CALL:
+      return (
+        <div>
+          <p>Arguments</p>
+          <ul>
+            {Object.entries(future.args).map(([, arg]) => (
+              <Argument setToggled={setToggled} arg={arg} />
+            ))}
+          </ul>
+        </div>
+      );
+    case FutureType.STATIC_CALL:
+      return (
+        <div>
+          <p>Arguments</p>
+          <ul>
+            {Object.entries(future.args).map(([, arg]) => (
+              <Argument setToggled={setToggled} arg={arg} />
+            ))}
+          </ul>
+        </div>
+      );
+    case FutureType.NAMED_ARTIFACT_CONTRACT_AT:
+    case FutureType.CONTRACT_AT:
+      return (
+        <div>
+          <p>Contract - {future.contractName}</p>
+          <p>
+            Address -{" "}
+            {typeof future.address === "string" ? (
+              future.address
+            ) : (
+              <Argument setToggled={setToggled} arg={future.address} />
+            )}
+          </p>
+        </div>
+      );
+    case FutureType.READ_EVENT_ARGUMENT:
+      return (
+        <div>
+          <p>Emitter - {future.emitter.id}</p>
+          <p>Event - {future.eventName}</p>
+          <p>Event index - {future.eventIndex}</p>
+          <p>Argument - {future.nameOrIndex}</p>
+        </div>
+      );
+    case FutureType.SEND_DATA:
+      return (
+        <div>
+          <p>
+            To -{" "}
+            {typeof future.to === "string" ? (
+              future.to
+            ) : (
+              <Argument setToggled={setToggled} arg={future.to} />
+            )}
+          </p>
+          <p>Data - {future.data}</p>
+        </div>
+      );
+  }
+};
+
+const Argument: React.FC<{
+  setToggled: (id: string) => void;
+  arg: ArgumentType;
+}> = ({ setToggled, arg }) => {
+  if (isFuture(arg)) {
+    return (
+      <li
+        style={{
+          textDecoration: "underline",
+          color: "blue",
+          cursor: "pointer",
+        }}
+        onClick={() => setToggled(arg.id)}
+      >
+        {argumentTypeToString(arg)}
+      </li>
+    );
+  }
+  return <li>{argumentTypeToString(arg)}</li>;
+};
