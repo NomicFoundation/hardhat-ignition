@@ -8,6 +8,7 @@ import { Mermaid } from "../../../components/mermaid";
 
 export const DeploymentFlow: React.FC<{
   ignitionModule: IgnitionModule<string, string, IgnitionModuleResult<string>>;
+  batches: string[][];
 }> = ({ ignitionModule }) => {
   return (
     <div>
