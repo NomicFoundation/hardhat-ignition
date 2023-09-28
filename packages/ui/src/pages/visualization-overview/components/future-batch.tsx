@@ -9,7 +9,49 @@ import React from "react";
 import styled from "styled-components";
 import { argumentTypeToString } from "../../../utils/argumentTypeToString";
 
-export const FutureBlock: React.FC<{
+export const FutureBatch: React.FC<{
+  batch: Future[];
+  index: number;
+  toggleState: Record<string, boolean>;
+  setToggled: (id: string) => void;
+}> = ({ batch, index, toggleState, setToggled }) => {
+  return (
+    <Batch>
+      <BatchHeader>
+        Batch <strong>#{index}</strong>
+      </BatchHeader>
+      {batch.map((future, i) => (
+        <FutureBlock
+          key={`batch-${index}-future-${i}`}
+          future={future}
+          toggleState={toggleState}
+          setToggled={setToggled}
+        />
+      ))}
+    </Batch>
+  );
+};
+
+const Batch = styled.div`
+  background: #f2efef;
+  padding: 0.5rem;
+`;
+
+const BatchHeader = styled.div`
+  margin: 0.5rem;
+`;
+
+const FutureBtn = styled.div`
+  padding: 0.5rem;
+  margin: 0.5rem;
+`;
+
+const Text = styled.div`
+  margin: 0;
+  display: inline;
+`;
+
+const FutureBlock: React.FC<{
   future: Future;
   toggleState: Record<string, boolean>;
   setToggled: (id: string) => void;
@@ -82,15 +124,6 @@ function toDisplayText(future: Future): string {
       }`;
   }
 }
-
-const Text = styled.div`
-  margin: 0;
-  display: inline;
-`;
-
-const FutureBtn = styled.div`
-  padding: 0.5rem;
-`;
 
 const ToggleBtn: React.FC<{
   toggled: boolean;
