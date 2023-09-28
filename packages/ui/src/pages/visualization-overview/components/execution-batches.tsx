@@ -37,6 +37,8 @@ export const ExecutionBatches: React.FC<{
     setToggledInternal(newState);
   };
 
+  const [currentlyHovered, setCurrentlyHovered] = useState("");
+
   const futureBatches = batches.reduce((acc, batch) => {
     const fullBatch = batch.map((id) => futures.find((f) => f.id === id));
 
@@ -56,7 +58,7 @@ export const ExecutionBatches: React.FC<{
 
       <RootModuleBackground>
         <RootModuleName>[{ignitionModule.id}]</RootModuleName>
-        <Actions>
+        <Actions currentlyHovered={currentlyHovered}>
           {futureBatches.map((batch, i) => (
             <FutureBatch
               key={`batch-${i}`}
@@ -64,6 +66,7 @@ export const ExecutionBatches: React.FC<{
               index={i + 1}
               toggleState={toggleState}
               setToggled={setToggled}
+              setCurrentlyHovered={setCurrentlyHovered}
             />
           ))}
         </Actions>
@@ -113,7 +116,15 @@ const SectionSubHeader = styled.div`
   margin-top: 1rem;
 `;
 
-const Actions = styled.div`
+const Actions = styled.div<{ currentlyHovered: string }>`
   display: grid;
   row-gap: 0.5rem;
+
+  ${({ currentlyHovered }) =>
+    currentlyHovered &&
+    `
+    .${currentlyHovered} {
+      font-weight: 700;
+    }
+  `}
 `;
