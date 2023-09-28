@@ -116,7 +116,7 @@ function toLabel(f: Future): string {
   }
 }
 
-function toEscapedId(id: string): string {
+export function toEscapedId(id: string): string {
   return id
     .replace("(", "_")
     .replace(")", "_")
