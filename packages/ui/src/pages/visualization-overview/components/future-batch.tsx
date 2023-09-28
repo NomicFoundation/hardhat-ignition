@@ -14,7 +14,8 @@ export const FutureBatch: React.FC<{
   index: number;
   toggleState: Record<string, boolean>;
   setToggled: (id: string) => void;
-}> = ({ batch, index, toggleState, setToggled }) => {
+  setCurrentlyHovered: (id: string) => void;
+}> = ({ batch, index, toggleState, setToggled, setCurrentlyHovered }) => {
   return (
     <Batch>
       <BatchHeader>
@@ -26,6 +27,7 @@ export const FutureBatch: React.FC<{
           future={future}
           toggleState={toggleState}
           setToggled={setToggled}
+          setCurrentlyHovered={setCurrentlyHovered}
         />
       ))}
     </Batch>
@@ -55,7 +57,8 @@ const FutureBlock: React.FC<{
   future: Future;
   toggleState: Record<string, boolean>;
   setToggled: (id: string) => void;
-}> = ({ future, toggleState, setToggled }) => {
+  setCurrentlyHovered: (id: string) => void;
+}> = ({ future, toggleState, setToggled, setCurrentlyHovered }) => {
   const futureId = future.id;
   const toggled = toggleState[futureId];
 
@@ -75,7 +78,14 @@ const FutureBlock: React.FC<{
         <ToggleBtn setToggled={() => setToggled(futureId)} toggled={toggled} />
       )}
       <Text>{displayText}</Text>
-      <Text style={{ float: "right" }}>[{future.module.id}]</Text>
+      <Text
+        className={future.module.id}
+        style={{ float: "right" }}
+        onMouseEnter={() => setCurrentlyHovered(future.module.id)}
+        onMouseLeave={() => setCurrentlyHovered("")}
+      >
+        [{future.module.id}]
+      </Text>
       {toggled && (
         <FutureDetailsSection future={future} setToggled={setToggled} />
       )}
