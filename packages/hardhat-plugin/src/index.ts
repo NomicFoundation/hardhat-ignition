@@ -1,11 +1,12 @@
 import "@nomicfoundation/hardhat-ethers";
 import {
-  deploy,
   DeploymentParameters,
   IgnitionModuleSerializer,
+  batches,
+  deploy,
   wipe,
 } from "@nomicfoundation/ignition-core";
-import { existsSync, readdirSync, readJSONSync } from "fs-extra";
+import { existsSync, readJSONSync, readdirSync } from "fs-extra";
 import { extendConfig, extendEnvironment, task } from "hardhat/config";
 import { lazyObject } from "hardhat/plugins";
 import path from "path";
@@ -189,8 +190,10 @@ task("visualize")
       const serializedIgnitionModule =
         IgnitionModuleSerializer.serialize(userModule);
 
+      const batchInfo = batches(userModule);
+
       await writeVisualization(
-        { module: serializedIgnitionModule },
+        { module: serializedIgnitionModule, batches: batchInfo },
         {
           cacheDir: hre.config.paths.cache,
         }
