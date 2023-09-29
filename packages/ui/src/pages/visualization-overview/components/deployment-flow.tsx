@@ -2,11 +2,11 @@ import {
   IgnitionModule,
   IgnitionModuleResult,
 } from "@nomicfoundation/ignition-core/ui-helpers";
+import { useState } from "react";
 import { Tooltip } from "react-tooltip";
 import styled, { css } from "styled-components";
 import { Mermaid } from "../../../components/mermaid";
-import { toEscapedId } from "../../../utils/to-mermaid";
-import { useState } from "react";
+import { toEscapedId } from "../../../utils/to-escaped-id";
 
 export const DeploymentFlow: React.FC<{
   ignitionModule: IgnitionModule<string, string, IgnitionModuleResult<string>>;
