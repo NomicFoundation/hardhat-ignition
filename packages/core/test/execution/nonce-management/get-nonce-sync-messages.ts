@@ -10,6 +10,8 @@ import {
   ExecutionSateType,
   ExecutionStatus,
 } from "../../../src/internal/execution/types/execution-state";
+import { JournalMessageType } from "../../../src/internal/execution/types/messages";
+import { NetworkInteractionType } from "../../../src/internal/execution/types/network-interaction";
 import { exampleAccounts } from "../../helpers";
 
 describe("execution - getNonceSyncMessages", () => {
@@ -105,7 +107,182 @@ describe("execution - getNonceSyncMessages", () => {
   });
 
   describe("second deployment run", () => {
-    it("should ignore futures that have already been started", async () => {
+    it("should indicate the user replaced the transaction if the transaction's nonce is less than the latest", async () => {
+      const transactionCount = latestBlock + requiredConfirmations;
+      const latest = transactionCount;
+
+      // Setup an account that will fail if checked
+      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
+        [exampleAccounts[1]]: {
+          pending: transactionCount,
+          latest,
+          number: () => transactionCount,
+        },
+      });
+
+      const ignitionModule = buildModule("Example", (m) => {
+        m.contract("MyContract", [], { from: exampleAccounts[1] });
+
+        return {};
+      });
+
+      const result = await getNonceSyncMessages(
+        mockJsonRpcClient,
+        {
+          ...deploymentState,
+          executionStates: {
+            "Example#MyContract": {
+              ...exampleDeploymentState,
+              id: "Example#MyContract",
+              status: ExecutionStatus.STARTED,
+              from: exampleAccounts[1],
+              networkInteractions: [
+                {
+                  id: 1,
+                  type: NetworkInteractionType.ONCHAIN_INTERACTION,
+                  to: undefined,
+                  data: "0x",
+                  value: BigInt(0),
+                  transactions: [],
+                  shouldBeResent: false,
+                  nonce: latest - 1, // the nonce is behind the latest nonce for the account
+                },
+              ],
+            },
+          },
+        },
+        ignitionModule,
+        exampleAccounts,
+        exampleAccounts[2],
+        requiredConfirmations
+      );
+
+      assert.deepStrictEqual(result, [
+        {
+          futureId: "Example#MyContract",
+          networkInteractionId: 1,
+          type: JournalMessageType.ONCHAIN_INTERACTION_REPLACED_BY_USER,
+        },
+      ]);
+    });
+
+    it("should error if the user has sent a non-ignition pending transaction that has not confirmed on the account", async () => {
+      const transactionCount = latestBlock + requiredConfirmations;
+      const latest = transactionCount;
+      const pending = latest + 1; //
+
+      // Setup an account that will fail if checked
+      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
+        [exampleAccounts[1]]: {
+          pending,
+          latest,
+          number: () => transactionCount,
+        },
+      });
+
+      const ignitionModule = buildModule("Example", (m) => {
+        m.contract("MyContract", [], { from: exampleAccounts[1] });
+
+        return {};
+      });
+
+      await assert.isRejected(
+        getNonceSyncMessages(
+          mockJsonRpcClient,
+          {
+            ...deploymentState,
+            executionStates: {
+              "Example#MyContract": {
+                ...exampleDeploymentState,
+                id: "Example#MyContract",
+                status: ExecutionStatus.STARTED,
+                from: exampleAccounts[1],
+                networkInteractions: [
+                  {
+                    id: 1,
+                    type: NetworkInteractionType.ONCHAIN_INTERACTION,
+                    to: undefined,
+                    data: "0x",
+                    value: BigInt(0),
+                    transactions: [],
+                    shouldBeResent: false,
+                    nonce: latest, // the nonce is the latest
+                  },
+                ],
+              },
+            },
+          },
+          ignitionModule,
+          exampleAccounts,
+          exampleAccounts[2],
+          requiredConfirmations
+        ),
+        `IGN404: You have sent transactions from ${exampleAccounts[1]} with nonce 15. Please wait until they get 5 confirmations before running Ignition again.`
+      );
+    });
+
+    it("should indicate the transaction was dropped if the nonce is higher than the latest", async () => {
+      const transactionCount = latestBlock + requiredConfirmations;
+      const latest = transactionCount;
+
+      // Setup an account that will fail if checked
+      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
+        [exampleAccounts[1]]: {
+          pending: latest,
+          latest,
+          number: () => latest,
+        },
+      });
+
+      const ignitionModule = buildModule("Example", (m) => {
+        m.contract("MyContract", [], { from: exampleAccounts[1] });
+
+        return {};
+      });
+
+      const result = await getNonceSyncMessages(
+        mockJsonRpcClient,
+        {
+          ...deploymentState,
+          executionStates: {
+            "Example#MyContract": {
+              ...exampleDeploymentState,
+              id: "Example#MyContract",
+              status: ExecutionStatus.STARTED,
+              from: exampleAccounts[1],
+              networkInteractions: [
+                {
+                  id: 1,
+                  type: NetworkInteractionType.ONCHAIN_INTERACTION,
+                  to: undefined,
+                  data: "0x",
+                  value: BigInt(0),
+                  transactions: [],
+                  shouldBeResent: false,
+                  // the nonce is ahead of latest,
+                  // so must have been dropped
+                  nonce: latest + 1,
+                },
+              ],
+            },
+          },
+        },
+        ignitionModule,
+        exampleAccounts,
+        exampleAccounts[2],
+        requiredConfirmations
+      );
+
+      assert.deepStrictEqual(result, [
+        {
+          futureId: "Example#MyContract",
+          networkInteractionId: 1,
+          type: JournalMessageType.ONCHAIN_INTERACTION_DROPPED,
+        },
+      ]);
+    });
+
+    it("should ignore futures that have already been completed", async () => {
       const transactionCount = latestBlock + requiredConfirmations;
 
       // Setup an account that will fail if checked
