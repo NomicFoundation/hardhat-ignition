@@ -1,16 +1,14 @@
-import { IgnitionError } from "../../errors";
-import { ERRORS } from "../../errors-list";
-import { getPendingNonceAndSender } from "../views/execution-state/get-pending-nonce-and-sender";
-import { getPendingOnchainInteraction } from "../views/execution-state/get-pending-onchain-interaction";
-
-import { JsonRpcClient } from "./jsonrpc-client";
-import { DeploymentState } from "./types/deployment-state";
-import { ExecutionSateType } from "./types/execution-state";
+import { IgnitionError } from "../../../errors";
+import { ERRORS } from "../../../errors-list";
+import { getPendingOnchainInteraction } from "../../views/execution-state/get-pending-onchain-interaction";
+import { JsonRpcClient } from "../jsonrpc-client";
+import { DeploymentState } from "../types/deployment-state";
+import { ExecutionSateType } from "../types/execution-state";
 import {
   JournalMessageType,
   OnchainInteractionDroppedMessage,
   OnchainInteractionReplacedByUserMessage,
-} from "./types/messages";
+} from "../types/messages";
 
 /**
  * This function is meant to be used to sync the local state's nonces
@@ -143,82 +141,6 @@ export async function getNonceSyncMessages(
   }
 
   return messages;
-}
-
-/**
- * This interface is meant to be used to fetch new nonces for transactions.
- */
-export interface NonceManager {
-  /**
-   * Returns the next nonce for a given sender, throwing if its not the one
-   * expected by the network.
-   *
-   * If a nonce is returned by this method it must be immediately used to
-   * send a transaction. If it can't be used, Ignition's execution must be
-   * interrupted.
-   */
-  getNextNonce(sender: string): Promise<number>;
-}
-
-/**
- * An implementation of NonceManager that validates the nonces using
- * the _maxUsedNonce params and a JsonRpcClient.
- */
-export class JsonRpcNonceManager implements NonceManager {
-  constructor(
-    private readonly _jsonRpcClient: JsonRpcClient,
-    private readonly _maxUsedNonce: { [sender: string]: number }
-  ) {}
-
-  public async getNextNonce(sender: string): Promise<number> {
-    const pendingCount = await this._jsonRpcClient.getTransactionCount(
-      sender,
-      "pending"
-    );
-
-    const expectedNonce =
-      this._maxUsedNonce[sender] !== undefined
-        ? this._maxUsedNonce[sender] + 1
-        : pendingCount;
-
-    if (expectedNonce !== pendingCount) {
-      throw new IgnitionError(ERRORS.EXECUTION.INVALID_NONCE, {
-        sender,
-        expectedNonce,
-        pendingCount,
-      });
-    }
-
-    // The nonce hasn't been used yet, but we update as it will be immediately used.
-    this._maxUsedNonce[expectedNonce] = expectedNonce;
-
-    return expectedNonce;
-  }
-}
-
-export function getMaxNonceUsedBySender(deploymentState: DeploymentState): {
-  [sender: string]: number;
-} {
-  const nonces: {
-    [sender: string]: number;
-  } = {};
-  for (const executionState of Object.values(deploymentState.executionStates)) {
-    const pendingNonceAndSender = getPendingNonceAndSender(executionState);
-
-    if (pendingNonceAndSender === undefined) {
-      continue;
-    }
-
-    const { sender, nonce } = pendingNonceAndSender;
-
-    if (nonces[sender] === undefined) {
-      nonces[sender] = nonce;
-    } else {
-      nonces[sender] = Math.max(nonces[sender], nonce);
-    }
-  }
-
-  return nonces;
 }
 
 function createMapFromSenderToNonceAndTransactions(

@@ -20,11 +20,9 @@ import { isBatchFinished } from "../views/is-batch-finished";
 import { applyNewMessage } from "./deployment-state-helpers";
 import { FutureProcessor } from "./future-processor/future-processor";
 import { Block, JsonRpcClient } from "./jsonrpc-client";
-import {
-  JsonRpcNonceManager,
-  getMaxNonceUsedBySender,
-  getNonceSyncMessages,
-} from "./nonce-management";
+import { getMaxNonceUsedBySender } from "./nonce-management/get-max-nonce-used-by-sender";
+import { getNonceSyncMessages } from "./nonce-management/get-nonce-sync-messages";
+import { JsonRpcNonceManager } from "./nonce-management/json-rpc-nonce-manager";
 import { TransactionTrackingTimer } from "./transaction-tracking-timer";
 import { DeploymentState } from "./types/deployment-state";
 import { ExecutionStrategy } from "./types/execution-strategy";
