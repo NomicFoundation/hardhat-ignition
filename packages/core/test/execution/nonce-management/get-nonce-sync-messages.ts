@@ -1,6 +1,11 @@
 import { assert } from "chai";
 
-import { FutureType, buildModule } from "../../../src";
+import {
+  FutureType,
+  IgnitionModule,
+  IgnitionModuleResult,
+  buildModule,
+} from "../../../src";
 import { JsonRpcClient } from "../../../src/internal/execution/jsonrpc-client";
 import { getNonceSyncMessages } from "../../../src/internal/execution/nonce-management/get-nonce-sync-messages";
 import { deploymentStateReducer } from "../../../src/internal/execution/reducers/deployment-state-reducer";
@@ -10,14 +15,23 @@ import {
   ExecutionSateType,
   ExecutionStatus,
 } from "../../../src/internal/execution/types/execution-state";
-import { JournalMessageType } from "../../../src/internal/execution/types/messages";
+import {
+  JournalMessageType,
+  OnchainInteractionDroppedMessage,
+  OnchainInteractionReplacedByUserMessage,
+} from "../../../src/internal/execution/types/messages";
 import { NetworkInteractionType } from "../../../src/internal/execution/types/network-interaction";
 import { exampleAccounts } from "../../helpers";
 
+const requiredConfirmations = 5;
+const latestBlock = 10;
+
 describe("execution - getNonceSyncMessages", () => {
-  const requiredConfirmations = 5;
-  const latestBlock = 10;
-  let deploymentState: DeploymentState;
+  let exampleModule: IgnitionModule<
+    string,
+    string,
+    IgnitionModuleResult<string>
+  >;
 
   const exampleDeploymentState: DeploymentExecutionState = {
     id: "Example",
@@ -36,25 +50,28 @@ describe("execution - getNonceSyncMessages", () => {
   };
 
   beforeEach(() => {
-    deploymentState = deploymentStateReducer();
+    exampleModule = buildModule("Example", (m) => {
+      m.contract("MyContract", [], { from: exampleAccounts[1] });
+
+      return {};
+    });
   });
 
   describe("first deployment run", () => {
     it("should allow if there are no pending transactions for all of the future's senders", async () => {
-      const transactionCount = latestBlock + requiredConfirmations;
+      // Set latest block to an arbitrary nonce
+      const latestCount1 = 55;
+      // The safest is the same as latest, as it is not relevant to this test
+      const safestCount1 = latestCount1;
+      // There are no pending transactions
+      const pendingCount1 = latestCount1;
 
-      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
-        [exampleAccounts[1]]: {
-          pending: transactionCount,
-          latest: transactionCount,
-          number: () => transactionCount,
-        },
-        [exampleAccounts[2]]: {
-          pending: transactionCount,
-          latest: transactionCount,
-          number: () => transactionCount,
-        },
-      });
+      // Set latest block to an arbitrary nonce
+      const latestCount2 = 12;
+      // The safest is the same as latest, as it is not relevant to this test
+      const safestCount2 = latestCount2;
+      // There are no pending transactions
+      const pendingCount2 = latestCount2;
 
       const ignitionModule = buildModule("Example", (m) => {
         m.contract("MyContract", [], { from: exampleAccounts[1] });
@@ -63,44 +80,42 @@ describe("execution - getNonceSyncMessages", () => {
         return {};
       });
 
-      const result = await getNonceSyncMessages(
-        mockJsonRpcClient,
-        deploymentState,
+      await assertSuccessOnGetNonceSyncResult({
         ignitionModule,
-        exampleAccounts,
-        exampleAccounts[2],
-        requiredConfirmations
-      );
-
-      assert.deepStrictEqual(result, []);
+        transactionCountEntries: {
+          [exampleAccounts[1]]: {
+            pending: pendingCount1,
+            latest: latestCount1,
+            number: () => safestCount1,
+          },
+          [exampleAccounts[2]]: {
+            pending: pendingCount2,
+            latest: latestCount2,
+            number: () => safestCount2,
+          },
+        },
+      });
     });
 
     it("should throw if there are pending transactions for a future's sender", async () => {
-      const transactionCount = latestBlock + requiredConfirmations;
+      // Set the latest block to be an arbitrary nonce
+      const latestCount = 30;
+      // Safest is the same as latest as it is not relevant in this test
+      const safestCount = latestCount;
+      // There are pending transactions
+      const pendingCount = latestCount + 1;
 
-      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
-        [exampleAccounts[1]]: {
-          pending: transactionCount + 1,
-          latest: transactionCount,
-          number: () => transactionCount,
+      await assertGetNonceSyncThrows(
+        {
+          ignitionModule: exampleModule,
+          transactionCountEntries: {
+            [exampleAccounts[1]]: {
+              pending: pendingCount,
+              latest: latestCount,
+              number: () => safestCount,
+            },
+          },
         },
-      });
-
-      const ignitionModule = buildModule("Example", (m) => {
-        m.contract("MyContract", [], { from: exampleAccounts[1] });
-
-        return {};
-      });
-
-      await assert.isRejected(
-        getNonceSyncMessages(
-          mockJsonRpcClient,
-          deploymentState,
-          ignitionModule,
-          exampleAccounts,
-          exampleAccounts[2],
-          requiredConfirmations
-        ),
         `IGN403: You have sent transactions from ${exampleAccounts[1]}. Please wait until they get 5 confirmations before running Ignition again.`
       );
     });
@@ -108,202 +123,110 @@ describe("execution - getNonceSyncMessages", () => {
 
   describe("second deployment run", () => {
     it("should indicate the user replaced the transaction if the transaction's nonce is less than the latest", async () => {
-      const transactionCount = latestBlock + requiredConfirmations;
-      const latest = transactionCount;
+      // Set latest to be an arbitrary nonce
+      const latestCount = 30;
+      // Set safest to be the same as latest, it is not relevant
+      const safestCount = latestCount;
+      // There are no pending transactions
+      const pendingCount = latestCount;
+      // Set the nonce to be less than latest, indicating it was replaced
+      const nonce = latestCount - 2;
 
-      // Setup an account that will fail if checked
-      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
-        [exampleAccounts[1]]: {
-          pending: transactionCount,
-          latest,
-          number: () => transactionCount,
-        },
-      });
-
-      const ignitionModule = buildModule("Example", (m) => {
-        m.contract("MyContract", [], { from: exampleAccounts[1] });
-
-        return {};
-      });
-
-      const result = await getNonceSyncMessages(
-        mockJsonRpcClient,
+      await assertGetNonceSyncResult(
         {
-          ...deploymentState,
-          executionStates: {
-            "Example#MyContract": {
-              ...exampleDeploymentState,
-              id: "Example#MyContract",
-              status: ExecutionStatus.STARTED,
-              from: exampleAccounts[1],
-              networkInteractions: [
-                {
-                  id: 1,
-                  type: NetworkInteractionType.ONCHAIN_INTERACTION,
-                  to: undefined,
-                  data: "0x",
-                  value: BigInt(0),
-                  transactions: [],
-                  shouldBeResent: false,
-                  nonce: latest - 1, // the nonce is behind the latest nonce for the account
-                },
-              ],
+          ignitionModule: exampleModule,
+          deploymentState:
+            setupDeploymentStateBasedOnExampleModuleWithOneTranWith(nonce),
+          transactionCountEntries: {
+            [exampleAccounts[1]]: {
+              pending: pendingCount,
+              latest: latestCount,
+              number: () => safestCount,
             },
           },
         },
-        ignitionModule,
-        exampleAccounts,
-        exampleAccounts[2],
-        requiredConfirmations
+        [
+          {
+            futureId: "Example#MyContract",
+            networkInteractionId: 1,
+            type: JournalMessageType.ONCHAIN_INTERACTION_REPLACED_BY_USER,
+          },
+        ]
       );
-
-      assert.deepStrictEqual(result, [
-        {
-          futureId: "Example#MyContract",
-          networkInteractionId: 1,
-          type: JournalMessageType.ONCHAIN_INTERACTION_REPLACED_BY_USER,
-        },
-      ]);
     });
 
     it("should error if the user has sent a non-ignition pending transaction that has not confirmed on the account", async () => {
-      const transactionCount = latestBlock + requiredConfirmations;
-      const latest = transactionCount;
-      const pending = latest + 1; //
+      // Set latest to an arbitary nonce
+      const latestCount = 30;
+      // Safe is the same as latest
+      const safestCount = latestCount;
+      // Set the nonce to be larger than latest
+      const nonce = latestCount + 1;
+      // Set pending larger than the nonce
+      const pendingCount = nonce + 1;
 
-      // Setup an account that will fail if checked
-      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
-        [exampleAccounts[1]]: {
-          pending,
-          latest,
-          number: () => transactionCount,
-        },
-      });
-
-      const ignitionModule = buildModule("Example", (m) => {
-        m.contract("MyContract", [], { from: exampleAccounts[1] });
-
-        return {};
-      });
-
-      await assert.isRejected(
-        getNonceSyncMessages(
-          mockJsonRpcClient,
-          {
-            ...deploymentState,
-            executionStates: {
-              "Example#MyContract": {
-                ...exampleDeploymentState,
-                id: "Example#MyContract",
-                status: ExecutionStatus.STARTED,
-                from: exampleAccounts[1],
-                networkInteractions: [
-                  {
-                    id: 1,
-                    type: NetworkInteractionType.ONCHAIN_INTERACTION,
-                    to: undefined,
-                    data: "0x",
-                    value: BigInt(0),
-                    transactions: [],
-                    shouldBeResent: false,
-                    nonce: latest, // the nonce is the latest
-                  },
-                ],
-              },
+      await assertGetNonceSyncThrows(
+        {
+          ignitionModule: exampleModule,
+          deploymentState:
+            setupDeploymentStateBasedOnExampleModuleWithOneTranWith(nonce),
+          transactionCountEntries: {
+            [exampleAccounts[1]]: {
+              pending: pendingCount,
+              latest: latestCount,
+              number: () => safestCount,
             },
           },
-          ignitionModule,
-          exampleAccounts,
-          exampleAccounts[2],
-          requiredConfirmations
-        ),
-        `IGN404: You have sent transactions from ${exampleAccounts[1]} with nonce 15. Please wait until they get 5 confirmations before running Ignition again.`
+        },
+        `IGN404: You have sent transactions from ${exampleAccounts[1]} with nonce 31. Please wait until they get 5 confirmations before running Ignition again.`
       );
     });
 
     it("should indicate the transaction was dropped if the nonce is higher than the latest", async () => {
-      const transactionCount = latestBlock + requiredConfirmations;
-      const latest = transactionCount;
+      // Set an arbitary latest
+      const latestCount = 30;
+      // The safest is exactly the same as latest
+      const safestCount = 40;
+      // Pending isn't relevant so is set to latest
+      const pendingCount = latestCount;
+      // Set the nonce higher than latest, indicating it was dropped
+      const nonce = latestCount + 1;
 
-      // Setup an account that will fail if checked
-      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
-        [exampleAccounts[1]]: {
-          pending: latest,
-          latest,
-          number: () => latest,
-        },
-      });
-
-      const ignitionModule = buildModule("Example", (m) => {
-        m.contract("MyContract", [], { from: exampleAccounts[1] });
-
-        return {};
-      });
-
-      const result = await getNonceSyncMessages(
-        mockJsonRpcClient,
+      await assertGetNonceSyncResult(
         {
-          ...deploymentState,
-          executionStates: {
-            "Example#MyContract": {
-              ...exampleDeploymentState,
-              id: "Example#MyContract",
-              status: ExecutionStatus.STARTED,
-              from: exampleAccounts[1],
-              networkInteractions: [
-                {
-                  id: 1,
-                  type: NetworkInteractionType.ONCHAIN_INTERACTION,
-                  to: undefined,
-                  data: "0x",
-                  value: BigInt(0),
-                  transactions: [],
-                  shouldBeResent: false,
-                  // the nonce is ahead of latest,
-                  // so must have been dropped
-                  nonce: latest + 1,
-                },
-              ],
+          ignitionModule: exampleModule,
+          deploymentState:
+            setupDeploymentStateBasedOnExampleModuleWithOneTranWith(nonce),
+          transactionCountEntries: {
+            [exampleAccounts[1]]: {
+              pending: pendingCount,
+              latest: latestCount,
+              number: () => safestCount,
             },
           },
         },
-        ignitionModule,
-        exampleAccounts,
-        exampleAccounts[2],
-        requiredConfirmations
+        [
+          {
+            futureId: "Example#MyContract",
+            networkInteractionId: 1,
+            type: JournalMessageType.ONCHAIN_INTERACTION_DROPPED,
+          },
+        ]
       );
-
-      assert.deepStrictEqual(result, [
-        {
-          futureId: "Example#MyContract",
-          networkInteractionId: 1,
-          type: JournalMessageType.ONCHAIN_INTERACTION_DROPPED,
-        },
-      ]);
     });
 
     it("should ignore futures that have already been completed", async () => {
-      const transactionCount = latestBlock + requiredConfirmations;
+      // Safest count nonce is set arbitarily
+      const latestCount = 40;
+      // Safest is the same as latest
+      const safestCount = latestCount;
+      // There are multiple pending transactions on top of latest
+      const pendingCount = latestCount + 99;
 
-      // Setup an account that will fail if checked
-      const mockJsonRpcClient = setupJsonRpcClient(latestBlock, {
-        [exampleAccounts[1]]: {
-          pending: transactionCount + 99,
-          latest: transactionCount,
-          number: () => transactionCount,
-        },
-      });
-
-      const ignitionModule = buildModule("Example", (m) => {
-        m.contract("MyContract", [], { from: exampleAccounts[1] });
-
-        return {};
-      });
-
-      const result = await getNonceSyncMessages(
-        mockJsonRpcClient,
-        {
-          ...deploymentState,
+      await assertSuccessOnGetNonceSyncResult({
+        ignitionModule: exampleModule,
+        deploymentState: {
+          ...deploymentStateReducer(),
           executionStates: {
             "Example#MyContract": {
               ...exampleDeploymentState,
@@ -312,19 +235,96 @@ describe("execution - getNonceSyncMessages", () => {
             },
           },
         },
-        ignitionModule,
-        exampleAccounts,
-        exampleAccounts[2],
-        requiredConfirmations
-      );
-
-      assert.deepStrictEqual(result, []);
+        transactionCountEntries: {
+          [exampleAccounts[1]]: {
+            pending: pendingCount,
+            latest: latestCount,
+            number: () => safestCount,
+          },
+        },
+      });
     });
   });
 });
 
+async function assertGetNonceSyncThrows(
+  ctx: {
+    ignitionModule: IgnitionModule<
+      string,
+      string,
+      IgnitionModuleResult<string>
+    >;
+    deploymentState?: DeploymentState;
+    transactionCountEntries?: {
+      [key: string]: {
+        pending: number;
+        latest: number;
+        number: (num: number) => number;
+      };
+    };
+  },
+  errorMessage: string
+) {
+  await assert.isRejected(assertGetNonceSyncResult(ctx, []), errorMessage);
+}
+
+async function assertSuccessOnGetNonceSyncResult(ctx: {
+  ignitionModule: IgnitionModule<string, string, IgnitionModuleResult<string>>;
+  deploymentState?: DeploymentState;
+  transactionCountEntries?: {
+    [key: string]: {
+      pending: number;
+      latest: number;
+      number: (num: number) => number;
+    };
+  };
+}) {
+  return assertGetNonceSyncResult(ctx, []);
+}
+
+async function assertGetNonceSyncResult(
+  {
+    ignitionModule,
+    deploymentState = deploymentStateReducer(),
+    transactionCountEntries = {},
+  }: {
+    ignitionModule: IgnitionModule<
+      string,
+      string,
+      IgnitionModuleResult<string>
+    >;
+    deploymentState?: DeploymentState;
+    transactionCountEntries?: {
+      [key: string]: {
+        pending: number;
+        latest: number;
+        number: (num: number) => number;
+      };
+    };
+  },
+  expectedResult: Array<
+    OnchainInteractionReplacedByUserMessage | OnchainInteractionDroppedMessage
+  >
+) {
+  const mockJsonRpcClient = setupJsonRpcClient(
+    latestBlock,
+    transactionCountEntries
+  );
+
+  const result = await getNonceSyncMessages(
+    mockJsonRpcClient,
+    deploymentState,
+    ignitionModule,
+    exampleAccounts,
+    exampleAccounts[2],
+    requiredConfirmations
+  );
+
+  assert.deepStrictEqual(result, expectedResult);
+}
+
 function setupJsonRpcClient(
-  latestBlock: number,
+  latestBlockNum: number,
   transactionCountEntries: {
     [key: string]: {
       pending: number;
@@ -335,7 +335,7 @@ function setupJsonRpcClient(
 ): JsonRpcClient {
   const mockJsonRpcClient = {
     getLatestBlock: () => {
-      return { number: latestBlock };
+      return { number: latestBlockNum };
     },
     getTransactionCount: (
       address: string,
@@ -360,4 +360,48 @@ function setupJsonRpcClient(
   } as any;
 
   return mockJsonRpcClient;
+}
+
+function setupDeploymentStateBasedOnExampleModuleWithOneTranWith(
+  nonce: number
+): DeploymentState {
+  const exampleDeploymentState: DeploymentExecutionState = {
+    id: "Example",
+    type: ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
+    futureType: FutureType.CONTRACT_DEPLOYMENT,
+    strategy: "basic",
+    status: ExecutionStatus.STARTED,
+    dependencies: new Set<string>(),
+    networkInteractions: [],
+    artifactId: "./artifact.json",
+    contractName: "Contract1",
+    value: BigInt("0"),
+    constructorArgs: [],
+    libraries: {},
+    from: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  };
+
+  return {
+    ...deploymentStateReducer(),
+    executionStates: {
+      "Example#MyContract": {
+        ...exampleDeploymentState,
+        id: "Example#MyContract",
+        status: ExecutionStatus.STARTED,
+        from: exampleAccounts[1],
+        networkInteractions: [
+          {
+            id: 1,
+            type: NetworkInteractionType.ONCHAIN_INTERACTION,
+            to: undefined,
+            data: "0x",
+            value: BigInt(0),
+            transactions: [],
+            shouldBeResent: false,
+            nonce,
+          },
+        ],
+      },
+    },
+  };
 }
