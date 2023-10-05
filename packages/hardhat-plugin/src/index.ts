@@ -6,7 +6,7 @@ import type {
 import "@nomicfoundation/hardhat-ethers";
 import chalk from "chalk";
 import { readdirSync } from "fs-extra";
-import { extendConfig, extendEnvironment, task } from "hardhat/config";
+import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import { lazyObject } from "hardhat/plugins";
 import path from "path";
 
@@ -14,6 +14,8 @@ import "./type-extensions";
 
 /* ignition config defaults */
 const IGNITION_DIR = "ignition";
+
+const ignitionScope = scope("ignition", "Deploy contracts");
 
 // this is ugly, but it's fast :)
 // discussion: https://github.com/NomicFoundation/hardhat-ignition/pull/483
@@ -54,18 +56,22 @@ extendEnvironment((hre) => {
   });
 });
 
-task("deploy")
-  .addPositionalParam("moduleNameOrPath")
+ignitionScope
+  .task("deploy")
+  .addPositionalParam(
+    "moduleNameOrPath",
+    "The name of the module file within the Ignition modules directory, or a path to the module file"
+  )
   .addOptionalParam(
     "parameters",
-    "A JSON object as a string, of the module parameters, or a relative path to a JSON file"
+    "A relative path to a JSON file to use for the module parameters,"
   )
   .addOptionalParam("id", "set the deployment id")
-  .addFlag("force", "restart the deployment ignoring previous history")
   .addFlag(
     "simpleTextUi",
     "use a simple text based UI instead of the default UI"
   )
+  .setDescription("Deploy a module to the specified network")
   .setAction(
     async (
       {
@@ -76,7 +82,6 @@ task("deploy")
       }: {
         moduleNameOrPath: string;
         parameters?: string;
-        force: boolean;
         simpleTextUi: boolean;
         id: string;
       },
@@ -173,9 +178,14 @@ task("deploy")
     }
   );
 
-task("visualize")
+ignitionScope
+  .task("visualize")
   .addFlag("quiet", "Disables logging output path to terminal")
-  .addPositionalParam("moduleNameOrPath")
+  .addPositionalParam(
+    "moduleNameOrPath",
+    "The name of the module file within the Ignition modules directory, or a path to the module file"
+  )
+  .setDescription("Visualize a module as an HTML report")
   .setAction(
     async (
       {
@@ -232,9 +242,10 @@ task("visualize")
     }
   );
 
-task("status")
-  .addParam("id")
-  .setDescription("Lists the deployed contract addresses of a deployment")
+ignitionScope
+  .task("status")
+  .addParam("id", "The id of the deployment to show")
+  .setDescription("Show the current status of a deployment")
   .setAction(async ({ id }: { id: string }, hre) => {
     const { status } = await import("@nomicfoundation/ignition-core");
 
@@ -328,10 +339,11 @@ task("status")
     }
   });
 
-task("wipe")
-  .addParam("deployment")
-  .addParam("future")
-  .setDescription("Reset a deployments future to allow rerunning")
+ignitionScope
+  .task("wipe")
+  .addParam("id", "The id of the deployment that has the future to wipe")
+  .addParam("future", "The id of the future within the deploment to wipe")
+  .setDescription("Reset a deployment's future to allow rerunning")
   .setAction(
     async (
       {
