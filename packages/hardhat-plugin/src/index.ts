@@ -1,5 +1,6 @@
 import type {
   DeploymentParameters,
+  IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
 
@@ -7,7 +8,7 @@ import "@nomicfoundation/hardhat-ethers";
 import chalk from "chalk";
 import { readdirSync } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
-import { lazyObject } from "hardhat/plugins";
+import { NomicLabsHardhatPluginError, lazyObject } from "hardhat/plugins";
 import path from "path";
 
 import "./type-extensions";
@@ -247,7 +248,15 @@ ignitionScope
       id
     );
 
-    const statusResult = await status(deploymentDir);
+    let statusResult: StatusResult;
+    try {
+      statusResult = await status(deploymentDir);
+    } catch (e) {
+      throw new NomicLabsHardhatPluginError(
+        "hardhat-ignition",
+        (e as IgnitionError).message
+      );
+    }
 
     if (statusResult.started.length > 0) {
       console.log("");
