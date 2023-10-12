@@ -412,7 +412,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
       const f: UiFuture = {
         futureId,
         status: {
-          type: UiFutureStatusType.PENDING,
+          type: UiFutureStatusType.TIMEDOUT,
         },
       };
 
