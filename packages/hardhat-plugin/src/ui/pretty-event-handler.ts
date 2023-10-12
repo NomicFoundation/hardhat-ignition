@@ -284,7 +284,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
     futureId: string;
   }) {
     this._setFutureStatusAndRedisplayBatch(futureId, {
-      type: UiFutureStatusType.PENDING,
+      type: UiFutureStatusType.UNSTARTED,
     });
   }
 
