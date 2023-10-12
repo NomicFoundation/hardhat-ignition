@@ -1,9 +1,9 @@
+import "@nomicfoundation/hardhat-ethers";
 import {
   DeploymentParameters,
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
-import "@nomicfoundation/hardhat-ethers";
 import chalk from "chalk";
 import { readdirSync } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
@@ -212,7 +212,7 @@ ignitionScope
 
 ignitionScope
   .task("status")
-  .addParam("deploymentId", "The id of the deployment to show")
+  .addPositionalParam("deploymentId", "The id of the deployment to show")
   .setDescription("Show the current status of a deployment")
   .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
     const { status } = await import("@nomicfoundation/ignition-core");
@@ -318,8 +318,11 @@ ignitionScope
 
 ignitionScope
   .task("wipe")
-  .addParam("deploymentId", "The id of the deployment with the future to wipe")
-  .addParam("futureId", "The id of the future to wipe")
+  .addPositionalParam(
+    "deploymentId",
+    "The id of the deployment with the future to wipe"
+  )
+  .addPositionalParam("futureId", "The id of the future to wipe")
   .setDescription("Reset a deployment's future to allow rerunning")
   .setAction(
     async (
