@@ -122,7 +122,7 @@ function _displayPreviousRunErrors(
 }
 
 function _displayExecutionErrors(
-  result: ExecutionErrorDeploymentResult,
+  result: Omit<ExecutionErrorDeploymentResult, "type">,
   { moduleName }: { moduleName: string }
 ) {
   const sections: string[] = [];
