@@ -21,12 +21,12 @@ export function calculateDeploymentStatusDisplay(
 }
 
 function _calculateSuccess(deploymentId: string, statusResult: StatusResult) {
-  let successText = `\n🚀 Deployment ${deploymentId} Complete\n\n`;
+  let successText = `\n[ ${deploymentId} ] successfully deployed 🚀\n\n`;
 
   if (Object.values(statusResult.contracts).length === 0) {
     successText += chalk.italic("No contracts were deployed");
   } else {
-    successText += "Deployed Addresses\n\n";
+    successText += `${chalk.bold("Deployed Addresses")}\n\n`;
 
     successText += Object.values(statusResult.contracts)
       .map((contract) => `${contract.id} - ${contract.address}`)
@@ -40,7 +40,7 @@ function _calculateStartedButUnfinished(
   deploymentId: string,
   statusResult: StatusResult
 ) {
-  let startedText = `\n⛔ Deployment ${deploymentId} has not fully completed, there are futures have started but not finished\n\n`;
+  let startedText = `\n[ ${deploymentId} ] has futures that have started but not finished ⛔\n\n`;
 
   startedText += Object.values(statusResult.started)
     .map((futureId) => ` - ${futureId}`)
@@ -50,15 +50,12 @@ function _calculateStartedButUnfinished(
 }
 
 function _calculateFailed(deploymentId: string, statusResult: StatusResult) {
-  let failedExecutionText = `\n${toErrorResultHeading(
-    deploymentId,
-    statusResult
-  )}\n`;
+  let failedExecutionText = `\n[ ${deploymentId} ] failed ⛔\n`;
 
   const sections: string[] = [];
 
   if (statusResult.timedOut.length > 0) {
-    let timedOutSection = `\nThere are timed-out futures:\n`;
+    let timedOutSection = `\nTransactions remain unconfirmed after fee bump:\n`;
 
     timedOutSection += Object.values(statusResult.timedOut)
       .map(({ futureId }) => ` - ${futureId}`)
@@ -71,7 +68,7 @@ function _calculateFailed(deploymentId: string, statusResult: StatusResult) {
   }
 
   if (statusResult.failed.length > 0) {
-    let failedSection = `\nThere are failed futures:\n`;
+    let failedSection = `\nFutures failed during execution:\n`;
 
     failedSection += Object.values(statusResult.failed)
       .map(
@@ -80,11 +77,14 @@ function _calculateFailed(deploymentId: string, statusResult: StatusResult) {
       )
       .join("\n");
 
+    failedSection +=
+      "\n\nConsider addressing the cause of the errors and rerunning the deployment.\nCheck out the docs to learn more: <LINK>";
+
     sections.push(failedSection);
   }
 
   if (statusResult.held.length > 0) {
-    let heldSection = `\nThere are futures that the strategy held:\n`;
+    let heldSection = `\nFutures where held by the strategy:\n`;
 
     heldSection += Object.values(statusResult.held)
       .map(
@@ -98,32 +98,4 @@ function _calculateFailed(deploymentId: string, statusResult: StatusResult) {
   failedExecutionText += sections.join("\n");
 
   return failedExecutionText;
-}
-
-function toErrorResultHeading(
-  deploymentId: string,
-  statusResult: StatusResult
-): string {
-  const didTimeout = statusResult.timedOut.length > 0;
-  const didFailed = statusResult.failed.length > 0;
-  const didHeld = statusResult.held.length > 0;
-
-  let reasons = "";
-  if (didTimeout && didFailed && didHeld) {
-    reasons = "timeouts, failures and holds";
-  } else if (didTimeout && didFailed) {
-    reasons = "timeouts and failures";
-  } else if (didFailed && didHeld) {
-    reasons = "failures and holds";
-  } else if (didTimeout && didHeld) {
-    reasons = "timeouts and holds";
-  } else if (didTimeout) {
-    reasons = "timeouts";
-  } else if (didFailed) {
-    reasons = "failures";
-  } else if (didHeld) {
-    reasons = "holds";
-  }
-
-  return `⛔ Deployment ${deploymentId} did not complete as there were ${reasons}`;
 }

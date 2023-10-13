@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 import { calculateDeploymentStatusDisplay } from "../../../src/ui/helpers/calculate-deployment-status-display";
 
-describe.only("ui - calculate deployment status display", () => {
+describe("ui - calculate deployment status display", () => {
   const exampleAddress = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
   const differentAddress = "0x0011223344556677889900112233445566778899";
 
@@ -21,9 +21,9 @@ describe.only("ui - calculate deployment status display", () => {
     it("should render a sucessful deployment", () => {
       const expectedText = testFormat(`
 
-        🚀 Deployment deployment-01 Complete
+        [ deployment-01 ] successfully deployed 🚀
 
-        Deployed Addresses
+        ${chalk.bold("Deployed Addresses")}
 
         MyModule#Token - 0x1F98431c8aD98523631AE4a59f267346ea31F984
         MyModule#AnotherToken - 0x0011223344556677889900112233445566778899`);
@@ -56,7 +56,7 @@ describe.only("ui - calculate deployment status display", () => {
     it("should render a sucessful deployment with no deploys", () => {
       const expectedText = testFormat(`
 
-        🚀 Deployment deployment-01 Complete
+        [ deployment-01 ] successfully deployed 🚀
 
         ${chalk.italic("No contracts were deployed")}`);
 
@@ -79,20 +79,23 @@ describe.only("ui - calculate deployment status display", () => {
     it("should render an execution failure with multiple of each problem type", () => {
       const expectedText = testFormat(`
 
-        ⛔ Deployment deployment-01 did not complete as there were timeouts, failures and holds
+        [ deployment-01 ] failed ⛔
 
-        There are timed-out futures:
+        Transactions remain unconfirmed after fee bump:
          - MyModule:MyContract1
          - MyModule:AnotherContract1
 
         Consider increasing the fee in your config.
         Check out the docs to learn more: <LINK>
 
-        There are failed futures:
+        Futures failed during execution:
          - MyModule:MyContract3/1: Reverted with reason x
          - MyModule:AnotherContract3/3: Reverted with reason y
 
-        There are futures that the strategy held:
+        Consider addressing the cause of the errors and rerunning the deployment.
+        Check out the docs to learn more: <LINK>
+
+        Futures where held by the strategy:
          - MyModule:MyContract2/1: Vote is not complete
          - MyModule:AnotherContract2/3: Server timed out`);
 
@@ -154,7 +157,7 @@ describe.only("ui - calculate deployment status display", () => {
     it("should render a sucessful deployment", () => {
       const expectedText = testFormat(`
 
-        ⛔ Deployment deployment-01 has not fully completed, there are futures have started but not finished
+        [ deployment-01 ] has futures that have started but not finished ⛔
 
          - MyModule#Token
          - MyModule#AnotherToken`);

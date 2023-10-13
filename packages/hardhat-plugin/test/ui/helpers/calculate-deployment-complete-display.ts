@@ -84,12 +84,17 @@ describe("ui - calculate deployment complete display", () => {
 
         [ MyModule ] validation failed ⛔
 
-        MyModule:MyContract errors:
+        The module contains futures that would fail to execute:
+
+        MyModule:MyContract:
          - The number of params does not match the constructor
          - The name of the contract is invalid
 
-        MyModule:AnotherContract errors:
-         - No library provided`);
+        MyModule:AnotherContract:
+         - No library provided
+
+        Update the invalid futures and rerun the deployment.
+        Check out the docs to learn more: <LINK>`);
 
       const result: ValidationErrorDeploymentResult = {
         type: DeploymentResultType.VALIDATION_ERROR,
@@ -121,12 +126,17 @@ describe("ui - calculate deployment complete display", () => {
 
         [ MyModule ] reconciliation failed ⛔
 
-        MyModule:MyContract errors:
+        The module contains changes to executed futures:
+
+        MyModule:MyContract:
          - The params don't match
          - The value doesn't match
 
-        MyModule:AnotherContract errors:
-         - The artifact bytecode has changed`);
+        MyModule:AnotherContract:
+         - The artifact bytecode has changed
+
+        Consider modifying your module to remove the inconsistencies with deployed futures.
+        Check out the docs to learn more: <LINK>`);
 
       const result: ReconciliationErrorDeploymentResult = {
         type: DeploymentResultType.RECONCILIATION_ERROR,
@@ -192,16 +202,19 @@ describe("ui - calculate deployment complete display", () => {
 
         [ MyModule ] failed ⛔
 
-        Transaction remains unconfirmed after fee bump:
+        Transactions remain unconfirmed after fee bump:
          - MyModule:MyContract1
          - MyModule:AnotherContract1
 
         Consider increasing the fee in your config.
         Check out the docs to learn more: <LINK>
 
-        Failures:
+        Futures failed during execution:
          - MyModule:MyContract3/1: Reverted with reason x
          - MyModule:AnotherContract3/3: Reverted with reason y
+
+        Consider addressing the cause of the errors and rerunning the deployment.
+        Check out the docs to learn more: <LINK>
 
         Held:
          - MyModule:MyContract2/1: Vote is not complete

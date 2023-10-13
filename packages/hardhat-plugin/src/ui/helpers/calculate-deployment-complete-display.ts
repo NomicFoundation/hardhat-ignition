@@ -65,17 +65,22 @@ function _displayValidationErrors(
   let text = `
 [ ${moduleName} ] validation failed ⛔
 
+The module contains futures that would fail to execute:
+
 `;
 
   text += Object.entries(result.errors)
     .map(([futureId, errors]) => {
-      let futureSection = `${futureId} errors:\n`;
+      let futureSection = `${futureId}:\n`;
 
       futureSection += errors.map((error) => ` - ${error}`).join("\n");
 
       return futureSection;
     })
     .join("\n\n");
+
+  text += `\n\nUpdate the invalid futures and rerun the deployment.`;
+  text += `\nCheck out the docs to learn more: <LINK>`;
 
   return text;
 }
@@ -87,17 +92,22 @@ function _displayReconciliationErrors(
   let text = `
 [ ${moduleName} ] reconciliation failed ⛔
 
+The module contains changes to executed futures:
+
 `;
 
   text += Object.entries(result.errors)
     .map(([futureId, errors]) => {
-      let errorSection = `${futureId} errors:\n`;
+      let errorSection = `${futureId}:\n`;
 
       errorSection += errors.map((error) => ` - ${error}`).join("\n");
 
       return errorSection;
     })
     .join("\n\n");
+
+  text += `\n\nConsider modifying your module to remove the inconsistencies with deployed futures.`;
+  text += `\nCheck out the docs to learn more: <LINK>`;
 
   return text;
 }
@@ -130,7 +140,7 @@ function _displayExecutionErrors(
   let text = `\n[ ${moduleName} ] failed ⛔\n\n`;
 
   if (result.timedOut.length > 0) {
-    let timedOutSection = `Transaction remains unconfirmed after fee bump:\n`;
+    let timedOutSection = `Transactions remain unconfirmed after fee bump:\n`;
 
     timedOutSection += Object.values(result.timedOut)
       .map(({ futureId }) => ` - ${futureId}`)
@@ -143,7 +153,7 @@ function _displayExecutionErrors(
   }
 
   if (result.failed.length > 0) {
-    let failedSection = `Failures:\n`;
+    let failedSection = `Futures failed during execution:\n`;
 
     failedSection += Object.values(result.failed)
       .map(
@@ -151,6 +161,9 @@ function _displayExecutionErrors(
           ` - ${futureId}/${networkInteractionId}: ${error}`
       )
       .join("\n");
+
+    failedSection +=
+      "\n\nConsider addressing the cause of the errors and rerunning the deployment.\nCheck out the docs to learn more: <LINK>";
 
     sections.push(failedSection);
   }
