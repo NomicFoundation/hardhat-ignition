@@ -141,7 +141,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
   public deploymentExecutionStateComplete(
     event: DeploymentExecutionStateCompleteEvent
   ): void {
-    this._setFutureStatusCompletAndRedisplayBatch(event);
+    this._setFutureStatusCompleteAndRedisplayBatch(event);
   }
 
   public callExecutionStateInitialize(
@@ -153,7 +153,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
   public callExecutionStateComplete(
     event: CallExecutionStateCompleteEvent
   ): void {
-    this._setFutureStatusCompletAndRedisplayBatch(event);
+    this._setFutureStatusCompleteAndRedisplayBatch(event);
   }
 
   public staticCallExecutionStateInitialize(
@@ -165,7 +165,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
   public staticCallExecutionStateComplete(
     event: StaticCallExecutionStateCompleteEvent
   ): void {
-    this._setFutureStatusCompletAndRedisplayBatch(event);
+    this._setFutureStatusCompleteAndRedisplayBatch(event);
   }
 
   public sendDataExecutionStateInitialize(
@@ -177,7 +177,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
   public sendDataExecutionStateComplete(
     event: SendDataExecutionStateCompleteEvent
   ): void {
-    this._setFutureStatusCompletAndRedisplayBatch(event);
+    this._setFutureStatusCompleteAndRedisplayBatch(event);
   }
 
   public contractAtExecutionStateInitialize(
@@ -288,7 +288,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
     });
   }
 
-  private _setFutureStatusCompletAndRedisplayBatch({
+  private _setFutureStatusCompleteAndRedisplayBatch({
     futureId,
     result,
   }: {
