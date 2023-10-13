@@ -80,7 +80,6 @@ The module contains futures that would fail to execute:
     .join("\n\n");
 
   text += `\n\nUpdate the invalid futures and rerun the deployment.`;
-  text += `\nCheck out the docs to learn more: <LINK>`;
 
   return text;
 }
@@ -107,7 +106,6 @@ The module contains changes to executed futures:
     .join("\n\n");
 
   text += `\n\nConsider modifying your module to remove the inconsistencies with deployed futures.`;
-  text += `\nCheck out the docs to learn more: <LINK>`;
 
   return text;
 }
@@ -124,15 +122,13 @@ function _displayPreviousRunErrors(
     .map((futureId) => ` - ${futureId}`)
     .join("\n");
 
-  text += `\n\nUse the ${chalk.italic(
-    "wipe"
-  )} task to reset them.\nCheck out the docs to learn more: <LINK>`;
+  text += `\n\nUse the ${chalk.italic("wipe")} task to reset them.`;
 
   return text;
 }
 
 function _displayExecutionErrors(
-  result: Omit<ExecutionErrorDeploymentResult, "type">,
+  result: ExecutionErrorDeploymentResult,
   { moduleName }: { moduleName: string }
 ) {
   const sections: string[] = [];
@@ -146,8 +142,7 @@ function _displayExecutionErrors(
       .map(({ futureId }) => ` - ${futureId}`)
       .join("\n");
 
-    timedOutSection +=
-      "\n\nConsider increasing the fee in your config.\nCheck out the docs to learn more: <LINK>";
+    timedOutSection += "\n\nConsider increasing the fee in your config.";
 
     sections.push(timedOutSection);
   }
@@ -163,7 +158,7 @@ function _displayExecutionErrors(
       .join("\n");
 
     failedSection +=
-      "\n\nConsider addressing the cause of the errors and rerunning the deployment.\nCheck out the docs to learn more: <LINK>";
+      "\n\nConsider addressing the cause of the errors and rerunning the deployment.";
 
     sections.push(failedSection);
   }

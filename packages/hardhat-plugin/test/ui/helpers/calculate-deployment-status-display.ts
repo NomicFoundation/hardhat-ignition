@@ -86,14 +86,12 @@ describe("ui - calculate deployment status display", () => {
          - MyModule:AnotherContract1
 
         Consider increasing the fee in your config.
-        Check out the docs to learn more: <LINK>
 
         Futures failed during execution:
          - MyModule:MyContract3/1: Reverted with reason x
          - MyModule:AnotherContract3/3: Reverted with reason y
 
         Consider addressing the cause of the errors and rerunning the deployment.
-        Check out the docs to learn more: <LINK>
 
         Futures where held by the strategy:
          - MyModule:MyContract2/1: Vote is not complete

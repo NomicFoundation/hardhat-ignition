@@ -61,8 +61,7 @@ function _calculateFailed(deploymentId: string, statusResult: StatusResult) {
       .map(({ futureId }) => ` - ${futureId}`)
       .join("\n");
 
-    timedOutSection +=
-      "\n\nConsider increasing the fee in your config.\nCheck out the docs to learn more: <LINK>";
+    timedOutSection += "\n\nConsider increasing the fee in your config.";
 
     sections.push(timedOutSection);
   }
@@ -78,7 +77,7 @@ function _calculateFailed(deploymentId: string, statusResult: StatusResult) {
       .join("\n");
 
     failedSection +=
-      "\n\nConsider addressing the cause of the errors and rerunning the deployment.\nCheck out the docs to learn more: <LINK>";
+      "\n\nConsider addressing the cause of the errors and rerunning the deployment.";
 
     sections.push(failedSection);
   }
