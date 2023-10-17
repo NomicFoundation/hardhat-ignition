@@ -267,7 +267,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.contract);
     this._assertValidContractName(contractName, this.contract);
-    this._assertUniqueContractId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.contract);
     this._assertValidLibraries(options.libraries, this.contract);
     this._assertValidValue(options.value, this.contract);
     this._assertValidFrom(options.from, this.contract);
@@ -321,7 +321,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.contract);
     this._assertValidContractName(contractName, this.contract);
-    this._assertUniqueArtifactContractId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.contract);
     this._assertValidLibraries(options.libraries, this.contract);
     this._assertValidValue(options.value, this.contract);
     this._assertValidFrom(options.from, this.contract);
@@ -403,7 +403,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.library);
     this._assertValidContractName(libraryName, this.library);
-    this._assertUniqueLibraryId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.library);
     this._assertValidLibraries(options.libraries, this.library);
     this._assertValidFrom(options.from, this.library);
     /* validation end */
@@ -444,7 +444,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.library);
     this._assertValidContractName(libraryName, this.library);
-    this._assertUniqueArtifactLibraryId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.library);
     this._assertValidLibraries(options.libraries, this.library);
     this._assertValidFrom(options.from, this.library);
     this._assertValidArtifact(artifact, this.library);
@@ -505,7 +505,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.call);
     this._assertValidFunctionName(functionName, this.call);
-    this._assertUniqueCallId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.call);
     this._assertValidValue(options.value, this.call);
     this._assertValidFrom(options.from, this.call);
     this._assertValidCallableContract(contractFuture, this.call);
@@ -573,7 +573,7 @@ class IgnitionModuleBuilderImplementation<
     this._assertValidId(options.id, this.staticCall);
     this._assertValidFunctionName(functionName, this.staticCall);
     this._assertValidNameOrIndex(nameOrIndex, this.staticCall);
-    this._assertUniqueStaticCallId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.staticCall);
     this._assertValidFrom(options.from, this.staticCall);
     this._assertValidCallableContract(contractFuture, this.staticCall);
     /* validation end */
@@ -687,7 +687,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.contractAt);
     this._assertValidContractName(contractName, this.contractAt);
-    this._assertUniqueContractAtId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.contractAt);
     this._assertValidAddress(address, this.contractAt);
     /* validation end */
 
@@ -729,7 +729,7 @@ class IgnitionModuleBuilderImplementation<
     /* validation start */
     this._assertValidId(options.id, this.contractAt);
     this._assertValidContractName(contractName, this.contractAt);
-    this._assertUniqueContractAtFromArtifactId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.contractAt);
     this._assertValidAddress(address, this.contractAt);
     this._assertValidArtifact(artifact, this.contractAt);
     /* validation end */
@@ -803,7 +803,7 @@ class IgnitionModuleBuilderImplementation<
     this._assertValidId(options.id, this.readEventArgument);
     this._assertValidEventName(eventName, this.readEventArgument);
     this._assertValidNameOrIndex(nameOrIndex, this.readEventArgument);
-    this._assertUniqueReadEventArgumentId(futureId);
+    this._assertUniqueFutureId(futureId, options.id, this.readEventArgument);
     /* validation end */
 
     const future = new ReadEventArgumentFutureImplementation(
@@ -845,7 +845,7 @@ class IgnitionModuleBuilderImplementation<
 
     /* validation start */
     this._assertValidId(id, this.send);
-    this._assertUniqueSendId(futureId);
+    this._assertUniqueFutureId(futureId, id, this.send);
     this._assertValidAddress(to, this.send);
     this._assertValidValue(val, this.send);
     this._assertValidData(data, this.send);
@@ -973,93 +973,27 @@ class IgnitionModuleBuilderImplementation<
 
   private _assertUniqueFutureId(
     futureId: string,
-    message: string,
-    func: (...[]: any[]) => any
+    userProvidedId: string | undefined,
+    futureConstructor: (...[]: any[]) => any
   ) {
-    if (this._futureIds.has(futureId)) {
-      this._throwErrorWithStackTrace(message, func);
+    if (!this._futureIds.has(futureId)) {
+      // TODO: This shouldn't be addded in an assertion method
+      this._futureIds.add(futureId);
+      return;
     }
 
-    this._futureIds.add(futureId);
-  }
+    if (userProvidedId !== undefined) {
+      this._throwErrorWithStackTrace(
+        `The future id "${userProvidedId}" is already used, please provide a different one.`,
+        futureConstructor
+      );
+    }
 
-  private _assertUniqueContractId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.contract(..., { id: "MyUniqueId"})\``,
-      this.contract
-    );
-  }
+    this._throwErrorWithStackTrace(
+      `A future's autogenerate id, "${futureId}", is already used.
 
-  private _assertUniqueArtifactContractId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.contract(..., { id: "MyUniqueId"})\``,
-      this.contract
-    );
-  }
-
-  private _assertUniqueLibraryId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.library(..., { id: "MyUniqueId"})\``,
-      this.library
-    );
-  }
-
-  private _assertUniqueArtifactLibraryId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.library(..., { id: "MyUniqueId"})\``,
-      this.library
-    );
-  }
-
-  private _assertUniqueCallId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.call(..., { id: "MyUniqueId"})\``,
-      this.call
-    );
-  }
-
-  private _assertUniqueStaticCallId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.staticCall(..., { id: "MyUniqueId"})\``,
-      this.staticCall
-    );
-  }
-
-  private _assertUniqueContractAtId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.contractAt(..., { id: "MyUniqueId"})\``,
-      this.contractAt
-    );
-  }
-
-  private _assertUniqueContractAtFromArtifactId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.contractAt(..., { id: "MyUniqueId"})\``,
-      this.contractAt
-    );
-  }
-
-  private _assertUniqueReadEventArgumentId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. You can fix this by providing a unique id in as an option, like this \`m.readEventArgument(..., { id: "MyUniqueId"})\``,
-      this.readEventArgument
-    );
-  }
-
-  private _assertUniqueSendId(futureId: string) {
-    return this._assertUniqueFutureId(
-      futureId,
-      `Duplicated id ${futureId} found in module ${this._module.id}. Make sure the id passed as first argument to \`m.send\` is unique.`,
-      this.send
+Please provide a unique id in as an option, like this \`m.${futureConstructor.name}(..., { id: "MyUniqueId"})\`.`,
+      futureConstructor
     );
   }
 

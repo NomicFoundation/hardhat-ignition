@@ -424,7 +424,7 @@ describe("static call", () => {
 
             return { sameContract1 };
           }),
-        /Duplicated id Module1#SameContract.test found in module Module1/
+        'A future\'s autogenerate id, "Module1#SameContract.test", is already used.\n\nPlease provide a unique id in as an option, like this `m.staticCall(..., { id: "MyUniqueId"})`.'
       );
     });
 
@@ -437,7 +437,7 @@ describe("static call", () => {
             m.staticCall(sameContract1, "test", [], 0, { id: "first" });
             return { sameContract1 };
           }),
-        /Duplicated id Module1#first found in module Module1/
+        'The future id "first" is already used, please provide a different one.'
       );
     });
   });

@@ -161,7 +161,7 @@ describe("contractAt", () => {
 
             return { sameContract1, sameContract2 };
           }),
-        /Duplicated id Module1#SameContract found in module Module1/
+        'A future\'s autogenerate id, "Module1#SameContract", is already used.\n\nPlease provide a unique id in as an option, like this `m.contractAt(..., { id: "MyUniqueId"})`.'
       );
     });
 
@@ -188,7 +188,7 @@ describe("contractAt", () => {
 
             return { sameContract1, sameContract2 };
           }),
-        /Duplicated id Module1#same found in module Module1/
+        'The future id "same" is already used, please provide a different one.'
       );
     });
   });
