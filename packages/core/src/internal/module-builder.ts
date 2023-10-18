@@ -300,6 +300,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -356,6 +357,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -425,6 +427,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -468,6 +471,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -536,6 +540,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -599,6 +604,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -707,6 +713,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -751,6 +758,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -822,6 +830,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -870,6 +879,7 @@ class IgnitionModuleBuilderImplementation<
     }
 
     this._module.futures.add(future);
+    this._futureIds.add(futureId);
 
     return future;
   }
@@ -977,8 +987,6 @@ class IgnitionModuleBuilderImplementation<
     futureConstructor: (...[]: any[]) => any
   ) {
     if (!this._futureIds.has(futureId)) {
-      // TODO: This shouldn't be addded in an assertion method
-      this._futureIds.add(futureId);
       return;
     }
 
