@@ -3,7 +3,7 @@
  */
 export function toEscapedId(id: string): string {
   return id
-    .replaceAll("(", "__)")
+    .replaceAll("(", "__")
     .replaceAll(")", "___")
     .replaceAll(",", "____")
     .replaceAll("~", "_____")

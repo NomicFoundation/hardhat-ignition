@@ -293,8 +293,8 @@ describe("to-mermaid", () => {
           direction BT
 
           Module______ens["Deploy ens"]:::futureNode
-          Module______ens.setAddr_____bytes32____address___["Call ens.setAddr(bytes32,address)"]:::futureNode
-          Module______ens.getAddr_____bytes32____address___["Static call ens.getAddr(bytes32,address)"]:::futureNode
+          Module______ens.setAddr__bytes32____address___["Call ens.setAddr(bytes32,address)"]:::futureNode
+          Module______ens.getAddr__bytes32____address___["Static call ens.getAddr(bytes32,address)"]:::futureNode
         end
 
       style ModuleInner fill:none,stroke:none
@@ -305,8 +305,8 @@ describe("to-mermaid", () => {
 
       style Module fill:#fbfbfb,stroke:#e5e6e7
 
-      Module______ens.setAddr_____bytes32____address___ --> Module______ens
-      Module______ens.getAddr_____bytes32____address___ --> Module______ens`;
+      Module______ens.setAddr__bytes32____address___ --> Module______ens
+      Module______ens.getAddr__bytes32____address___ --> Module______ens`;
 
     assertDiagram(moduleDefinition, expectedResult);
   });
