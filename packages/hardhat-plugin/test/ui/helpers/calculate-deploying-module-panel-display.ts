@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import chalk from "chalk";
+import path from "path";
 
 import { calculateDeployingModulePanel } from "../../../src/ui/helpers/calculate-deploying-module-panel";
 import { UiState, UiStateDeploymentStatus } from "../../../src/ui/types";
@@ -79,7 +80,7 @@ describe("ui - calculate starting message display", () => {
     Hardhat Ignition 🚀
 
     ${chalk.bold(
-      `Resuming existing deployment from ./ignition/deployments/foo`
+      `Resuming existing deployment from .${path.sep}ignition${path.sep}deployments${path.sep}foo`
     )}
 
     ${chalk.bold(`Deploying [ ExampleModule ]`)}
