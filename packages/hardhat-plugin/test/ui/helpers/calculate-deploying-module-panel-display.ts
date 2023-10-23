@@ -16,6 +16,7 @@ describe("ui - calculate starting message display", () => {
     currentBatch: 0,
     result: null,
     warnings: [],
+    isResumed: null,
   };
 
   it("should display the deploying module message", () => {
@@ -51,6 +52,43 @@ describe("ui - calculate starting message display", () => {
         "MyModule#Contract1.call1",
         "MyModule#Contract2",
       ],
+    });
+
+    assert.equal(actualText, expectedText);
+  });
+
+  it("should display a message when the deployment is being resumed and the path is not in the CWD", () => {
+    const expectedText = testFormat(`
+    Hardhat Ignition 🚀
+
+    ${chalk.bold(`Resuming existing deployment from /users/example`)}
+
+    ${chalk.bold(`Deploying [ ExampleModule ]`)}
+    `);
+
+    const actualText = calculateDeployingModulePanel({
+      ...exampleState,
+      isResumed: true,
+    });
+
+    assert.equal(actualText, expectedText);
+  });
+
+  it("should display a message when the deployment is being resumed and the path is not in the CWD", () => {
+    const expectedText = testFormat(`
+    Hardhat Ignition 🚀
+
+    ${chalk.bold(
+      `Resuming existing deployment from ./ignition/deployments/foo`
+    )}
+
+    ${chalk.bold(`Deploying [ ExampleModule ]`)}
+    `);
+
+    const actualText = calculateDeployingModulePanel({
+      ...exampleState,
+      isResumed: true,
+      deploymentDir: `${process.cwd()}/ignition/deployments/foo`,
     });
 
     assert.equal(actualText, expectedText);
