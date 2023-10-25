@@ -49,6 +49,8 @@ describe("ui - calculate deployment complete display", () => {
 
       const actualText = calculateDeploymentCompleteDisplay(event, {
         moduleName: "MyModule",
+        isResumed: false,
+        anythingDone: true,
       });
 
       assert.equal(actualText, expectedText);
@@ -72,6 +74,33 @@ describe("ui - calculate deployment complete display", () => {
 
       const actualText = calculateDeploymentCompleteDisplay(event, {
         moduleName: "MyModule",
+        isResumed: false,
+        anythingDone: true,
+      });
+
+      assert.equal(actualText, expectedText);
+    });
+
+    it("should render a resumed deployment with no new deployments", () => {
+      const expectedText = testFormat(`
+        [ MyModule ] deployed successfully on a previous run. No changes detected.
+
+        ${chalk.bold("Deployed Addresses")}
+
+        ${chalk.italic("No contracts were deployed")}`);
+
+      const event: DeploymentCompleteEvent = {
+        type: ExecutionEventType.DEPLOYMENT_COMPLETE,
+        result: {
+          type: DeploymentResultType.SUCCESSFUL_DEPLOYMENT,
+          contracts: {},
+        },
+      };
+
+      const actualText = calculateDeploymentCompleteDisplay(event, {
+        moduleName: "MyModule",
+        isResumed: true,
+        anythingDone: false,
       });
 
       assert.equal(actualText, expectedText);
@@ -112,6 +141,8 @@ describe("ui - calculate deployment complete display", () => {
 
       const actualText = calculateDeploymentCompleteDisplay(event, {
         moduleName: "MyModule",
+        isResumed: false,
+        anythingDone: true,
       });
 
       assert.equal(actualText, expectedText);
@@ -152,6 +183,8 @@ describe("ui - calculate deployment complete display", () => {
 
       const actualText = calculateDeploymentCompleteDisplay(event, {
         moduleName: "MyModule",
+        isResumed: false,
+        anythingDone: true,
       });
 
       assert.equal(actualText, expectedText);
@@ -184,6 +217,8 @@ describe("ui - calculate deployment complete display", () => {
 
       const actualText = calculateDeploymentCompleteDisplay(event, {
         moduleName: "MyModule",
+        isResumed: false,
+        anythingDone: true,
       });
 
       assert.equal(actualText, expectedText);
@@ -252,6 +287,8 @@ describe("ui - calculate deployment complete display", () => {
 
       const actualText = calculateDeploymentCompleteDisplay(event, {
         moduleName: "MyModule",
+        isResumed: false,
+        anythingDone: true,
       });
 
       assert.equal(actualText, expectedText);

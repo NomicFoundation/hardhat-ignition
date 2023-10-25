@@ -261,8 +261,10 @@ export class PrettyEventHandler implements ExecutionEventListener {
       batches: this._applyResultToBatches(this.state.batches, event.result),
     };
 
+    const anythingDone = this.state.currentBatch > 0;
+
     // If batches where executed, rerender the last batch
-    if (this.state.currentBatch > 0) {
+    if (anythingDone) {
       this._redisplayCurrentBatch();
     } else {
       // Otherwise only the completion panel will be shown so clear
@@ -270,7 +272,12 @@ export class PrettyEventHandler implements ExecutionEventListener {
       this._clearCurrentLine();
     }
 
-    console.log(calculateDeploymentCompleteDisplay(event, this.state));
+    console.log(
+      calculateDeploymentCompleteDisplay(event, {
+        ...this.state,
+        anythingDone,
+      })
+    );
   }
 
   public reconciliationWarnings(event: ReconciliationWarningsEvent): void {

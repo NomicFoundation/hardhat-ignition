@@ -11,13 +11,26 @@ import chalk from "chalk";
 
 export function calculateDeploymentCompleteDisplay(
   event: DeploymentCompleteEvent,
-  { moduleName: givenModuleName }: { moduleName: string | null }
+  {
+    moduleName: givenModuleName,
+    isResumed: givenIsResumed,
+    anythingDone = true,
+  }: {
+    moduleName: string | null;
+    isResumed: boolean | null;
+    anythingDone?: boolean;
+  }
 ): string {
   const moduleName = givenModuleName ?? "unknown";
+  const isResumed = givenIsResumed ?? false;
 
   switch (event.result.type) {
     case DeploymentResultType.SUCCESSFUL_DEPLOYMENT: {
-      return _displaySuccessfulDeployment(event.result, { moduleName });
+      return _displaySuccessfulDeployment(event.result, {
+        moduleName,
+        isResumed,
+        anythingDone,
+      });
     }
     case DeploymentResultType.VALIDATION_ERROR: {
       return _displayValidationErrors(event.result, { moduleName });
@@ -36,9 +49,18 @@ export function calculateDeploymentCompleteDisplay(
 
 function _displaySuccessfulDeployment(
   result: SuccessfulDeploymentResult,
-  { moduleName }: { moduleName: string }
+  {
+    moduleName,
+    isResumed,
+    anythingDone,
+  }: { moduleName: string; isResumed: boolean; anythingDone: boolean }
 ): string {
-  let text = `[ ${moduleName} ] successfully deployed 🚀
+  const fillerText =
+    isResumed && !anythingDone
+      ? `deployed successfully on a previous run. No changes detected.`
+      : `successfully deployed 🚀`;
+
+  let text = `[ ${moduleName} ] ${fillerText}
 
 ${chalk.bold("Deployed Addresses")}
 
