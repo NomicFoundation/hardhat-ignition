@@ -61,6 +61,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
     result: null,
     warnings: [],
     isResumed: null,
+    maxFeeBumps: 0,
   };
 
   constructor(private _deploymentParams: DeploymentParameters = {}) {}
@@ -80,6 +81,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
       moduleName: event.moduleName,
       deploymentDir: event.deploymentDir,
       isResumed: event.isResumed,
+      maxFeeBumps: event.maxFeeBumps,
     };
 
     process.stdout.write(calculateStartingMessage(this.state));

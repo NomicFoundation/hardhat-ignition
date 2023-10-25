@@ -18,6 +18,7 @@ describe("ui - calculate starting message display", () => {
     result: null,
     warnings: [],
     isResumed: null,
+    maxFeeBumps: 0,
   };
 
   it("should display the deploying module message", () => {

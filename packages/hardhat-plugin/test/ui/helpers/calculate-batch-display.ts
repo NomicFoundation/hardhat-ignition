@@ -20,6 +20,7 @@ const exampleState: UiState = {
   result: null,
   warnings: [],
   isResumed: false,
+  maxFeeBumps: 0,
 };
 
 describe("ui - calculate batch display", () => {
