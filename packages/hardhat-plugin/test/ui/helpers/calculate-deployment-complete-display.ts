@@ -85,7 +85,7 @@ describe("ui - calculate deployment complete display", () => {
 
     it("should render a resumed deployment with no new deployments", () => {
       const expectedText = testFormat(`
-        [ MyModule ] deployed successfully on a previous run. No changes detected.
+        [ MyModule ] Nothing new to deploy based on previous execution stored in test
 
         ${chalk.bold("Deployed Addresses")}
 
@@ -103,7 +103,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: true,
         anythingDone: false,
-        deploymentDir: "",
+        deploymentDir: "test",
       });
 
       assert.equal(actualText, expectedText);
