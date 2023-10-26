@@ -51,6 +51,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: false,
         anythingDone: true,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);
@@ -76,6 +77,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: false,
         anythingDone: true,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);
@@ -101,6 +103,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: true,
         anythingDone: false,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);
@@ -143,6 +146,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: false,
         anythingDone: true,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);
@@ -185,6 +189,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: false,
         anythingDone: true,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);
@@ -219,6 +224,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: false,
         anythingDone: true,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);
@@ -289,6 +295,7 @@ describe("ui - calculate deployment complete display", () => {
         moduleName: "MyModule",
         isResumed: false,
         anythingDone: true,
+        deploymentDir: "",
       });
 
       assert.equal(actualText, expectedText);

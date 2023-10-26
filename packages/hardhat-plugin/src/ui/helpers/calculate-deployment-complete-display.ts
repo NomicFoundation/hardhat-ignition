@@ -9,16 +9,20 @@ import {
 } from "@nomicfoundation/ignition-core";
 import chalk from "chalk";
 
+import { pathFromCwd } from "./cwd-relative-path";
+
 export function calculateDeploymentCompleteDisplay(
   event: DeploymentCompleteEvent,
   {
     moduleName: givenModuleName,
     isResumed: givenIsResumed,
     anythingDone = true,
+    deploymentDir,
   }: {
     moduleName: string | null;
     isResumed: boolean | null;
     anythingDone?: boolean;
+    deploymentDir: string | undefined | null;
   }
 ): string {
   const moduleName = givenModuleName ?? "unknown";
@@ -30,6 +34,7 @@ export function calculateDeploymentCompleteDisplay(
         moduleName,
         isResumed,
         anythingDone,
+        deploymentDir: deploymentDir!,
       });
     }
     case DeploymentResultType.VALIDATION_ERROR: {
@@ -53,11 +58,19 @@ function _displaySuccessfulDeployment(
     moduleName,
     isResumed,
     anythingDone,
-  }: { moduleName: string; isResumed: boolean; anythingDone: boolean }
+    deploymentDir,
+  }: {
+    moduleName: string;
+    isResumed: boolean;
+    anythingDone: boolean;
+    deploymentDir: string;
+  }
 ): string {
   const fillerText =
     isResumed && !anythingDone
-      ? `deployed successfully on a previous run. No changes detected.`
+      ? `Nothing new to deploy based on previous execution stored in ${pathFromCwd(
+          deploymentDir!
+        )}`
       : `successfully deployed 🚀`;
 
   let text = `[ ${moduleName} ] ${fillerText}
