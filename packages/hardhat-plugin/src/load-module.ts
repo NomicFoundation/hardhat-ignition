@@ -34,13 +34,6 @@ export function loadModule(
     );
   }
 
-  if (!existsSync(fullModulesDirectoryName)) {
-    throw new HardhatPluginError(
-      "hardhat-ignition",
-      `Ignition modules directory ${shortModulesDirectoryName} not found.`
-    );
-  }
-
   debug(`Loading user modules from '${fullModulesDirectoryName}'`);
 
   const fullpathToModule = path.resolve(modulePath);
