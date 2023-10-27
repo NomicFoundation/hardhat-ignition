@@ -62,9 +62,8 @@ export class PrettyEventHandler implements ExecutionEventListener {
     warnings: [],
     isResumed: null,
     maxFeeBumps: 0,
+    gasBumps: {},
   };
-
-  private _gasBumpMap: Record<string, number> = {};
 
   constructor(private _deploymentParams: DeploymentParameters = {}) {}
 
@@ -117,7 +116,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
     }
 
     // render the new batch
-    console.log(calculateBatchDisplay(this.state, this._gasBumpMap).text);
+    console.log(calculateBatchDisplay(this.state).text);
   }
 
   public wipeApply(event: WipeApplyEvent): void {
@@ -244,11 +243,11 @@ export class PrettyEventHandler implements ExecutionEventListener {
   public onchainInteractionBumpFees(
     event: OnchainInteractionBumpFeesEvent
   ): void {
-    if (this._gasBumpMap[event.futureId] === undefined) {
-      this._gasBumpMap[event.futureId] = 0;
+    if (this._uiState.gasBumps[event.futureId] === undefined) {
+      this._uiState.gasBumps[event.futureId] = 0;
     }
 
-    this._gasBumpMap[event.futureId] += 1;
+    this._uiState.gasBumps[event.futureId] += 1;
 
     this._redisplayCurrentBatch();
   }
@@ -444,10 +443,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
   }
 
   private _redisplayCurrentBatch() {
-    const { height, text: batch } = calculateBatchDisplay(
-      this.state,
-      this._gasBumpMap
-    );
+    const { height, text: batch } = calculateBatchDisplay(this.state);
 
     this._clearUpToHeight(height);
 

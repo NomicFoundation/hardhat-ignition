@@ -21,6 +21,7 @@ const exampleState: UiState = {
   warnings: [],
   isResumed: false,
   maxFeeBumps: 0,
+  gasBumps: {},
 };
 
 describe("ui - calculate batch display", () => {
@@ -85,6 +86,26 @@ describe("ui - calculate batch display", () => {
     );
   });
 
+  it("should render a batch with a single timed out future", () => {
+    const expectedText = testFormat(`
+      Batch #1
+        Timed out ExampleModule#Token
+    `);
+
+    assertBatchText(
+      [
+        {
+          status: {
+            type: UiFutureStatusType.TIMEDOUT,
+          },
+          futureId: "ExampleModule#Token",
+        },
+      ],
+      3,
+      expectedText
+    );
+  });
+
   it("should render a batch with a single held future", () => {
     const expectedText = testFormat(`
       Batch #1
@@ -112,6 +133,7 @@ describe("ui - calculate batch display", () => {
       Batch #1
         Failed ExampleModule#Dex
         Held ExampleModule#ENS
+        Timed out ExampleModule#Registry
         Executed ExampleModule#Router
         Executing ExampleModule#Token...
       `);
@@ -139,6 +161,12 @@ describe("ui - calculate batch display", () => {
         },
         {
           status: {
+            type: UiFutureStatusType.TIMEDOUT,
+          },
+          futureId: "ExampleModule#Registry",
+        },
+        {
+          status: {
             type: UiFutureStatusType.HELD,
             heldId: 1,
             reason: "Waiting for multisig signoff",
@@ -146,7 +174,7 @@ describe("ui - calculate batch display", () => {
           futureId: "ExampleModule#ENS",
         },
       ],
-      6,
+      7,
       expectedText
     );
   });
@@ -157,13 +185,10 @@ function assertBatchText(
   expectedHeight: number,
   expectedText: string
 ) {
-  const { text: actualText, height } = calculateBatchDisplay(
-    {
-      ...exampleState,
-      batches: [batch],
-    },
-    {}
-  );
+  const { text: actualText, height } = calculateBatchDisplay({
+    ...exampleState,
+    batches: [batch],
+  });
 
   assert.equal(height, expectedHeight);
   assert.equal(actualText, expectedText);
