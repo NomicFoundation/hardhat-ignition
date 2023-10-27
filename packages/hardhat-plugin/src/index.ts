@@ -1,6 +1,7 @@
 import "@nomicfoundation/hardhat-ethers";
 import {
   DeploymentParameters,
+  ExecutionEventType,
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
@@ -139,6 +140,27 @@ ignitionScope
       const artifactResolver = new HardhatArtifactResolver(hre);
 
       const executionEventListener = new PrettyEventHandler();
+
+      // setTimeout(() => {
+      //   executionEventListener.onchainInteractionBumpFees({
+      //     futureId: "LockModule#Lock",
+      //     type: ExecutionEventType.ONCHAIN_INTERACTION_BUMP_FEES,
+      //   });
+      // }, 2000);
+
+      // setTimeout(() => {
+      //   executionEventListener.onchainInteractionBumpFees({
+      //     futureId: "LockModule#Lock",
+      //     type: ExecutionEventType.ONCHAIN_INTERACTION_BUMP_FEES,
+      //   });
+      // }, 4000);
+
+      // setTimeout(() => {
+      //   executionEventListener.onchainInteractionBumpFees({
+      //     futureId: "LockModule#Lock",
+      //     type: ExecutionEventType.ONCHAIN_INTERACTION_BUMP_FEES,
+      //   });
+      // }, 6000);
 
       try {
         await deploy({

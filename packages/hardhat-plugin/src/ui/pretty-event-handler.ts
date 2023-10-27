@@ -64,6 +64,8 @@ export class PrettyEventHandler implements ExecutionEventListener {
     maxFeeBumps: 0,
   };
 
+  private _gasBumpMap: Record<string, number> = {};
+
   constructor(private _deploymentParams: DeploymentParameters = {}) {}
 
   public get state(): UiState {
@@ -115,7 +117,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
     }
 
     // render the new batch
-    console.log(calculateBatchDisplay(this.state).text);
+    console.log(calculateBatchDisplay(this.state, this._gasBumpMap).text);
   }
 
   public wipeApply(event: WipeApplyEvent): void {
@@ -240,8 +242,16 @@ export class PrettyEventHandler implements ExecutionEventListener {
   public staticCallComplete(_event: StaticCallCompleteEvent): void {}
 
   public onchainInteractionBumpFees(
-    _event: OnchainInteractionBumpFeesEvent
-  ): void {}
+    event: OnchainInteractionBumpFeesEvent
+  ): void {
+    if (this._gasBumpMap[event.futureId] === undefined) {
+      this._gasBumpMap[event.futureId] = 0;
+    }
+
+    this._gasBumpMap[event.futureId] += 1;
+
+    this._redisplayCurrentBatch();
+  }
 
   public onchainInteractionDropped(
     _event: OnchainInteractionDroppedEvent
@@ -434,7 +444,10 @@ export class PrettyEventHandler implements ExecutionEventListener {
   }
 
   private _redisplayCurrentBatch() {
-    const { height, text: batch } = calculateBatchDisplay(this.state);
+    const { height, text: batch } = calculateBatchDisplay(
+      this.state,
+      this._gasBumpMap
+    );
 
     this._clearUpToHeight(height);
 

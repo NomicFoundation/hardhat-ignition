@@ -157,10 +157,13 @@ function assertBatchText(
   expectedHeight: number,
   expectedText: string
 ) {
-  const { text: actualText, height } = calculateBatchDisplay({
-    ...exampleState,
-    batches: [batch],
-  });
+  const { text: actualText, height } = calculateBatchDisplay(
+    {
+      ...exampleState,
+      batches: [batch],
+    },
+    {}
+  );
 
   assert.equal(height, expectedHeight);
   assert.equal(actualText, expectedText);
