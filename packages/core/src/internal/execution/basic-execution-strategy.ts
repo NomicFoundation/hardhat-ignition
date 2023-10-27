@@ -1,5 +1,3 @@
-import { getAddress } from "ethers";
-
 import {
   decodeArtifactCustomError,
   decodeArtifactFunctionCallResult,
@@ -78,7 +76,7 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
 
     return {
       type: ExecutionResultType.SUCCESS,
-      address: getAddress(contractAddress),
+      address: contractAddress,
     };
   }
 
