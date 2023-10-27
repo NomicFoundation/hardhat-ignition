@@ -1,10 +1,11 @@
-import type {
+import {
   EventFragment,
   Fragment,
   FunctionFragment,
   Interface,
   ParamType,
   Result,
+  getAddress,
 } from "ethers";
 
 import { IgnitionError } from "../../errors";
@@ -362,7 +363,9 @@ export function getEventArgumentFromReceipt(
   eventIndex: number,
   nameOrIndex: string | number
 ): EvmValue {
-  const emitterLogs = receipt.logs.filter((l) => l.address === emitterAddress);
+  const emitterLogs = receipt.logs.filter(
+    (l) => getAddress(l.address) === emitterAddress
+  );
 
   const { ethers } = require("ethers") as typeof import("ethers");
   const iface = new ethers.Interface(emitterArtifact.abi);
