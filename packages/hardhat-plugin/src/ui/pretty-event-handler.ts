@@ -38,6 +38,7 @@ import { calculateBatchDisplay } from "./helpers/calculate-batch-display";
 import { calculateDeployingModulePanel } from "./helpers/calculate-deploying-module-panel";
 import { calculateDeploymentCompleteDisplay } from "./helpers/calculate-deployment-complete-display";
 import { calculateStartingMessage } from "./helpers/calculate-starting-message";
+import { wasAnythingExecuted } from "./helpers/was-anything-executed";
 import {
   UiBatches,
   UiFuture,
@@ -261,10 +262,8 @@ export class PrettyEventHandler implements ExecutionEventListener {
       batches: this._applyResultToBatches(this.state.batches, event.result),
     };
 
-    const anythingDone = this.state.currentBatch > 0;
-
     // If batches where executed, rerender the last batch
-    if (anythingDone) {
+    if (wasAnythingExecuted(this.state)) {
       this._redisplayCurrentBatch();
     } else {
       // Otherwise only the completion panel will be shown so clear
@@ -272,12 +271,7 @@ export class PrettyEventHandler implements ExecutionEventListener {
       this._clearCurrentLine();
     }
 
-    console.log(
-      calculateDeploymentCompleteDisplay(event, {
-        ...this.state,
-        anythingDone,
-      })
-    );
+    console.log(calculateDeploymentCompleteDisplay(event, this.state));
   }
 
   public reconciliationWarnings(event: ReconciliationWarningsEvent): void {

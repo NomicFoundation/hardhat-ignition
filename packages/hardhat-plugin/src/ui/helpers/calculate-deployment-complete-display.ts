@@ -9,32 +9,30 @@ import {
 } from "@nomicfoundation/ignition-core";
 import chalk from "chalk";
 
+import { UiState } from "../types";
+
 import { pathFromCwd } from "./cwd-relative-path";
+import { wasAnythingExecuted } from "./was-anything-executed";
 
 export function calculateDeploymentCompleteDisplay(
   event: DeploymentCompleteEvent,
-  {
-    moduleName: givenModuleName,
-    isResumed: givenIsResumed,
-    anythingDone = true,
-    deploymentDir,
-  }: {
-    moduleName: string | null;
-    isResumed: boolean | null;
-    anythingDone?: boolean;
-    deploymentDir: string | undefined | null;
-  }
+  uiState: Pick<
+    UiState,
+    "moduleName" | "isResumed" | "batches" | "deploymentDir"
+  >
 ): string {
-  const moduleName = givenModuleName ?? "unknown";
-  const isResumed = givenIsResumed ?? false;
+  const moduleName = uiState.moduleName ?? "unknown";
+  const isResumed = uiState.isResumed ?? false;
 
   switch (event.result.type) {
     case DeploymentResultType.SUCCESSFUL_DEPLOYMENT: {
+      const isRerunWithNoChanges: boolean =
+        isResumed && !wasAnythingExecuted(uiState);
+
       return _displaySuccessfulDeployment(event.result, {
         moduleName,
-        isResumed,
-        anythingDone,
-        deploymentDir: deploymentDir!,
+        isRerunWithNoChanges,
+        deploymentDir: uiState.deploymentDir,
       });
     }
     case DeploymentResultType.VALIDATION_ERROR: {
@@ -56,22 +54,19 @@ function _displaySuccessfulDeployment(
   result: SuccessfulDeploymentResult,
   {
     moduleName,
-    isResumed,
-    anythingDone,
+    isRerunWithNoChanges,
     deploymentDir,
   }: {
     moduleName: string;
-    isResumed: boolean;
-    anythingDone: boolean;
-    deploymentDir: string;
+    isRerunWithNoChanges: boolean;
+    deploymentDir: string | null | undefined;
   }
 ): string {
-  const fillerText =
-    isResumed && !anythingDone
-      ? `Nothing new to deploy based on previous execution stored in ${pathFromCwd(
-          deploymentDir!
-        )}`
-      : `successfully deployed 🚀`;
+  const fillerText = isRerunWithNoChanges
+    ? `Nothing new to deploy based on previous execution stored in ${pathFromCwd(
+        deploymentDir ?? "Not provided"
+      )}`
+    : `successfully deployed 🚀`;
 
   let text = `[ ${moduleName} ] ${fillerText}
 
