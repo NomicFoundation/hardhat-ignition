@@ -1,7 +1,6 @@
 import "@nomicfoundation/hardhat-ethers";
 import {
   DeploymentParameters,
-  ExecutionEventType,
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
