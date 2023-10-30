@@ -10,10 +10,11 @@ If you find a bug or want to propose a new feature, please open an issue. Pull r
 
 This repository is a monorepo handled with `npm` workspaces.
 
-There are three packages:
+There are four packages:
 
 - [**core**](./packages/core/README.md) - containing the ignition library for orchestrating deployments
-- [**hardhat-plugin**](./packages/hardhat-plugin/README.md) - containing the Hardhat plugin wrapper for the core library
+- [**hardhat-plugin**](./packages/hardhat-plugin/README.md) - containing the Hardhat plugin wrapper for the core library, with ethers integration
+- [**hardhat-plugin-viem**](./packages/hardhat-plugin-viem/README.md) - containing the Hardhat plugin wrapper for the core library, with viem integration
 - [**ui**](./packages/ui/README.md) - containing the UI for the visualize report
 
 ## Setup
@@ -75,9 +76,10 @@ To publish ignition:
 5. Create a release branch `git checkout -b release/yyyy-mm-dd`
 6. Update the `CHANGELOG.md` under `./packages/core`.
 7. Update the `CHANGELOG.md` under `./packages/hardhat-plugin`.
-8. Update the `CHANGELOG.md` under `./packages/ui`.
-9. Update the package versions based on semver: `npm version --no-git-tag-version --workspaces patch #minor #major`
-10. Update the version of dependencies:
+8. Update the `CHANGELOG.md` under `./packages/hardhat-plugin-viem`.
+9. Update the `CHANGELOG.md` under `./packages/ui`.
+10. Update the package versions based on semver: `npm version --no-git-tag-version --workspaces patch #minor #major`
+11. Update the version of dependencies:
 
 - cores version in hardhat-ui deps
 - cores and uis versions in hardhat-ignition devDeps and peerDeps
@@ -96,7 +98,7 @@ yyyy-mm-dd` release.
 13. On a successful check, `rebase merge` the release branch into `main`
 14. Switch to main branch and pull the latest changes
 15. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
-16. Publish `@nomicfoundation/ignition-core`, `@nomicfoundation/ignition-ui` and `@nomicfoundation/hardhat-ignition` : `npm publish -w @nomicfoundation/ignition-core -w @nomicfoundation/ignition-ui -w @nomicfoundation/hardhat-ignition`
+16. Publish `@nomicfoundation/ignition-core`, `@nomicfoundation/ignition-ui`, `@nomicfoundation/hardhat-ignition` and `@nomicfoundation/hardhat-ignition-viem` : `npm publish -w @nomicfoundation/ignition-core -w @nomicfoundation/ignition-ui -w @nomicfoundation/hardhat-ignition -w @nomicfoundation/hardhat-ignition-viem`
 17. Create a release on github off of the pushed tag
 
 ## Manual testing

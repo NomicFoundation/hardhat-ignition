@@ -5,7 +5,11 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*",
+      "packages/core",
+      "packages/ui",
+      "packages/hardhat-plugin",
+      "packages/hardhat-plugin-ethers",
+      "packages/hardhat-plugin-viem",
       "examples/*"
     ]
   },
