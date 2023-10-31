@@ -184,6 +184,27 @@ describe("send", () => {
     assert.equal(sendFuture.from.accountIndex, 1);
   });
 
+  it("Should be able to pass an AccountRuntimeValue as address", () => {
+    const moduleWithDependentContracts = buildModule("Module1", (m) => {
+      m.send("test_send", m.getAccount(1), 0n, "");
+
+      return {};
+    });
+
+    assert.isDefined(moduleWithDependentContracts);
+
+    const sendFuture = [...moduleWithDependentContracts.futures].find(
+      ({ id }) => id === "Module1#test_send"
+    );
+
+    if (!(sendFuture instanceof SendDataFutureImplementation)) {
+      assert.fail("Not a send data future");
+    }
+
+    assertInstanceOf(sendFuture.to, AccountRuntimeValueImplementation);
+    assert.equal(sendFuture.to.accountIndex, 1);
+  });
+
   it("Should be able to pass a module param as address", () => {
     const module = buildModule("Module", (m) => {
       const paramWithDefault = m.getParameter("addressWithDefault", "0x000000");
@@ -314,6 +335,18 @@ describe("send", () => {
               return { another };
             }),
           /Invalid address given/
+        );
+      });
+
+      it("should not allow the from and to address to be the same", () => {
+        assert.throws(
+          () =>
+            buildModule("Module1", (m) => {
+              m.send("id", m.getAccount(1), 0n, "", { from: m.getAccount(1) });
+
+              return {};
+            }),
+          /The "to" and "from" addresses are the same/
         );
       });
     });

@@ -837,7 +837,11 @@ class IgnitionModuleBuilderImplementation<
 
   public send(
     id: string,
-    to: string | AddressResolvableFuture | ModuleParameterRuntimeValue<string>,
+    to:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>
+      | AccountRuntimeValue,
     value?: bigint | ModuleParameterRuntimeValue<bigint>,
     data?: string,
     options: SendDataOptions = {}
@@ -859,6 +863,7 @@ class IgnitionModuleBuilderImplementation<
     this._assertValidValue(val, this.send);
     this._assertValidData(data, this.send);
     this._assertValidFrom(options.from, this.send);
+    this._assertUniqueToAndFrom(to, options.from, this.send);
     /* validation end */
 
     const future = new SendDataFutureImplementation(
@@ -1105,12 +1110,14 @@ m.${futureConstructor.name}(..., { id: "MyUniqueId"})`,
     address:
       | string
       | AddressResolvableFuture
-      | ModuleParameterRuntimeValue<string>,
+      | ModuleParameterRuntimeValue<string>
+      | AccountRuntimeValue,
     func: (...[]: any[]) => any
   ) {
     if (
       typeof address !== "string" &&
       !isModuleParameterRuntimeValue(address) &&
+      !isAccountRuntimeValue(address) &&
       !isAddressResolvableFuture(address)
     ) {
       this._throwErrorWithStackTrace(`Invalid address given`, func);
@@ -1123,6 +1130,36 @@ m.${futureConstructor.name}(..., { id: "MyUniqueId"})`,
   ) {
     if (typeof data !== "string" && data !== undefined) {
       this._throwErrorWithStackTrace(`Invalid data given`, func);
+    }
+  }
+
+  private _assertUniqueToAndFrom(
+    to:
+      | string
+      | AddressResolvableFuture
+      | ModuleParameterRuntimeValue<string>
+      | AccountRuntimeValue,
+    from: string | AccountRuntimeValue | undefined,
+    func: (...[]: any[]) => any
+  ) {
+    if (
+      typeof to === "string" &&
+      typeof from === "string" &&
+      to.toLowerCase() === from.toLowerCase()
+    ) {
+      this._throwErrorWithStackTrace(
+        `The "to" and "from" addresses are the same`,
+        func
+      );
+    } else if (
+      isAccountRuntimeValue(to) &&
+      isAccountRuntimeValue(from) &&
+      to.accountIndex === from.accountIndex
+    ) {
+      this._throwErrorWithStackTrace(
+        `The "to" and "from" addresses are the same`,
+        func
+      );
     }
   }
 }

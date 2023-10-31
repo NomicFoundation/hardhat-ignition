@@ -20,6 +20,7 @@ import {
   resolveFutureFrom,
   resolveLibraries,
   resolveReadEventArgumentResult,
+  resolveToAddress,
   resolveValue,
 } from "./future-resolvers";
 
@@ -194,10 +195,11 @@ export async function buildInitializeMessageFor(
           future,
           strategy,
           {
-            to: resolveAddressLike(
+            to: resolveToAddress(
               future.to,
               deploymentState,
-              deploymentParameters
+              deploymentParameters,
+              accounts
             ),
             value: resolveValue(
               future.value,
