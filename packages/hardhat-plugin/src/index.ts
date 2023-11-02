@@ -75,6 +75,7 @@ ignitionScope
     "defaultSender",
     "Set the default sender for the deployment"
   )
+  .addOptionalParam("strategy", "Set the deployment strategy to use", "basic")
   .addFlag("reset", "Wipes the existing deployment state before deploying")
   .addFlag("verify", "Verify the deployment on Etherscan")
   .setDescription("Deploy a module to the specified network")
@@ -87,6 +88,7 @@ ignitionScope
         defaultSender,
         reset,
         verify,
+        strategy: strategyName,
       }: {
         modulePath: string;
         parameters?: string;
@@ -94,6 +96,7 @@ ignitionScope
         defaultSender: string | undefined;
         reset: boolean;
         verify: boolean;
+        strategy: "basic" | "create2";
       },
       hre
     ) => {
@@ -106,6 +109,13 @@ ignitionScope
       );
       const { loadModule } = await import("./utils/load-module");
       const { PrettyEventHandler } = await import("./ui/pretty-event-handler");
+
+      if (strategyName !== "basic" && strategyName !== "create2") {
+        throw new NomicLabsHardhatPluginError(
+          "hardhat-ignition",
+          "Invalid strategy name, must be either 'basic' or 'create2'"
+        );
+      }
 
       if (verify) {
         if (
@@ -213,6 +223,7 @@ ignitionScope
           deploymentParameters: parameters ?? {},
           accounts,
           defaultSender,
+          strategy: strategyName,
         });
 
         if (result.type === "SUCCESSFUL_DEPLOYMENT" && verify) {
