@@ -1,4 +1,4 @@
-import type { GetContractReturnType } from "@nomicfoundation/hardhat-viem/types";
+import type { Contract } from "ethers";
 
 import {
   deploy,
@@ -21,11 +21,11 @@ import { HardhatArtifactResolver } from "./hardhat-artifact-resolver";
 import { errorDeploymentResultToExceptionMessage } from "./utils/error-deployment-result-to-exception-message";
 
 export type DeployedContract<ContractNameT extends string> = {
-  [contractName in ContractNameT]: GetContractReturnType;
+  [contractName in ContractNameT]: Contract;
 };
 
 export class IgnitionHelper {
-  public type = "viem";
+  public type = "ethers";
 
   private _provider: EIP1193Provider;
   private _deploymentDir: string | undefined;
@@ -61,7 +61,10 @@ export class IgnitionHelper {
       config: {},
     }
   ): Promise<
-    IgnitionModuleResultsTToViemContracts<ContractNameT, IgnitionModuleResultsT>
+    IgnitionModuleResultsTToEthersContracts<
+      ContractNameT,
+      IgnitionModuleResultsT
+    >
   > {
     const accounts = (await this._hre.network.provider.request({
       method: "eth_accounts",
@@ -87,13 +90,13 @@ export class IgnitionHelper {
     if (result.type !== DeploymentResultType.SUCCESSFUL_DEPLOYMENT) {
       const message = errorDeploymentResultToExceptionMessage(result);
 
-      throw new HardhatPluginError("hardhat-ignition-viem", message);
+      throw new HardhatPluginError("hardhat-ignition", message);
     }
 
-    return this._toViemContracts(ignitionModule, result);
+    return this._toEthersContracts(ignitionModule, result);
   }
 
-  private async _toViemContracts<
+  private async _toEthersContracts<
     ModuleIdT extends string,
     ContractNameT extends string,
     IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
@@ -105,7 +108,10 @@ export class IgnitionHelper {
     >,
     result: SuccessfulDeploymentResult
   ): Promise<
-    IgnitionModuleResultsTToViemContracts<ContractNameT, IgnitionModuleResultsT>
+    IgnitionModuleResultsTToEthersContracts<
+      ContractNameT,
+      IgnitionModuleResultsT
+    >
   > {
     return Object.fromEntries(
       await Promise.all(
@@ -125,40 +131,39 @@ export class IgnitionHelper {
   private async _getContract(
     future: Future,
     deployedContract: { address: string }
-  ): Promise<GetContractReturnType> {
+  ): Promise<Contract> {
     if (!isContractFuture(future)) {
       throw new HardhatPluginError(
-        "hardhat-ignition-viem",
+        "hardhat-ignition",
         `Expected contract future but got ${future.id} with type ${future.type} instead`
       );
     }
 
-    return this._hre.viem.getContractAt(
-      future.contractName,
-      this._ensureAddressFormat(deployedContract.address)
-    );
-  }
-
-  private _ensureAddressFormat(address: string): `0x${string}` {
-    if (!address.startsWith("0x")) {
-      return `0x${address}`;
+    if ("artifact" in future) {
+      return this._hre.ethers.getContractAt(
+        future.artifact.abi,
+        deployedContract.address
+      );
     }
 
-    return `0x${address.slice(2)}`;
+    return this._hre.ethers.getContractAt(
+      future.contractName,
+      deployedContract.address
+    );
   }
 }
 
-export type IgnitionModuleResultsTToViemContracts<
+export type IgnitionModuleResultsTToEthersContracts<
   ContractNameT extends string,
   IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
 > = {
   [contract in keyof IgnitionModuleResultsT]: IgnitionModuleResultsT[contract] extends
     | NamedArtifactContractDeploymentFuture<ContractNameT>
     | NamedArtifactContractAtFuture<ContractNameT>
-    ? TypeChainViemContractByName<ContractNameT>
-    : GetContractReturnType;
+    ? TypeChainEthersContractByName<ContractNameT>
+    : Contract;
 };
 
 // TODO: Make this work to have support for TypeChain
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type TypeChainViemContractByName<ContractNameT> = GetContractReturnType;
+export type TypeChainEthersContractByName<ContractNameT> = Contract;

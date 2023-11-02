@@ -1,6 +1,6 @@
 {
-  "name": "@nomicfoundation/hardhat-ignition",
-  "version": "0.11.2",
+  "name": "@nomicfoundation/hardhat-ignition-ethers",
+  "version": "0.11.1",
   "license": "MIT",
   "author": "Nomic Foundation",
   "homepage": "https://hardhat.org",
@@ -14,7 +14,8 @@
     "dapps",
     "tooling",
     "solidity",
-    "deployment"
+    "deployment",
+    "ethers"
   ],
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
+    "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
     "@types/d3": "7.4.0",
@@ -87,13 +89,16 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.4",
+    "@nomicfoundation/hardhat-ignition": "^0.11.1",
     "hardhat": "^2.18.0"
   },
   "dependencies": {
-    "@nomicfoundation/ignition-core": "^0.11.2",
-    "@nomicfoundation/ignition-ui": "^0.11.2",
+    "@nomicfoundation/ignition-core": "^0.11.1",
+    "@nomicfoundation/ignition-ui": "^0.11.1",
     "chalk": "^4.0.0",
     "debug": "^4.3.2",
+    "ethers": "^6.7.0",
     "fs-extra": "^10.0.0",
     "prompts": "^2.4.2"
   }

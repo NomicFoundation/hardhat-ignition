@@ -89,6 +89,7 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^0.11.1",
     "@nomicfoundation/hardhat-viem": "^1.0.0",
     "hardhat": "^2.18.0"
   },

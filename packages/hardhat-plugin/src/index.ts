@@ -1,12 +1,11 @@
-import "@nomicfoundation/hardhat-ethers";
 import {
   DeploymentParameters,
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
 import { readdirSync } from "fs-extra";
-import { extendConfig, extendEnvironment, scope } from "hardhat/config";
-import { NomicLabsHardhatPluginError, lazyObject } from "hardhat/plugins";
+import { extendConfig, scope } from "hardhat/config";
+import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 import path from "path";
 
 import "./type-extensions";
@@ -37,17 +36,6 @@ extendConfig((config, userConfig) => {
   const userIgnitionConfig = userConfig.ignition ?? {};
 
   config.ignition = userIgnitionConfig;
-});
-
-/**
- * Add an `ignition` object to the HRE.
- */
-extendEnvironment((hre) => {
-  hre.ignition = lazyObject(() => {
-    const { IgnitionHelper } = require("./ignition-helper");
-
-    return new IgnitionHelper(hre);
-  });
 });
 
 ignitionScope
