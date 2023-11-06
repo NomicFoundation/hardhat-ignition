@@ -422,6 +422,43 @@ describe("stored deployment serializer", () => {
     });
   });
 
+  describe("send", () => {
+    it("should serialize a send", () => {
+      const module = buildModule("Module1", (m) => {
+        m.send("test_send", exampleAddress, 12n, "example_data");
+
+        return {};
+      });
+
+      assertSerializableModuleIn(module);
+    });
+
+    it("should serialize a send with dependencies", () => {
+      const module = buildModule("Module1", (m) => {
+        const contract1 = m.contract("Contract1");
+        const contract2 = m.contract("Contract2");
+
+        m.send("test_send", contract1, 0n, undefined, { after: [contract2] });
+
+        return {};
+      });
+
+      assertSerializableModuleIn(module);
+    });
+
+    it("should serialize a send where the to is from an account", () => {
+      const module = buildModule("Module1", (m) => {
+        const givenAccount = m.getAccount(3);
+
+        m.send("test_send", givenAccount, 12n, "example_data");
+
+        return {};
+      });
+
+      assertSerializableModuleIn(module);
+    });
+  });
+
   describe("useModule", () => {
     it("should serialize a deployment leveraging useModule", () => {
       const submodule = buildModule("Submodule", (m) => {
