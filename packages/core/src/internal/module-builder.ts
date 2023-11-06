@@ -48,6 +48,7 @@ import {
   StaticCallOptions,
 } from "../types/module-builder";
 
+import { equalAddresses, isAddress } from "./execution/utils/address";
 import {
   AccountRuntimeValueImplementation,
   ArtifactContractAtFutureImplementation,
@@ -1114,13 +1115,17 @@ m.${futureConstructor.name}(..., { id: "MyUniqueId"})`,
       | AccountRuntimeValue,
     func: (...[]: any[]) => any
   ) {
+    if (typeof address === "string" && !isAddress(address)) {
+      return this._throwErrorWithStackTrace(`Invalid address given`, func);
+    }
+
     if (
       typeof address !== "string" &&
       !isModuleParameterRuntimeValue(address) &&
       !isAccountRuntimeValue(address) &&
       !isAddressResolvableFuture(address)
     ) {
-      this._throwErrorWithStackTrace(`Invalid address given`, func);
+      return this._throwErrorWithStackTrace(`Invalid address given`, func);
     }
   }
 
@@ -1145,7 +1150,7 @@ m.${futureConstructor.name}(..., { id: "MyUniqueId"})`,
     if (
       typeof to === "string" &&
       typeof from === "string" &&
-      to.toLowerCase() === from.toLowerCase()
+      equalAddresses(to, from)
     ) {
       this._throwErrorWithStackTrace(
         `The "to" and "from" addresses are the same`,
