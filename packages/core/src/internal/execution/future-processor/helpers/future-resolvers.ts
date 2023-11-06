@@ -156,7 +156,7 @@ export function resolveAddressForContractFuture(
 /**
  * Resolve a SendDataFuture's "to" field to a valid ethereum address.
  */
-export function resolveToAddress(
+export function resolveSendToAddress(
   to:
     | string
     | AddressResolvableFuture
