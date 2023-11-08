@@ -159,7 +159,9 @@ export class EthersIgnitionHelper {
 
     if ("artifact" in future) {
       return hre.ethers.getContractAt(
-        future.artifact.abi,
+        // The abi meets the abi spec and we assume we can convert to
+        // an acceptable Ethers abi
+        future.artifact.abi as any[],
         deployedContract.address
       );
     }

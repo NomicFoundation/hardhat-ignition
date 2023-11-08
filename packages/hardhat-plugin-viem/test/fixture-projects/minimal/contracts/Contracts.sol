@@ -3,11 +3,14 @@ pragma solidity >=0.7.0 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 contract Foo {
+  event IncEvent(address indexed sender);
+
   bool public isFoo = true;
   uint256 public x = 1;
 
   function inc() public {
     x++;
+    emit IncEvent(msg.sender);
   }
 
   function incByPositiveNumber(uint256 n) public returns (uint256) {

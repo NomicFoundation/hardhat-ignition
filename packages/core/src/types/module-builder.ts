@@ -1,3 +1,5 @@
+import { Abi } from "abitype";
+
 import { Artifact } from "./artifact";
 import {
   AccountRuntimeValue,
@@ -141,23 +143,23 @@ export interface IgnitionModuleBuilder {
     options?: ContractOptions
   ): NamedArtifactContractDeploymentFuture<ContractNameT>;
 
-  contract(
+  contract<AbiT extends Abi>(
     contractName: string,
-    artifact: Artifact,
+    artifact: Artifact<AbiT>,
     args?: ArgumentType[],
     options?: ContractOptions
-  ): ContractDeploymentFuture;
+  ): ContractDeploymentFuture<AbiT>;
 
   library<LibraryNameT extends string>(
     libraryName: LibraryNameT,
     options?: LibraryOptions
   ): NamedArtifactLibraryDeploymentFuture<LibraryNameT>;
 
-  library(
+  library<AbiT extends Abi>(
     libraryName: string,
-    artifact: Artifact,
+    artifact: Artifact<AbiT>,
     options?: LibraryOptions
-  ): LibraryDeploymentFuture;
+  ): LibraryDeploymentFuture<AbiT>;
 
   call<ContractNameT extends string, FunctionNameT extends string>(
     contractFuture: CallableContractFuture<ContractNameT>,
@@ -183,15 +185,15 @@ export interface IgnitionModuleBuilder {
     options?: ContractAtOptions
   ): NamedArtifactContractAtFuture<ContractNameT>;
 
-  contractAt(
+  contractAt<AbiT extends Abi>(
     contractName: string,
-    artifact: Artifact,
+    artifact: Artifact<AbiT>,
     address:
       | string
       | AddressResolvableFuture
       | ModuleParameterRuntimeValue<string>,
     options?: ContractAtOptions
-  ): ContractAtFuture;
+  ): ContractAtFuture<AbiT>;
 
   readEventArgument(
     futureToReadFrom:

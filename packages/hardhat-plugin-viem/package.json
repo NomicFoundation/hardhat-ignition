@@ -38,6 +38,7 @@
     }
   },
   "scripts": {
+    "prebuild": "ts-node ./scripts/compile-test-fixture-projects.ts",
     "build": "tsc --build",
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix",
@@ -63,6 +64,7 @@
   "dependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.12.0",
     "@nomicfoundation/ignition-core": "^0.12.0",
+    "abitype": "0.10.2",
     "viem": "1.18.1"
   }
 }

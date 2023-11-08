@@ -3,9 +3,12 @@ import type {
   Fragment,
   FunctionFragment,
   Interface,
+  InterfaceAbi,
   ParamType,
   Result,
 } from "ethers";
+
+import { Abi } from "abitype";
 
 import { IgnitionError } from "../../errors";
 import { ERRORS } from "../../errors-list";
@@ -52,7 +55,7 @@ export function encodeDeploymentArguments(
   args: SolidityParameterType[]
 ): string {
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(artifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(artifact.abi));
 
   const encodedArgs = iface.encodeDeploy(args);
 
@@ -90,7 +93,7 @@ export function encodeArtifactFunctionCall(
   }
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(artifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(artifact.abi));
 
   const functionFragment = getFunctionFragment(iface, functionName);
   return iface.encodeFunctionData(functionFragment, args);
@@ -105,7 +108,7 @@ export function decodeArtifactCustomError(
   returnData: string
 ): RevertWithCustomError | RevertWithInvalidData | undefined {
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = ethers.Interface.from(artifact.abi);
+  const iface = ethers.Interface.from(toEthersAbi(artifact.abi));
   const errorFragment = iface.fragments
     .filter(ethers.Fragment.isError)
     .find((ef) => returnData.startsWith(ef.selector));
@@ -145,7 +148,7 @@ export function decodeArtifactFunctionCallResult(
   }
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = ethers.Interface.from(artifact.abi);
+  const iface = ethers.Interface.from(toEthersAbi(artifact.abi));
   const functionFragment = getFunctionFragment(iface, functionName);
 
   try {
@@ -178,7 +181,7 @@ export function validateContractConstructorArgsLength(
   const argsLength = args.length;
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(artifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(artifact.abi));
   const expectedArgsLength = iface.deploy.inputs.length;
 
   if (argsLength !== expectedArgsLength) {
@@ -227,7 +230,7 @@ export function validateArtifactFunction(
   const errors: IgnitionError[] = [];
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(artifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(artifact.abi));
   const fragment = getFunctionFragment(iface, functionName);
 
   // Check that the number of arguments is correct
@@ -306,7 +309,7 @@ export function validateArtifactEventArgumentParams(
   }
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(emitterArtifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(emitterArtifact.abi));
 
   let eventFragment: EventFragment;
   try {
@@ -380,7 +383,7 @@ export function getEventArgumentFromReceipt(
   );
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(emitterArtifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(emitterArtifact.abi));
 
   const eventFragment = getEventFragment(iface, eventName);
   const eventLogs = emitterLogs.filter(
@@ -702,7 +705,7 @@ function validateOverloadedName(
   }
 
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(artifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(artifact.abi));
 
   const fragments = iface.fragments
     .filter((f: Fragment): f is EventFragment | FunctionFragment => {
@@ -816,7 +819,7 @@ export function validateFunctionArgumentParamType(
   argument: string | number
 ): IgnitionError[] {
   const { ethers } = require("ethers") as typeof import("ethers");
-  const iface = new ethers.Interface(artifact.abi);
+  const iface = new ethers.Interface(toEthersAbi(artifact.abi));
   let functionFragment: FunctionFragment;
   try {
     functionFragment = getFunctionFragment(iface, functionName);
@@ -873,4 +876,12 @@ function hasDynamicSize(paramType: ParamType): boolean {
     paramType.type === "bytes" ||
     paramType.type === "string"
   );
+}
+
+/**
+ * A utility function to capture the cast from the `Abi` type to the
+ * ethers type.
+ */
+function toEthersAbi(abi: Abi): InterfaceAbi {
+  return abi as any[];
 }
