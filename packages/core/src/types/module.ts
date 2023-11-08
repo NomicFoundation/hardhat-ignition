@@ -1,3 +1,5 @@
+import { Abi } from "abitype";
+
 import { Artifact } from "./artifact";
 
 /**
@@ -149,13 +151,13 @@ export interface NamedArtifactContractDeploymentFuture<
  *
  * @beta
  */
-export interface ContractDeploymentFuture {
+export interface ContractDeploymentFuture<AbiT extends Abi = Abi> {
   type: FutureType.CONTRACT_DEPLOYMENT;
   id: string;
   module: IgnitionModule;
   dependencies: Set<Future>;
   contractName: string;
-  artifact: Artifact;
+  artifact: Artifact<AbiT>;
   constructorArgs: ArgumentType[];
   libraries: Record<string, ContractFuture<string>>;
   value:
@@ -189,13 +191,13 @@ export interface NamedArtifactLibraryDeploymentFuture<
  *
  * @beta
  */
-export interface LibraryDeploymentFuture {
+export interface LibraryDeploymentFuture<AbiT extends Abi = Abi> {
   type: FutureType.LIBRARY_DEPLOYMENT;
   id: string;
   module: IgnitionModule;
   dependencies: Set<Future>;
   contractName: string;
-  artifact: Artifact;
+  artifact: Artifact<AbiT>;
   libraries: Record<string, ContractFuture<string>>;
   from: string | AccountRuntimeValue | undefined;
 }
@@ -267,7 +269,7 @@ export interface NamedArtifactContractAtFuture<ContractNameT extends string> {
  *
  * @beta
  */
-export interface ContractAtFuture {
+export interface ContractAtFuture<AbiT extends Abi = Abi> {
   type: FutureType.CONTRACT_AT;
   id: string;
   module: IgnitionModule;
@@ -277,7 +279,7 @@ export interface ContractAtFuture {
     | string
     | AddressResolvableFuture
     | ModuleParameterRuntimeValue<string>;
-  artifact: Artifact;
+  artifact: Artifact<AbiT>;
 }
 
 /**

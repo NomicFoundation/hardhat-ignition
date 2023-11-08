@@ -38,6 +38,7 @@
     }
   },
   "scripts": {
+    "prebuild": "ts-node ./scripts/compile-test-fixture-projects.ts",
     "build": "tsc --build",
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix",
@@ -93,9 +94,10 @@
     "hardhat": "^2.18.0"
   },
   "dependencies": {
-    "@nomicfoundation/ignition-core": "^0.11.2",
     "@nomicfoundation/hardhat-ignition": "^0.11.2",
+    "@nomicfoundation/ignition-core": "^0.11.2",
     "@nomicfoundation/ignition-ui": "^0.11.2",
+    "abitype": "0.10.2",
     "chalk": "^4.0.0",
     "debug": "^4.3.2",
     "fs-extra": "^10.0.0",

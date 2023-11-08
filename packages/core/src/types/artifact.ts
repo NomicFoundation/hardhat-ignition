@@ -1,12 +1,14 @@
+import type { Abi } from "abitype";
+
 /**
  * An compilation artifact representing a smart contract.
  *
  * @beta
  */
-export interface Artifact {
+export interface Artifact<AbiT extends Abi = Abi> {
   contractName: string;
   bytecode: string;
-  abi: any[];
+  abi: AbiT;
   linkReferences: Record<
     string,
     Record<string, Array<{ length: number; start: number }>>
