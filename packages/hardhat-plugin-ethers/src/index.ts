@@ -1,5 +1,5 @@
-import "@nomicfoundation/hardhat-ignition";
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-ignition";
 import { extendEnvironment } from "hardhat/config";
 import { HardhatPluginError, lazyObject } from "hardhat/plugins";
 
