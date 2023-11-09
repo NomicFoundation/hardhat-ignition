@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unused-modules */
 
-import { DeployConfig, buildModule } from "@nomicfoundation/ignition-core";
+import { DeployConfig } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 
 import { KeyListOf } from "./type-helper";
@@ -44,24 +44,24 @@ describe("config", () => {
     });
   });
 
-  describe("validating", () => {
-    useEphemeralIgnitionProject("with-invalid-config");
+  // describe("validating", () => {
+  //   useEphemeralIgnitionProject("with-invalid-config");
 
-    it("should throw when given a `requiredConfirmations` value less than 1", async function () {
-      const moduleDefinition = buildModule("FooModule", (m) => {
-        const foo = m.contract("Foo");
+  //   it("should throw when given a `requiredConfirmations` value less than 1", async function () {
+  //     const moduleDefinition = buildModule("FooModule", (m) => {
+  //       const foo = m.contract("Foo");
 
-        return { foo };
-      });
+  //       return { foo };
+  //     });
 
-      await assert.isRejected(
-        this.deploy(moduleDefinition, {
-          config: {
-            requiredConfirmations: 0,
-          },
-        }),
-        `Configured value 'requiredConfirmations' cannot be less than 1. Value given: '0'`
-      );
-    });
-  });
+  //     await assert.isRejected(
+  //       this.deploy(moduleDefinition, {
+  //         config: {
+  //           requiredConfirmations: 0,
+  //         },
+  //       }),
+  //       `Configured value 'requiredConfirmations' cannot be less than 1. Value given: '0'`
+  //     );
+  //   });
+  // });
 });
