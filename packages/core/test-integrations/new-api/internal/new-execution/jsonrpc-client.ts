@@ -260,7 +260,7 @@ describe("JSON-RPC client", function () {
         assert.isFalse(result1.customErrorReported);
       });
 
-      it("Should rethrow an IgnitionError if the error message indicates an incorrectly configured gas fee", async function () {
+      it("Should rethrow an IgnitionError if the error message indicates an incorrectly configured base gas fee versus the node's block gas limit", async function () {
         class MockProvider {
           public async request(req: { method: string; _: any[] }) {
             if (req.method === "eth_call") {
