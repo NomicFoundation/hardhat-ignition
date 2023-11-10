@@ -23,4 +23,11 @@ describe("module error handling", () => {
       /User thrown error/
     );
   });
+
+  it("should error on attempting to use a nonexistent IgnitionHelper", function () {
+    assert.throws(
+      () => (this.hre as any).ignition.deploy(),
+      /Please install either `@nomicfoundation\/hardhat-ignition-viem` or `@nomicfoundation\/hardhat-ignition-ethers` to use Ignition in your Hardhat tests/
+    );
+  });
 });

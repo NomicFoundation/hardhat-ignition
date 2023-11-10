@@ -4,8 +4,11 @@ import {
   StatusResult,
 } from "@nomicfoundation/ignition-core";
 import { readdirSync } from "fs-extra";
-import { extendConfig, scope } from "hardhat/config";
-import { NomicLabsHardhatPluginError } from "hardhat/plugins";
+import { extendConfig, extendEnvironment, scope } from "hardhat/config";
+import {
+  HardhatPluginError,
+  NomicLabsHardhatPluginError,
+} from "hardhat/plugins";
 import path from "path";
 
 import "./type-extensions";
@@ -36,6 +39,23 @@ extendConfig((config, userConfig) => {
   const userIgnitionConfig = userConfig.ignition ?? {};
 
   config.ignition = userIgnitionConfig;
+});
+
+/**
+ * Add an `ignition` stub to throw
+ */
+extendEnvironment((hre) => {
+  if ((hre as any).ignition === undefined) {
+    (hre as any).ignition = {
+      type: "stub",
+      deploy: () => {
+        throw new HardhatPluginError(
+          "hardhat-ignition",
+          "Please install either `@nomicfoundation/hardhat-ignition-viem` or `@nomicfoundation/hardhat-ignition-ethers` to use Ignition in your Hardhat tests"
+        );
+      },
+    };
+  }
 });
 
 ignitionScope

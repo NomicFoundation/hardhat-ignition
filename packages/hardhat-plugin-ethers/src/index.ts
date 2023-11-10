@@ -9,7 +9,11 @@ import "./type-extensions";
  * Add an `ignition` object to the HRE.
  */
 extendEnvironment((hre) => {
-  if (hre.ignition !== undefined && hre.ignition.type !== "ethers") {
+  if (
+    hre.ignition !== undefined &&
+    hre.ignition.type !== "stub" &&
+    hre.ignition.type !== "ethers"
+  ) {
     throw new HardhatPluginError(
       "hardhat-ignition-ethers",
       `Found ${hre.ignition.type} and ethers, but only one Hardhat Ignition extention plugin can be used at a time.`
