@@ -12,7 +12,7 @@ extendEnvironment((hre) => {
   if (
     hre.ignition !== undefined &&
     hre.ignition.type !== "stub" &&
-    hre.ignition.type !== "ethers"
+    hre.ignition.type !== "viem"
   ) {
     throw new HardhatPluginError(
       "hardhat-ignition-ethers",
@@ -21,8 +21,8 @@ extendEnvironment((hre) => {
   }
 
   hre.ignition = lazyObject(() => {
-    const { IgnitionHelper } = require("./ignition-helper");
+    const { EthersIgnitionHelper } = require("./ethers-ignition-helper");
 
-    return new IgnitionHelper(hre);
+    return new EthersIgnitionHelper(hre);
   });
 });

@@ -1,34 +1,43 @@
-import type { Contract } from "ethers";
-
+import { HardhatIgnitionDeployer } from "@nomicfoundation/hardhat-ignition/helpers";
 import {
-  deploy,
   DeployConfig,
   DeploymentParameters,
-  DeploymentResultType,
   EIP1193Provider,
   Future,
   IgnitionModule,
   IgnitionModuleResult,
-  isContractFuture,
   NamedArtifactContractAtFuture,
   NamedArtifactContractDeploymentFuture,
   SuccessfulDeploymentResult,
+  isContractFuture,
 } from "@nomicfoundation/ignition-core";
+import { Contract } from "ethers";
 import { HardhatPluginError } from "hardhat/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-
-import { HardhatArtifactResolver } from "./hardhat-artifact-resolver";
-import { errorDeploymentResultToExceptionMessage } from "./utils/error-deployment-result-to-exception-message";
 
 export type DeployedContract<ContractNameT extends string> = {
   [contractName in ContractNameT]: Contract;
 };
 
-export class IgnitionHelper {
+export type IgnitionModuleResultsTToEthersContracts<
+  ContractNameT extends string,
+  IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
+> = {
+  [contract in keyof IgnitionModuleResultsT]: IgnitionModuleResultsT[contract] extends
+    | NamedArtifactContractDeploymentFuture<ContractNameT>
+    | NamedArtifactContractAtFuture<ContractNameT>
+    ? TypeChainEthersContractByName<ContractNameT>
+    : Contract;
+};
+
+// TODO: Make this work to have support for TypeChain
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type TypeChainEthersContractByName<ContractNameT> = Contract;
+
+export class EthersIgnitionHelper {
   public type = "ethers";
 
-  private _provider: EIP1193Provider;
-  private _deploymentDir: string | undefined;
+  private _hardhatIgnitionDeployer: HardhatIgnitionDeployer;
 
   constructor(
     private _hre: HardhatRuntimeEnvironment,
@@ -36,8 +45,12 @@ export class IgnitionHelper {
     provider?: EIP1193Provider,
     deploymentDir?: string
   ) {
-    this._provider = provider ?? this._hre.network.provider;
-    this._deploymentDir = deploymentDir;
+    this._hardhatIgnitionDeployer = new HardhatIgnitionDeployer(
+      this._hre,
+      this._config,
+      provider ?? this._hre.network.provider,
+      deploymentDir
+    );
   }
 
   public async deploy<
@@ -50,15 +63,9 @@ export class IgnitionHelper {
       ContractNameT,
       IgnitionModuleResultsT
     >,
-    {
-      parameters = {},
-      config: perDeployConfig = {},
-    }: {
+    options?: {
       parameters?: DeploymentParameters;
       config?: Partial<DeployConfig>;
-    } = {
-      parameters: {},
-      config: {},
     }
   ): Promise<
     IgnitionModuleResultsTToEthersContracts<
@@ -66,34 +73,10 @@ export class IgnitionHelper {
       IgnitionModuleResultsT
     >
   > {
-    const accounts = (await this._hre.network.provider.request({
-      method: "eth_accounts",
-    })) as string[];
+    const successfulDeploymentResult =
+      await this._hardhatIgnitionDeployer.deploy(ignitionModule, options);
 
-    const artifactResolver = new HardhatArtifactResolver(this._hre);
-
-    const resolvedConfig: Partial<DeployConfig> = {
-      ...this._config,
-      ...perDeployConfig,
-    };
-
-    const result = await deploy({
-      config: resolvedConfig,
-      provider: this._provider,
-      deploymentDir: this._deploymentDir,
-      artifactResolver,
-      ignitionModule,
-      deploymentParameters: parameters,
-      accounts,
-    });
-
-    if (result.type !== DeploymentResultType.SUCCESSFUL_DEPLOYMENT) {
-      const message = errorDeploymentResultToExceptionMessage(result);
-
-      throw new HardhatPluginError("hardhat-ignition", message);
-    }
-
-    return this._toEthersContracts(ignitionModule, result);
+    return this._toEthersContracts(ignitionModule, successfulDeploymentResult);
   }
 
   private async _toEthersContracts<
@@ -152,18 +135,3 @@ export class IgnitionHelper {
     );
   }
 }
-
-export type IgnitionModuleResultsTToEthersContracts<
-  ContractNameT extends string,
-  IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
-> = {
-  [contract in keyof IgnitionModuleResultsT]: IgnitionModuleResultsT[contract] extends
-    | NamedArtifactContractDeploymentFuture<ContractNameT>
-    | NamedArtifactContractAtFuture<ContractNameT>
-    ? TypeChainEthersContractByName<ContractNameT>
-    : Contract;
-};
-
-// TODO: Make this work to have support for TypeChain
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type TypeChainEthersContractByName<ContractNameT> = Contract;

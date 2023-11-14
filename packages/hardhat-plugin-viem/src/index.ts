@@ -12,7 +12,7 @@ extendEnvironment((hre) => {
   if (
     hre.ignition !== undefined &&
     hre.ignition.type !== "stub" &&
-    hre.ignition.type !== "viem"
+    hre.ignition.type !== "ethers"
   ) {
     throw new HardhatPluginError(
       "hardhat-ignition-viem",
@@ -21,8 +21,8 @@ extendEnvironment((hre) => {
   }
 
   hre.ignition = lazyObject(() => {
-    const { IgnitionHelper } = require("./ignition-helper");
+    const { ViemIgnitionHelper } = require("./viem-ignition-helper");
 
-    return new IgnitionHelper(hre);
+    return new ViemIgnitionHelper(hre);
   });
 });
