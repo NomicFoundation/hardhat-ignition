@@ -86,7 +86,7 @@ ignitionScope
       const { HardhatArtifactResolver } = await import(
         "./hardhat-artifact-resolver"
       );
-      const { loadModule } = await import("./load-module");
+      const { loadModule } = await import("./utils/load-module");
       const { PrettyEventHandler } = await import("./ui/pretty-event-handler");
       const { shouldBeHardhatPluginError } = await import(
         "./utils/shouldBeHardhatPluginError"
@@ -187,7 +187,7 @@ ignitionScope
         "@nomicfoundation/ignition-core"
       );
 
-      const { loadModule } = await import("./load-module");
+      const { loadModule } = await import("./utils/load-module");
       const { open } = await import("./utils/open");
       const { shouldBeHardhatPluginError } = await import(
         "./utils/shouldBeHardhatPluginError"
