@@ -12,7 +12,7 @@ extendEnvironment((hre) => {
   if (
     hre.ignition !== undefined &&
     hre.ignition.type !== "stub" &&
-    hre.ignition.type !== "ethers"
+    hre.ignition.type !== "viem"
   ) {
     throw new HardhatPluginError(
       "hardhat-ignition-viem",
