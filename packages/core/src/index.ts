@@ -15,4 +15,6 @@ export * from "./types/module-builder";
 export * from "./types/provider";
 export * from "./types/serialization";
 export * from "./types/status";
+export * from "./types/verify";
+export { verify } from "./verify";
 export { wipe } from "./wipe";

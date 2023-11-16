@@ -6,6 +6,11 @@ import { DeployConfig } from "@nomicfoundation/ignition-core";
 
 import { IgnitionHelper } from "./ignition-helper";
 
+interface EtherscanConfig {
+  apiKey: string | Record<string, string>;
+  enabled: boolean;
+}
+
 declare module "hardhat/types/config" {
   export interface ProjectPathsUserConfig {
     ignition?: string;
@@ -17,10 +22,12 @@ declare module "hardhat/types/config" {
 
   export interface HardhatUserConfig {
     ignition?: Partial<DeployConfig>;
+    etherscan?: Partial<EtherscanConfig>;
   }
 
   export interface HardhatConfig {
     ignition: Partial<DeployConfig>;
+    etherscan: Partial<EtherscanConfig>;
   }
 }
 

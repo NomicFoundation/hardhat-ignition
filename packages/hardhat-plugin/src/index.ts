@@ -6,7 +6,11 @@ import {
 } from "@nomicfoundation/ignition-core";
 import { readdirSync } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
-import { NomicLabsHardhatPluginError, lazyObject } from "hardhat/plugins";
+import {
+  HardhatPluginError,
+  NomicLabsHardhatPluginError,
+  lazyObject,
+} from "hardhat/plugins";
 import path from "path";
 
 import "./type-extensions";
@@ -310,6 +314,120 @@ ignitionScope
       console.log(`${futureId} state has been cleared`);
     }
   );
+
+ignitionScope
+  .task("verify")
+  .addPositionalParam("deploymentId", "The id of the deployment to verify")
+  .setDescription(
+    "Verify contracts from a given deployment on configured block exporers"
+  )
+  .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
+    const { verify } = await import("@nomicfoundation/ignition-core");
+    const { Etherscan } = await import(
+      "@nomicfoundation/hardhat-verify/etherscan"
+    );
+    const { shouldBeHardhatPluginError } = await import(
+      "./utils/shouldBeHardhatPluginError"
+    );
+
+    if (
+      hre.config.etherscan === undefined ||
+      hre.config.etherscan.apiKey === undefined
+    ) {
+      throw new HardhatPluginError(
+        "@nomicfoundation/hardhat-ignition",
+        "No etherscan API key configured"
+      );
+    }
+
+    const deploymentDir = path.join(
+      hre.config.paths.ignition,
+      "deployments",
+      deploymentId
+    );
+
+    const etherscanApiUrl = "https://api%.etherscan.io/api";
+    const etherscanWebUrl = "https://%etherscan.io";
+
+    const userApiKeyConfig = hre.config.etherscan.apiKey;
+    const apiKeyList = (
+      typeof userApiKeyConfig === "string"
+        ? ["mainnet", userApiKeyConfig]
+        : Object.entries(userApiKeyConfig)
+    ).map(([network, apiKey]) => {
+      const result = [apiKey];
+
+      const networkName = network.toLowerCase();
+
+      if (networkName === "mainnet") {
+        result.push(
+          etherscanApiUrl.replace("%", ""),
+          etherscanWebUrl.replace("%", "")
+        );
+      } else {
+        result.push(
+          etherscanApiUrl.replace("%", `-${networkName}`),
+          etherscanWebUrl.replace("%", `${networkName}.`)
+        );
+      }
+
+      return result as [string, string, string];
+    });
+
+    try {
+      const contractsToVerify = await verify(deploymentDir);
+
+      for (const etherscanConfig of apiKeyList) {
+        const instance = new Etherscan(...etherscanConfig);
+
+        for (const {
+          address,
+          compilerVersion,
+          sourceCode,
+          name,
+          args,
+        } of contractsToVerify) {
+          console.log(`Verifying contract "${name}" on Etherscan...`);
+
+          const { message: guid } = await instance.verify(
+            address,
+            sourceCode,
+            name,
+            compilerVersion,
+            args
+          );
+
+          await new Promise((res) => setTimeout(res, 1000));
+          const verificationStatus = await instance.getVerificationStatus(guid);
+
+          if (verificationStatus.isSuccess()) {
+            const contractURL = instance.getContractUrl(address);
+            console.log(
+              `Successfully verified contract "${name}" on Etherscan: ${contractURL}`
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (e instanceof IgnitionError && shouldBeHardhatPluginError(e)) {
+        throw new NomicLabsHardhatPluginError("hardhat-ignition", e.message, e);
+      }
+
+      throw e;
+    }
+
+    // get the deployment info
+
+    // retrieve the contract address from the execution state
+
+    // retrieve the source code from the build info
+
+    // construct the contract name as artifact sourceName + contractName
+
+    // retrieve compiler version from the build info long compiler version
+
+    // retrieve encoded constructor arguments from the execution state
+  });
 
 function resolveParametersFromModuleName(
   moduleName: string,

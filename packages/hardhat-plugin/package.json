@@ -92,6 +92,7 @@
     "hardhat": "^2.18.0"
   },
   "dependencies": {
+    "@nomicfoundation/hardhat-verify": "^2.0.1",
     "@nomicfoundation/ignition-core": "^0.11.2",
     "@nomicfoundation/ignition-ui": "^0.11.2",
     "chalk": "^4.0.0",
