@@ -22,10 +22,6 @@ import { hardhat } from "viem/chains";
 import { HardhatArtifactResolver } from "../../src/hardhat-artifact-resolver";
 import { errorDeploymentResultToExceptionMessage } from "../../src/utils/error-deployment-result-to-exception-message";
 
-export type DeployedContract<ContractNameT extends string> = {
-  [contractName in ContractNameT]: GetContractReturnType;
-};
-
 export type IgnitionModuleResultsTToViemContracts<
   ContractNameT extends string,
   IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>

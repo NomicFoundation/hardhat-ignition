@@ -15,10 +15,6 @@ import { Contract } from "ethers";
 import { HardhatPluginError } from "hardhat/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-export type DeployedContract<ContractNameT extends string> = {
-  [contractName in ContractNameT]: Contract;
-};
-
 export type IgnitionModuleResultsTToEthersContracts<
   ContractNameT extends string,
   IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>

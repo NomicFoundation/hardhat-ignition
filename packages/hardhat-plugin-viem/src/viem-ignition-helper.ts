@@ -9,21 +9,27 @@ import {
   IgnitionModule,
   IgnitionModuleResult,
   isContractFuture,
+  NamedArtifactContractAtFuture,
+  NamedArtifactContractDeploymentFuture,
   SuccessfulDeploymentResult,
 } from "@nomicfoundation/ignition-core";
 import { HardhatPluginError } from "hardhat/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-export type DeployedContract<ContractNameT extends string> = {
-  [contractName in ContractNameT]: GetContractReturnType;
-};
-
-type IgnitionModuleResultsTToViemContracts<
+export type IgnitionModuleResultsTToViemContracts<
   ContractNameT extends string,
   IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
 > = {
-  [contract in keyof IgnitionModuleResultsT]: GetContractReturnType;
+  [contract in keyof IgnitionModuleResultsT]: IgnitionModuleResultsT[contract] extends
+    | NamedArtifactContractDeploymentFuture<ContractNameT>
+    | NamedArtifactContractAtFuture<ContractNameT>
+    ? TypeChainViemContractByName<ContractNameT>
+    : GetContractReturnType;
 };
+
+// TODO: Make this work to have support for TypeChain
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type TypeChainViemContractByName<ContractNameT> = GetContractReturnType;
 
 export class ViemIgnitionHelper {
   public type = "viem";
