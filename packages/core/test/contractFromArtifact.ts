@@ -21,6 +21,7 @@ describe("contractFromArtifact", () => {
   const fakeArtifact: Artifact = {
     abi: [],
     contractName: "",
+    sourceName: "",
     bytecode: "",
     linkReferences: {},
   };
@@ -545,6 +546,7 @@ m.contract(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -580,6 +582,7 @@ m.contract(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -618,6 +621,7 @@ m.contract(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -686,6 +690,7 @@ m.contract(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };

@@ -514,6 +514,7 @@ m.call(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "Another",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -558,6 +559,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -620,6 +622,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "Another",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -650,6 +653,7 @@ m.call(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -682,6 +686,7 @@ m.call(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -722,6 +727,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -767,6 +773,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -798,6 +805,7 @@ m.call(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -846,6 +854,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -893,6 +902,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -938,6 +948,7 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };

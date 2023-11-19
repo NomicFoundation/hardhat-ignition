@@ -16,6 +16,7 @@ describe("Read event argument", () => {
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -289,6 +290,7 @@ m.readEventArgument(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "Another",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };

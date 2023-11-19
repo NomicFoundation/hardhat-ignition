@@ -529,6 +529,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "Another",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -573,6 +574,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -635,6 +637,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "Another",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -679,6 +682,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -723,6 +727,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -767,6 +772,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -797,6 +803,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -842,6 +849,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -872,6 +880,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
       const fakeArtifact: Artifact = {
         abi: [],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -919,6 +928,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -965,6 +975,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -1010,6 +1021,7 @@ m.staticCall(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };

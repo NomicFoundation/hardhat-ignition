@@ -90,6 +90,7 @@ describe("stored deployment serializer", () => {
     const fakeArtifact: Artifact = {
       abi: [],
       contractName: "",
+      sourceName: "",
       bytecode: "",
       linkReferences: {},
     };
@@ -162,6 +163,7 @@ describe("stored deployment serializer", () => {
     const fakeArtifact: Artifact = {
       abi: [],
       contractName: "",
+      sourceName: "",
       bytecode: "",
       linkReferences: {},
     };
@@ -223,6 +225,7 @@ describe("stored deployment serializer", () => {
     const fakeArtifact: Artifact = {
       abi: [],
       contractName: "",
+      sourceName: "",
       bytecode: "",
       linkReferences: {},
     };
@@ -292,6 +295,7 @@ describe("stored deployment serializer", () => {
     const fakeArtifact: Artifact = {
       abi: [],
       contractName: "",
+      sourceName: "",
       bytecode: "",
       linkReferences: {},
     };

@@ -88,6 +88,7 @@ describe("useModule", () => {
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
@@ -159,6 +160,7 @@ describe("useModule", () => {
           },
         ],
         contractName: "",
+        sourceName: "",
         bytecode: "",
         linkReferences: {},
       };
