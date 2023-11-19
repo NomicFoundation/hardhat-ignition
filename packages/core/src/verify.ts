@@ -43,7 +43,9 @@ export async function verify(deploymentDir: string): Promise<VerifyResult> {
 
       return {
         address: contract.address,
-        compilerVersion: buildInfo.solcLongVersion,
+        compilerVersion: buildInfo.solcLongVersion.startsWith("v")
+          ? buildInfo.solcLongVersion
+          : `v${buildInfo.solcLongVersion}`,
         sourceCode: JSON.stringify(buildInfo.input),
         name: `${artifact.sourceName}:${contractName}`,
         args: encodeDeploymentArguments(artifact, constructorArgs),

@@ -389,22 +389,33 @@ ignitionScope
         } of contractsToVerify) {
           console.log(`Verifying contract "${name}" on Etherscan...`);
 
-          const { message: guid } = await instance.verify(
-            address,
-            sourceCode,
-            name,
-            compilerVersion,
-            args
-          );
-
-          await new Promise((res) => setTimeout(res, 1000));
-          const verificationStatus = await instance.getVerificationStatus(guid);
-
-          if (verificationStatus.isSuccess()) {
-            const contractURL = instance.getContractUrl(address);
-            console.log(
-              `Successfully verified contract "${name}" on Etherscan: ${contractURL}`
+          try {
+            const { message: guid } = await instance.verify(
+              address,
+              sourceCode,
+              name,
+              compilerVersion,
+              args
             );
+
+            await new Promise((res) => setTimeout(res, 1000));
+            const verificationStatus = await instance.getVerificationStatus(
+              guid
+            );
+
+            if (verificationStatus.isSuccess()) {
+              const contractURL = instance.getContractUrl(address);
+              console.log(
+                `Successfully verified contract "${name}" on Etherscan: ${contractURL}`
+              );
+            }
+          } catch (e) {
+            if (/Already Verified/.test((e as Error).message)) {
+              console.log(`Contract ${name} already verified`);
+              continue;
+            } else {
+              throw e;
+            }
           }
         }
       }
