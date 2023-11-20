@@ -6,11 +6,7 @@ import {
 } from "@nomicfoundation/ignition-core";
 import { readdirSync } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
-import {
-  HardhatPluginError,
-  NomicLabsHardhatPluginError,
-  lazyObject,
-} from "hardhat/plugins";
+import { NomicLabsHardhatPluginError, lazyObject } from "hardhat/plugins";
 import path from "path";
 
 import "./type-extensions";
@@ -326,15 +322,20 @@ ignitionScope
     const { Etherscan } = await import(
       "@nomicfoundation/hardhat-verify/etherscan"
     );
+    const { getApiKeyAndUrls } = await import("./utils/getApiKeyAndUrls");
     const { shouldBeHardhatPluginError } = await import(
       "./utils/shouldBeHardhatPluginError"
+    );
+    const { verifyEtherscanContract } = await import(
+      "./utils/verifyEtherscanContract"
     );
 
     if (
       hre.config.etherscan === undefined ||
-      hre.config.etherscan.apiKey === undefined
+      hre.config.etherscan.apiKey === undefined ||
+      hre.config.etherscan.apiKey === ""
     ) {
-      throw new HardhatPluginError(
+      throw new NomicLabsHardhatPluginError(
         "@nomicfoundation/hardhat-ignition",
         "No etherscan API key configured"
       );
@@ -346,76 +347,40 @@ ignitionScope
       deploymentId
     );
 
-    const etherscanApiUrl = "https://api%.etherscan.io/api";
-    const etherscanWebUrl = "https://%etherscan.io";
-
-    const userApiKeyConfig = hre.config.etherscan.apiKey;
-    const apiKeyList = (
-      typeof userApiKeyConfig === "string"
-        ? ["mainnet", userApiKeyConfig]
-        : Object.entries(userApiKeyConfig)
-    ).map(([network, apiKey]) => {
-      const result = [apiKey];
-
-      const networkName = network.toLowerCase();
-
-      if (networkName === "mainnet") {
-        result.push(
-          etherscanApiUrl.replace("%", ""),
-          etherscanWebUrl.replace("%", "")
-        );
-      } else {
-        result.push(
-          etherscanApiUrl.replace("%", `-${networkName}`),
-          etherscanWebUrl.replace("%", `${networkName}.`)
-        );
-      }
-
-      return result as [string, string, string];
-    });
+    const etherscanConfig = getApiKeyAndUrls(
+      hre.config.etherscan.apiKey,
+      hre.network.name
+    );
 
     try {
       const contractsToVerify = await verify(deploymentDir);
 
-      for (const etherscanConfig of apiKeyList) {
-        const instance = new Etherscan(...etherscanConfig);
+      const instance = new Etherscan(...etherscanConfig);
 
-        for (const {
-          address,
-          compilerVersion,
-          sourceCode,
-          name,
-          args,
-        } of contractsToVerify) {
-          console.log(`Verifying contract "${name}" on Etherscan...`);
+      for (const contractInfo of contractsToVerify) {
+        console.log(
+          `Verifying contract "${contractInfo.name}" on Etherscan for network ${hre.network.name}...`
+        );
 
-          try {
-            const { message: guid } = await instance.verify(
-              address,
-              sourceCode,
-              name,
-              compilerVersion,
-              args
+        const result = await verifyEtherscanContract(instance, contractInfo);
+
+        if (result.type === "success") {
+          console.log(
+            `Successfully verified contract "${contractInfo.name}" on Etherscan for network ${hre.network.name}:\n  - ${result.contractURL}`
+          );
+          console.log("");
+        } else {
+          if (/Already Verified/.test(result.reason.message)) {
+            console.log(
+              `Contract ${contractInfo.name} already verified on network ${hre.network.name}`
             );
-
-            await new Promise((res) => setTimeout(res, 1000));
-            const verificationStatus = await instance.getVerificationStatus(
-              guid
+            console.log("");
+            continue;
+          } else {
+            throw new NomicLabsHardhatPluginError(
+              "hardhat-ignition",
+              result.reason.message
             );
-
-            if (verificationStatus.isSuccess()) {
-              const contractURL = instance.getContractUrl(address);
-              console.log(
-                `Successfully verified contract "${name}" on Etherscan: ${contractURL}`
-              );
-            }
-          } catch (e) {
-            if (/Already Verified/.test((e as Error).message)) {
-              console.log(`Contract ${name} already verified`);
-              continue;
-            } else {
-              throw e;
-            }
           }
         }
       }
@@ -426,18 +391,6 @@ ignitionScope
 
       throw e;
     }
-
-    // get the deployment info
-
-    // retrieve the contract address from the execution state
-
-    // retrieve the source code from the build info
-
-    // construct the contract name as artifact sourceName + contractName
-
-    // retrieve compiler version from the build info long compiler version
-
-    // retrieve encoded constructor arguments from the execution state
   });
 
 function resolveParametersFromModuleName(

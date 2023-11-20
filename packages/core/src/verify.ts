@@ -7,6 +7,13 @@ import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
 import { VerifyResult } from "./types/verify";
 
+/**
+ * Retrieve the information required to verify all contracts from a deployment on Etherscan.
+ *
+ * @param deploymentDir - the file directory of the deployment
+ *
+ * @beta
+ */
 export async function verify(deploymentDir: string): Promise<VerifyResult> {
   const deploymentLoader = new FileDeploymentLoader(deploymentDir);
 

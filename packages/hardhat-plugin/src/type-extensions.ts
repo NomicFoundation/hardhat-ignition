@@ -27,7 +27,7 @@ declare module "hardhat/types/config" {
 
   export interface HardhatConfig {
     ignition: Partial<DeployConfig>;
-    etherscan: Partial<EtherscanConfig>;
+    etherscan: EtherscanConfig;
   }
 }
 
