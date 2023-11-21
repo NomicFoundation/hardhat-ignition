@@ -6,7 +6,7 @@ const ETHERSCAN_WEB_URL = "https://%etherscan.io";
 export function getApiKeyAndUrls(
   etherscanApiKey: string | Record<string, string>,
   networkName: string
-): [string, string, string] {
+): [apiKey: string, apiUrl: string, webUrl: string] {
   const lowerNetworkName = networkName.toLowerCase();
 
   if (typeof etherscanApiKey === "string") {
