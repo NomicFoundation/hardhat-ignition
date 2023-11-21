@@ -15,6 +15,7 @@ import { FutureType } from "../src/types/module";
 import {
   assertInstanceOf,
   assertValidationError,
+  fakeArtifact,
   setupMockArtifactResolver,
 } from "./helpers";
 
@@ -511,16 +512,13 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate a non-existant function", async () => {
-      const fakeArtifact: Artifact = {
-        abi: [],
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         contractName: "Another",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         m.call(another, "test");
 
         return { another };
@@ -542,7 +540,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate a call with wrong number of arguments", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -558,14 +557,10 @@ m.call(..., { id: "MyUniqueId"})`
             type: "function",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         m.call(another, "inc", [1, 2]);
 
         return { another };
@@ -587,7 +582,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate an overloaded call with wrong number of arguments", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -622,13 +618,10 @@ m.call(..., { id: "MyUniqueId"})`
           },
         ],
         contractName: "Another",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         m.call(another, "inc(bool,uint256)", [1, 2, 3]);
 
         return { another };
@@ -650,14 +643,6 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate a missing module parameter", async () => {
-      const fakeArtifact: Artifact = {
-        abi: [],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
-      };
-
       const module = buildModule("Module1", (m) => {
         const p = m.getParameter("p");
 
@@ -683,14 +668,6 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate a module parameter of the wrong type for value", async () => {
-      const fakeArtifact: Artifact = {
-        abi: [],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
-      };
-
       const module = buildModule("Module1", (m) => {
         const p = m.getParameter("p", false as unknown as bigint);
 
@@ -716,7 +693,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should validate a module parameter of the correct type for value", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [],
@@ -726,16 +704,12 @@ m.call(..., { id: "MyUniqueId"})`
             type: "function",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
         const p = m.getParameter("p", 42n);
 
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         m.call(another, "test", [], { value: p });
 
         return { another };
@@ -756,7 +730,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should validate a missing module parameter if a default parameter is present", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -772,16 +747,12 @@ m.call(..., { id: "MyUniqueId"})`
             type: "function",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
         const p = m.getParameter("p", true);
 
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         m.call(another, "test", [p]);
 
         return { another };
@@ -802,14 +773,6 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate a missing module parameter (deeply nested)", async () => {
-      const fakeArtifact: Artifact = {
-        abi: [],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
-      };
-
       const module = buildModule("Module1", (m) => {
         const p = m.getParameter("p");
 
@@ -837,7 +800,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should validate a missing module parameter if a default parameter is present (deeply nested)", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -853,16 +817,12 @@ m.call(..., { id: "MyUniqueId"})`
             type: "function",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
         const p = m.getParameter("p", true);
 
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         m.call(another, "test", [
           [123, { really: { deeply: { nested: [p] } } }],
         ]);
@@ -885,7 +845,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate a negative account index", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -901,14 +862,10 @@ m.call(..., { id: "MyUniqueId"})`
             type: "function",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         const account = m.getAccount(-1);
         m.call(another, "inc", [1], { from: account });
 
@@ -931,7 +888,8 @@ m.call(..., { id: "MyUniqueId"})`
     });
 
     it("should not validate an account index greater than the number of available accounts", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -947,14 +905,10 @@ m.call(..., { id: "MyUniqueId"})`
             type: "function",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const module = buildModule("Module1", (m) => {
-        const another = m.contract("Another", fakeArtifact, []);
+        const another = m.contract("Another", fakerArtifact, []);
         const account = m.getAccount(1);
         m.call(another, "inc", [1], { from: account });
 

@@ -5,7 +5,7 @@ import { Artifact, DeploymentResultType } from "../src";
 import { buildModule } from "../src/build-module";
 import { validate } from "../src/internal/validation/validate";
 
-import { setupMockArtifactResolver } from "./helpers";
+import { fakeArtifact, setupMockArtifactResolver } from "./helpers";
 
 describe("useModule", () => {
   it("should be able to use a submodule", () => {
@@ -73,7 +73,8 @@ describe("useModule", () => {
 
   describe("validation", () => {
     it("should validate nested module parameters", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -87,10 +88,6 @@ describe("useModule", () => {
             type: "constructor",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const submodule = buildModule("Submodule1", (m) => {
@@ -134,9 +131,9 @@ describe("useModule", () => {
         validate(
           moduleWithSubmodule,
           setupMockArtifactResolver({
-            Contract1: fakeArtifact,
-            Contract2: fakeArtifact,
-            Contract3: fakeArtifact,
+            Contract1: fakerArtifact,
+            Contract2: fakerArtifact,
+            Contract3: fakerArtifact,
           }),
           moduleParams,
           []
@@ -145,7 +142,8 @@ describe("useModule", () => {
     });
 
     it("should not validate missing module parameters is deeply nested submodules", async () => {
-      const fakeArtifact: Artifact = {
+      const fakerArtifact: Artifact = {
+        ...fakeArtifact,
         abi: [
           {
             inputs: [
@@ -159,10 +157,6 @@ describe("useModule", () => {
             type: "constructor",
           },
         ],
-        contractName: "",
-        sourceName: "",
-        bytecode: "",
-        linkReferences: {},
       };
 
       const submodule = buildModule("Submodule1", (m) => {
@@ -202,9 +196,9 @@ describe("useModule", () => {
       const result = await validate(
         moduleWithSubmodule,
         setupMockArtifactResolver({
-          Contract1: fakeArtifact,
-          Contract2: fakeArtifact,
-          Contract3: fakeArtifact,
+          Contract1: fakerArtifact,
+          Contract2: fakerArtifact,
+          Contract3: fakerArtifact,
         }),
         moduleParams,
         []
