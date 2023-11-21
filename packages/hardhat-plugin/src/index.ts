@@ -58,6 +58,7 @@ ignitionScope
     "A relative path to a JSON file to use for the module parameters"
   )
   .addOptionalParam("deploymentId", "Set the id of the deployment")
+  .addFlag("verify", "Verify the deployment on Etherscan")
   .setDescription("Deploy a module to the specified network")
   .setAction(
     async (
@@ -65,10 +66,12 @@ ignitionScope
         modulePath,
         parameters: parametersInput,
         deploymentId: givenDeploymentId,
+        verify,
       }: {
         modulePath: string;
         parameters?: string;
         deploymentId: string | undefined;
+        verify: boolean;
       },
       hre
     ) => {
@@ -141,7 +144,7 @@ ignitionScope
       const executionEventListener = new PrettyEventHandler();
 
       try {
-        await deploy({
+        const result = await deploy({
           config: hre.config.ignition,
           provider: hre.network.provider,
           executionEventListener,
@@ -151,6 +154,13 @@ ignitionScope
           deploymentParameters: parameters ?? {},
           accounts,
         });
+
+        if (result.type === "SUCCESSFUL_DEPLOYMENT" && verify) {
+          await hre.run(
+            { scope: "ignition", task: "verify" },
+            { deploymentId }
+          );
+        }
       } catch (e) {
         if (e instanceof IgnitionError && shouldBeHardhatPluginError(e)) {
           throw new NomicLabsHardhatPluginError(
