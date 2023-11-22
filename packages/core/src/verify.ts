@@ -1,5 +1,6 @@
 import { IgnitionError } from "./errors";
 import { ERRORS } from "./errors-list";
+import { builtinChains } from "./internal/chain-config";
 import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployment-loader";
 import { encodeDeploymentArguments } from "./internal/execution/abi";
 import { loadDeploymentState } from "./internal/execution/deployment-state-helpers";
@@ -33,7 +34,18 @@ export async function verify(deploymentDir: string): Promise<VerifyResult> {
     });
   }
 
-  const verifyResult: VerifyResult = [];
+  const chainConfig = builtinChains.find(
+    (c) => c.chainId === deploymentState.chainId
+  );
+
+  // this case is a failure on our part
+  // if it fails, it means we need to update the builtinChains list with the newly supported chain info
+  assertIgnitionInvariant(
+    chainConfig !== undefined,
+    `Verification not yet supported for chainId ${deploymentState.chainId}`
+  );
+
+  const verifyResult: VerifyResult = [chainConfig];
 
   // using a for loop to avoid memory leaks caused by holding many build-info files in memory at once
   for (const [futureId, contract] of contracts) {

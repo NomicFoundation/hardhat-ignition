@@ -1,41 +1,32 @@
-import { NomicLabsHardhatPluginError } from "hardhat/plugins";
+import type { ChainConfig } from "@nomicfoundation/hardhat-verify/types";
 
-const ETHERSCAN_API_URL = "https://api%.etherscan.io/api";
-const ETHERSCAN_WEB_URL = "https://%etherscan.io";
+import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
 export function getApiKeyAndUrls(
   etherscanApiKey: string | Record<string, string>,
-  networkName: string
+  chainConfig: ChainConfig
 ): [apiKey: string, apiUrl: string, webUrl: string] {
-  const lowerNetworkName = networkName.toLowerCase();
+  let apiKey: string;
 
   if (typeof etherscanApiKey === "string") {
-    if (lowerNetworkName !== "mainnet") {
+    if (chainConfig.network !== "mainnet") {
       throw new NomicLabsHardhatPluginError(
         "@nomicfoundation/hardhat-ignition",
-        `No etherscan API key configured for network ${lowerNetworkName}`
+        `No etherscan API key configured for network ${chainConfig.network}`
       );
     }
 
-    return [
-      etherscanApiKey,
-      ETHERSCAN_API_URL.replace("%", ""),
-      ETHERSCAN_WEB_URL.replace("%", ""),
-    ];
+    apiKey = etherscanApiKey;
   } else {
-    const apiKey = etherscanApiKey[lowerNetworkName];
+    apiKey = etherscanApiKey[chainConfig.network];
 
     if (apiKey === undefined) {
       throw new NomicLabsHardhatPluginError(
         "@nomicfoundation/hardhat-ignition",
-        `No etherscan API key configured for network ${lowerNetworkName}`
+        `No etherscan API key configured for network ${chainConfig.network}`
       );
     }
-
-    return [
-      apiKey,
-      ETHERSCAN_API_URL.replace("%", `-${lowerNetworkName}`),
-      ETHERSCAN_WEB_URL.replace("%", `${lowerNetworkName}.`),
-    ];
   }
+
+  return [apiKey, chainConfig.urls.apiURL, chainConfig.urls.browserURL];
 }

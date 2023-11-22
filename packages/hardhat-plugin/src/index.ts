@@ -357,13 +357,13 @@ ignitionScope
       deploymentId
     );
 
-    const etherscanConfig = getApiKeyAndUrls(
-      hre.config.etherscan.apiKey,
-      hre.network.name
-    );
-
     try {
-      const contractsToVerify = await verify(deploymentDir);
+      const [chainConfig, ...contractsToVerify] = await verify(deploymentDir);
+
+      const etherscanConfig = getApiKeyAndUrls(
+        hre.config.etherscan.apiKey,
+        chainConfig
+      );
 
       const instance = new Etherscan(...etherscanConfig);
 

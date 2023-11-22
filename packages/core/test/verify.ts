@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import path from "path";
 
-import { verify } from "../src";
+import { VerifyResult, verify } from "../src";
 
 describe("verify", () => {
   it("should not verify an unitialized deployment", async () => {
@@ -25,8 +25,30 @@ describe("verify", () => {
     );
   });
 
+  it("should not verify a deployment deployed to an unsupported chain", async () => {
+    const deploymentDir = path.join(
+      __dirname,
+      "mocks",
+      "verify",
+      "unsupported-chain"
+    );
+
+    await assert.isRejected(
+      verify(deploymentDir),
+      /IGN1: Internal Hardhat Ignition invariant was violated: Verification not yet supported for chainId 123456789/
+    );
+  });
+
   it("should return a verify result", async () => {
-    const expectedResult = [
+    const expectedResult: VerifyResult = [
+      {
+        network: "mainnet",
+        chainId: 1,
+        urls: {
+          apiURL: "https://api.etherscan.io/api",
+          browserURL: "https://etherscan.io",
+        },
+      },
       {
         address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         compilerVersion: "v0.8.19+commit.7dd6d404",
