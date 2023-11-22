@@ -33,32 +33,33 @@ export async function verify(deploymentDir: string): Promise<VerifyResult> {
     });
   }
 
-  const verifyResult: VerifyResult = await Promise.all(
-    contracts.map(async ([futureId, contract]) => {
-      const exState = deploymentState.executionStates[futureId];
-      const [buildInfo, artifact] = await Promise.all([
-        deploymentLoader.readBuildInfo(futureId),
-        deploymentLoader.loadArtifact(futureId),
-      ]);
+  const verifyResult: VerifyResult = [];
 
-      assertIgnitionInvariant(
-        exState.type === "DEPLOYMENT_EXECUTION_STATE",
-        "execution state is not a deployment"
-      );
+  // using a for loop to avoid memory leaks caused by holding many build-info files in memory at once
+  for (const [futureId, contract] of contracts) {
+    const exState = deploymentState.executionStates[futureId];
+    const [buildInfo, artifact] = await Promise.all([
+      deploymentLoader.readBuildInfo(futureId),
+      deploymentLoader.loadArtifact(futureId),
+    ]);
 
-      const { contractName, constructorArgs } = exState;
+    assertIgnitionInvariant(
+      exState.type === "DEPLOYMENT_EXECUTION_STATE",
+      "execution state is not a deployment"
+    );
 
-      return {
-        address: contract.address,
-        compilerVersion: buildInfo.solcLongVersion.startsWith("v")
-          ? buildInfo.solcLongVersion
-          : `v${buildInfo.solcLongVersion}`,
-        sourceCode: JSON.stringify(buildInfo.input),
-        name: `${artifact.sourceName}:${contractName}`,
-        args: encodeDeploymentArguments(artifact, constructorArgs),
-      };
-    })
-  );
+    const { contractName, constructorArgs } = exState;
+
+    verifyResult.push({
+      address: contract.address,
+      compilerVersion: buildInfo.solcLongVersion.startsWith("v")
+        ? buildInfo.solcLongVersion
+        : `v${buildInfo.solcLongVersion}`,
+      sourceCode: JSON.stringify(buildInfo.input),
+      name: `${artifact.sourceName}:${contractName}`,
+      args: encodeDeploymentArguments(artifact, constructorArgs),
+    });
+  }
 
   return verifyResult;
 }
