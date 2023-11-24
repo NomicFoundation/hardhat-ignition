@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Nomic Foundation",
   "homepage": "https://hardhat.org",
-  "description": "Hardhat Ignition is a declarative system for deploying smart contracts on Ethereum. It enables you to define smart contract instances you want to deploy, and any operation you want to run on them. By taking over the deployment and execution, Hardhat Ignition lets you focus on your project instead of getting caught up in the deployment details.",
+  "description": "The Viem extension to Hardhat Ignition. Hardhat Ignition is a declarative system for deploying smart contracts on Ethereum. It enables you to define smart contract instances you want to deploy, and any operation you want to run on them. By taking over the deployment and execution, Hardhat Ignition lets you focus on your project instead of getting caught up in the deployment details.",
   "repository": "github:NomicFoundation/hardhat-ignition",
   "keywords": [
     "ethereum",
@@ -52,42 +52,10 @@
     "prepack": "npm run build"
   },
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@nomicfoundation/hardhat-viem": "^1.0.0",
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
-    "@types/d3": "7.4.0",
-    "@types/debug": "^4.1.7",
-    "@types/dompurify": "2.4.0",
-    "@types/fs-extra": "^9.0.13",
-    "@types/lodash": "4.14.189",
-    "@types/lodash.flattendeep": "^4.4.7",
-    "@types/mermaid": "^9.1.0",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "16.11.7",
-    "@types/prompts": "^2.4.2",
-    "@types/sinon": "^10.0.13",
-    "@typescript-eslint/eslint-plugin": "4.31.2",
-    "@typescript-eslint/parser": "4.31.2",
-    "chai": "^4.3.4",
-    "chai-as-promised": "7.1.1",
-    "esbuild": "^0.15.9",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-import-resolver-typescript": "3.5.5",
-    "eslint-plugin-import": "2.24.2",
-    "eslint-plugin-mocha": "^9.0.0",
-    "eslint-plugin-prettier": "4.0.0",
-    "hardhat": "^2.18.0",
-    "mermaid": "^9.1.7",
-    "mocha": "^9.1.1",
-    "nyc": "15.1.0",
-    "prettier": "2.4.1",
-    "purecss": "^2.1.0",
-    "rimraf": "3.0.2",
-    "sinon": "^14.0.0",
-    "ts-node": "10.9.1",
-    "typescript": "^5.0.2"
+    "@types/sinon": "^10.0.13"
   },
   "peerDependencies": {
     "@nomicfoundation/hardhat-viem": "^1.0.0",
@@ -96,12 +64,7 @@
   "dependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.11.2",
     "@nomicfoundation/ignition-core": "^0.11.2",
-    "@nomicfoundation/ignition-ui": "^0.11.2",
     "abitype": "0.10.2",
-    "chalk": "^4.0.0",
-    "debug": "^4.3.2",
-    "fs-extra": "^10.0.0",
-    "prompts": "^2.4.2",
     "viem": "1.18.1"
   }
 }

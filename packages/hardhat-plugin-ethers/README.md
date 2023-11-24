@@ -3,11 +3,11 @@
 
 ---
 
-# Hardhat Ignition
+# Hardhat Ignition with Ethers
+
+> **Note:** This package includes support for [Ethers](https://docs.ethers.org/v5/). To use Hardhat Ignition with Viem instead, see the [Hardhat Ignition Viem plugin](https://www.npmjs.com/search?q=%40nomicfoundation%2Fhardhat-ignition-viem).
 
 Hardhat Ignition is a declarative system for deploying smart contracts on Ethereum. It enables you to define smart contract instances you want to deploy, and any operation you want to run on them. By taking over the deployment and execution, Hardhat Ignition lets you focus on your project instead of getting caught up in the deployment details.
-
-> **Note:** This package includes support for [Ethers](https://docs.ethers.org/v5/). To use Hardhat Ignition with Viem instead, see the [Hardhat Ignition Viem plugin](https://github.com/NomicFoundation/hardhat-ignition/tree/main/packages/hardhat-plugin-viem).
 
 Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
 
@@ -16,31 +16,19 @@ Join the Hardhat Ignition channel of our [Hardhat Community Discord server](http
 ## Installation
 
 ```bash
-# ethers users
-npm install --save-dev @nomicfoundation/hardhat-ignition
-
-# viem users
-npm install --save-dev @nomicfoundation/hardhat-ignition-viem
+npm install --save-dev @nomicfoundation/hardhat-ignition-ethers
 ```
 
 Import the plugin in your `hardhat.config.js``:
 
 ```js
-// ethers users
-require("@nomicfoundation/hardhat-ignition");
-
-// viem users
-require("@nomicfoundation/hardhat-ignition-viem");
+require("@nomicfoundation/hardhat-ignition-ethers");
 ```
 
 Or if you are using TypeScript, in your `hardhat.config.ts``:
 
 ```js
-// ethers users
-import "@nomicfoundation/hardhat-ignition";
-
-// viem users
-import "@nomicfoundation/hardhat-ignition-viem";
+import "@nomicfoundation/hardhat-ignition-ethers";
 ```
 
 ## Documentation
