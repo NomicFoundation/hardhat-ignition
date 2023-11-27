@@ -1,7 +1,6 @@
 /* eslint-disable import/no-unused-modules */
+import { buildModule } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
-
-import { buildModule } from "../src/modules";
 
 import { externallyLoadedContractArtifact } from "./test-helpers/externally-loaded-contract";
 import { useIgnitionProject } from "./test-helpers/use-ignition-project";

@@ -26,17 +26,6 @@
     "README.md",
     "CHANGELOG.md"
   ],
-  "exports": {
-    ".": "./dist/src/index.js",
-    "./modules": "./dist/src/modules.js"
-  },
-  "typesVersions": {
-    "*": {
-      "modules": [
-        "./dist/src/modules.d.ts"
-      ]
-    }
-  },
   "scripts": {
     "prebuild": "ts-node ./scripts/compile-test-fixture-projects.ts",
     "build": "tsc --build",

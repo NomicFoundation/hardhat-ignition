@@ -1,9 +1,11 @@
 /* eslint-disable import/no-unused-modules */
-import { NamedArtifactContractDeploymentFuture } from "@nomicfoundation/ignition-core";
+import {
+  NamedArtifactContractDeploymentFuture,
+  buildModule,
+} from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 
 import { IgnitionModuleResultsToViemContracts } from "../../src/ignition-module-results-to-viem-contracts";
-import { buildModule } from "../../src/modules";
 import { useIgnitionProject } from "../test-helpers/use-ignition-project";
 
 describe("deploy converts ignition named contract to viem instance", () => {

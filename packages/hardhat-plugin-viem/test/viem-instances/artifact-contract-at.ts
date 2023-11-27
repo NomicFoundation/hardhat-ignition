@@ -1,8 +1,7 @@
-import { ContractAtFuture } from "@nomicfoundation/ignition-core";
+import { ContractAtFuture, buildModule } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 
 import { IgnitionModuleResultsToViemContracts } from "../../src/ignition-module-results-to-viem-contracts";
-import { buildModule } from "../../src/modules";
 import { externallyLoadedContractArtifact } from "../test-helpers/externally-loaded-contract";
 import { useIgnitionProject } from "../test-helpers/use-ignition-project";
 

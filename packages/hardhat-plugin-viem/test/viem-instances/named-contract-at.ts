@@ -1,8 +1,10 @@
-import { NamedArtifactContractAtFuture } from "@nomicfoundation/ignition-core";
+import {
+  NamedArtifactContractAtFuture,
+  buildModule,
+} from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 
 import { IgnitionModuleResultsToViemContracts } from "../../src/ignition-module-results-to-viem-contracts";
-import { buildModule } from "../../src/modules";
 import { useIgnitionProject } from "../test-helpers/use-ignition-project";
 
 describe("deploy converts ignition named contractAt to viem instance", () => {

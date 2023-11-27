@@ -1,4 +1,4 @@
-import { buildModule } from "@nomicfoundation/hardhat-ignition-viem/modules";
+import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import { parseEther } from "viem";
 
 const currentTimestampInSeconds = Math.round(
