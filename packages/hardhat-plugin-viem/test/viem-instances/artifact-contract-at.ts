@@ -12,7 +12,7 @@ describe("deploy converts ignition artifact contractAt to viem instance", () => 
     string,
     {
       externallyLoadedContractAt: ContractAtFuture<
-        typeof externallyLoadedContractArtifact["abi"]
+        (typeof externallyLoadedContractArtifact)["abi"]
       >;
     }
   >;
