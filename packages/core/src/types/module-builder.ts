@@ -1,6 +1,4 @@
-import { Abi } from "abitype";
-
-import { Artifact } from "./artifact";
+import { Abi, Artifact } from "./artifact";
 import {
   AccountRuntimeValue,
   AddressResolvableFuture,
@@ -143,7 +141,7 @@ export interface IgnitionModuleBuilder {
     options?: ContractOptions
   ): NamedArtifactContractDeploymentFuture<ContractNameT>;
 
-  contract<AbiT extends Abi>(
+  contract<const AbiT extends Abi>(
     contractName: string,
     artifact: Artifact<AbiT>,
     args?: ArgumentType[],
@@ -155,7 +153,7 @@ export interface IgnitionModuleBuilder {
     options?: LibraryOptions
   ): NamedArtifactLibraryDeploymentFuture<LibraryNameT>;
 
-  library<AbiT extends Abi>(
+  library<const AbiT extends Abi>(
     libraryName: string,
     artifact: Artifact<AbiT>,
     options?: LibraryOptions
@@ -185,7 +183,7 @@ export interface IgnitionModuleBuilder {
     options?: ContractAtOptions
   ): NamedArtifactContractAtFuture<ContractNameT>;
 
-  contractAt<AbiT extends Abi>(
+  contractAt<const AbiT extends Abi>(
     contractName: string,
     artifact: Artifact<AbiT>,
     address:

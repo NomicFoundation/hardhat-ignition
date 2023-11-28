@@ -184,7 +184,7 @@ export class ViemIgnitionHelper {
       | NamedArtifactLibraryDeploymentFuture<string>
       | NamedArtifactContractAtFuture<string>,
     deployedContract: { address: string }
-  ) {
+  ): Promise<GetContractReturnType> {
     return hre.viem.getContractAt(
       future.contractName,
       this._ensureAddressFormat(deployedContract.address)
@@ -198,7 +198,7 @@ export class ViemIgnitionHelper {
       | LibraryDeploymentFuture
       | ContractAtFuture,
     deployedContract: { address: string }
-  ) {
+  ): Promise<GetContractReturnType> {
     const publicClient = await hre.viem.getPublicClient();
     const [walletClient] = await hre.viem.getWalletClients();
 
