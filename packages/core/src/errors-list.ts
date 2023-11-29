@@ -361,6 +361,11 @@ export const ERRORS = {
       message:
         "Cannot verify deployment %deploymentDir% as no contracts were deployed",
     },
+    UNSUPPORTED_CHAIN: {
+      number: 1002,
+      message:
+        "Verification not natively supported for chainId %chainId%. Please use a custom chain configuration to add support.",
+    },
   },
 };
 

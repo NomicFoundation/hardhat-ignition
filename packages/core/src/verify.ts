@@ -6,7 +6,7 @@ import { encodeDeploymentArguments } from "./internal/execution/abi";
 import { loadDeploymentState } from "./internal/execution/deployment-state-helpers";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
-import { VerifyResult } from "./types/verify";
+import { ChainConfig, VerifyResult } from "./types/verify";
 
 /**
  * Retrieve the information required to verify all contracts from a deployment on Etherscan.
@@ -16,7 +16,8 @@ import { VerifyResult } from "./types/verify";
  * @beta
  */
 export async function* verify(
-  deploymentDir: string
+  deploymentDir: string,
+  customChains: ChainConfig[] = []
 ): AsyncGenerator<VerifyResult> {
   const deploymentLoader = new FileDeploymentLoader(deploymentDir);
 
@@ -36,16 +37,18 @@ export async function* verify(
     });
   }
 
-  const chainConfig = builtinChains.find(
+  // implementation note:
+  // if a user has set a custom chain with the same chainId as a builtin chain,
+  // the custom chain will be used instead of the builtin chain
+  const chainConfig = [...customChains, ...builtinChains].find(
     (c) => c.chainId === deploymentState.chainId
   );
 
-  // this case is a failure on our part
-  // if it fails, it means we need to update the builtinChains list with the newly supported chain info
-  assertIgnitionInvariant(
-    chainConfig !== undefined,
-    `Verification not yet supported for chainId ${deploymentState.chainId}`
-  );
+  if (chainConfig === undefined) {
+    throw new IgnitionError(ERRORS.VERIFY.UNSUPPORTED_CHAIN, {
+      chainId: deploymentState.chainId,
+    });
+  }
 
   for (const [futureId, contract] of contracts) {
     const exState = deploymentState.executionStates[futureId];

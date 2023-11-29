@@ -2,13 +2,13 @@
 import "hardhat/types/config";
 import "hardhat/types/runtime";
 
-import { DeployConfig } from "@nomicfoundation/ignition-core";
+import { DeployConfig, ChainConfig } from "@nomicfoundation/ignition-core";
 
 import { IgnitionHelper } from "./ignition-helper";
 
 interface EtherscanConfig {
   apiKey: string | Record<string, string>;
-  enabled: boolean;
+  customChains: ChainConfig[];
 }
 
 declare module "hardhat/types/config" {

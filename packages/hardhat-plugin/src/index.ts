@@ -358,7 +358,10 @@ ignitionScope
     );
 
     try {
-      for await (const [chainConfig, contractInfo] of verify(deploymentDir)) {
+      for await (const [chainConfig, contractInfo] of verify(
+        deploymentDir,
+        hre.config.etherscan.customChains
+      )) {
         const etherscanConfig = getApiKeyAndUrls(
           hre.config.etherscan.apiKey,
           chainConfig
