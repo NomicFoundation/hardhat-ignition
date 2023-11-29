@@ -6,7 +6,7 @@ import { VerifyResult, verify } from "../src";
 describe("verify", () => {
   it("should not verify an unitialized deployment", async () => {
     await assert.isRejected(
-      verify("test"),
+      verify("test").next(),
       /IGN1000: Cannot verify contracts for nonexistant deployment at test/
     );
   });
@@ -20,7 +20,7 @@ describe("verify", () => {
     );
 
     await assert.isRejected(
-      verify(deploymentDir),
+      verify(deploymentDir).next(),
       /IGN1001: Cannot verify deployment/
     );
   });
@@ -34,12 +34,12 @@ describe("verify", () => {
     );
 
     await assert.isRejected(
-      verify(deploymentDir),
+      verify(deploymentDir).next(),
       /IGN1: Internal Hardhat Ignition invariant was violated: Verification not yet supported for chainId 123456789/
     );
   });
 
-  it("should return a verify result", async () => {
+  it("should yield a verify result", async () => {
     const expectedResult: VerifyResult = [
       {
         network: "mainnet",
@@ -60,7 +60,7 @@ describe("verify", () => {
 
     const deploymentDir = path.join(__dirname, "mocks", "verify", "success");
 
-    const result = await verify(deploymentDir);
+    const result = (await verify(deploymentDir).next()).value;
 
     assert.deepEqual(result, expectedResult);
   });

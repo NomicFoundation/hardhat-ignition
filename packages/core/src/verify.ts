@@ -15,7 +15,9 @@ import { VerifyResult } from "./types/verify";
  *
  * @beta
  */
-export async function verify(deploymentDir: string): Promise<VerifyResult> {
+export async function* verify(
+  deploymentDir: string
+): AsyncGenerator<VerifyResult> {
   const deploymentLoader = new FileDeploymentLoader(deploymentDir);
 
   const deploymentState = await loadDeploymentState(deploymentLoader);
@@ -45,9 +47,6 @@ export async function verify(deploymentDir: string): Promise<VerifyResult> {
     `Verification not yet supported for chainId ${deploymentState.chainId}`
   );
 
-  const verifyResult: VerifyResult = [chainConfig];
-
-  // using a for loop to avoid memory leaks caused by holding many build-info files in memory at once
   for (const [futureId, contract] of contracts) {
     const exState = deploymentState.executionStates[futureId];
     const [buildInfo, artifact] = await Promise.all([
@@ -62,16 +61,19 @@ export async function verify(deploymentDir: string): Promise<VerifyResult> {
 
     const { contractName, constructorArgs } = exState;
 
-    verifyResult.push({
-      address: contract.address,
-      compilerVersion: buildInfo.solcLongVersion.startsWith("v")
-        ? buildInfo.solcLongVersion
-        : `v${buildInfo.solcLongVersion}`,
-      sourceCode: JSON.stringify(buildInfo.input),
-      name: `${artifact.sourceName}:${contractName}`,
-      args: encodeDeploymentArguments(artifact, constructorArgs),
-    });
-  }
+    const verifyResult: VerifyResult = [
+      chainConfig,
+      {
+        address: contract.address,
+        compilerVersion: buildInfo.solcLongVersion.startsWith("v")
+          ? buildInfo.solcLongVersion
+          : `v${buildInfo.solcLongVersion}`,
+        sourceCode: JSON.stringify(buildInfo.input),
+        name: `${artifact.sourceName}:${contractName}`,
+        args: encodeDeploymentArguments(artifact, constructorArgs),
+      },
+    ];
 
-  return verifyResult;
+    yield verifyResult;
+  }
 }

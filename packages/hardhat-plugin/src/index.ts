@@ -325,7 +325,7 @@ ignitionScope
   .task("verify")
   .addPositionalParam("deploymentId", "The id of the deployment to verify")
   .setDescription(
-    "Verify contracts from a given deployment on configured block exporers"
+    "Verify contracts from a deployment against the configured block explorers"
   )
   .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
     const { verify } = await import("@nomicfoundation/ignition-core");
@@ -358,31 +358,29 @@ ignitionScope
     );
 
     try {
-      const [chainConfig, ...contractsToVerify] = await verify(deploymentDir);
+      for await (const [chainConfig, contractInfo] of verify(deploymentDir)) {
+        const etherscanConfig = getApiKeyAndUrls(
+          hre.config.etherscan.apiKey,
+          chainConfig
+        );
 
-      const etherscanConfig = getApiKeyAndUrls(
-        hre.config.etherscan.apiKey,
-        chainConfig
-      );
+        const instance = new Etherscan(...etherscanConfig);
 
-      const instance = new Etherscan(...etherscanConfig);
-
-      for (const contractInfo of contractsToVerify) {
         console.log(
-          `Verifying contract "${contractInfo.name}" on Etherscan for network ${hre.network.name}...`
+          `Verifying contract "${contractInfo.name}" for network ${chainConfig.network}...`
         );
 
         const result = await verifyEtherscanContract(instance, contractInfo);
 
         if (result.type === "success") {
           console.log(
-            `Successfully verified contract "${contractInfo.name}" on Etherscan for network ${hre.network.name}:\n  - ${result.contractURL}`
+            `Successfully verified contract "${contractInfo.name}" for network ${chainConfig.network}:\n  - ${result.contractURL}`
           );
           console.log("");
         } else {
-          if (/Already Verified/.test(result.reason.message)) {
+          if (/already verified/gi.test(result.reason.message)) {
             console.log(
-              `Contract ${contractInfo.name} already verified on network ${hre.network.name}`
+              `Contract ${contractInfo.name} already verified on network ${chainConfig.network}`
             );
             console.log("");
             continue;

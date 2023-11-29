@@ -31,4 +31,4 @@ export interface VerifyInfo {
  *
  * @beta
  */
-export type VerifyResult = [ChainConfig, ...VerifyInfo[]];
+export type VerifyResult = [ChainConfig, VerifyInfo];
