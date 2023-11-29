@@ -6,12 +6,20 @@ import { encodeDeploymentArguments } from "./internal/execution/abi";
 import { loadDeploymentState } from "./internal/execution/deployment-state-helpers";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
-import { ChainConfig, VerifyResult } from "./types/verify";
+import { Artifact, BuildInfo } from "./types/artifact";
+import { DeployedContract } from "./types/deploy";
+import {
+  ChainConfig,
+  SourceToLibraryToAddress,
+  VerifyResult,
+} from "./types/verify";
 
 /**
  * Retrieve the information required to verify all contracts from a deployment on Etherscan.
  *
  * @param deploymentDir - the file directory of the deployment
+ * @param customChains - an array of custom chain configurations
+ * @param libraryInfo - an object containing library names and addresses
  *
  * @beta
  */
@@ -29,7 +37,8 @@ export async function* verify(
     });
   }
 
-  const contracts = Object.entries(findDeployedContracts(deploymentState));
+  const deployedContracts = findDeployedContracts(deploymentState);
+  const contracts = Object.entries(deployedContracts);
 
   if (contracts.length === 0) {
     throw new IgnitionError(ERRORS.VERIFY.NO_CONTRACTS_DEPLOYED, {
@@ -62,6 +71,11 @@ export async function* verify(
       "execution state is not a deployment"
     );
 
+    const libraries = resolveLibraryInfoForArtifact(
+      artifact,
+      deployedContracts
+    );
+
     const { contractName, constructorArgs } = exState;
 
     const verifyResult: VerifyResult = [
@@ -71,7 +85,7 @@ export async function* verify(
         compilerVersion: buildInfo.solcLongVersion.startsWith("v")
           ? buildInfo.solcLongVersion
           : `v${buildInfo.solcLongVersion}`,
-        sourceCode: JSON.stringify(buildInfo.input),
+        sourceCode: resolveSourceCodeForLibraries(buildInfo, libraries),
         name: `${artifact.sourceName}:${contractName}`,
         args: encodeDeploymentArguments(artifact, constructorArgs),
       },
@@ -79,4 +93,48 @@ export async function* verify(
 
     yield verifyResult;
   }
+}
+
+function resolveLibraryInfoForArtifact(
+  artifact: Artifact,
+  deployedContracts: Record<string, DeployedContract>
+): SourceToLibraryToAddress | null {
+  const sourceToLibraryToAddress: SourceToLibraryToAddress = {};
+
+  for (const [sourceName, refObj] of Object.entries(artifact.linkReferences)) {
+    for (const [libName] of Object.entries(refObj)) {
+      sourceToLibraryToAddress[sourceName] ??= {};
+
+      const libraryAddress = Object.values(deployedContracts).find(
+        (contract) => contract.contractName === libName
+      )?.address;
+
+      assertIgnitionInvariant(
+        libraryAddress !== undefined,
+        `Could not find address for library ${libName}`
+      );
+
+      sourceToLibraryToAddress[sourceName][libName] = libraryAddress;
+    }
+  }
+
+  if (Object.entries(sourceToLibraryToAddress).length === 0) {
+    return null;
+  }
+
+  return sourceToLibraryToAddress;
+}
+
+function resolveSourceCodeForLibraries(
+  buildInfo: BuildInfo,
+  libraries: SourceToLibraryToAddress | null
+): string {
+  if (libraries === null) {
+    return JSON.stringify(buildInfo.input);
+  }
+
+  const { input } = buildInfo;
+  input.settings.libraries = libraries;
+
+  return JSON.stringify(input);
 }

@@ -101,4 +101,27 @@ describe("verify", () => {
 
     assert.deepEqual(result, expectedResult);
   });
+
+  it("should yield a verify result for contract with libraries", async () => {
+    const librariesResult = {
+      "contracts/Lib.sol": {
+        UUUUU: "0x0B014cb3B1AF9F45123195B37538Fb9dB6F5eF5F",
+      },
+    };
+
+    const deploymentDir = path.join(__dirname, "mocks", "verify", "libraries");
+
+    let success: boolean = false;
+    for await (const [, info] of verify(deploymentDir)) {
+      if (info.name === "contracts/Lock.sol:WAAIT") {
+        const librariesOutput = JSON.parse(info.sourceCode).settings.libraries;
+
+        assert.deepEqual(librariesOutput, librariesResult);
+        success = true;
+        break;
+      }
+    }
+
+    assert.isTrue(success);
+  });
 });

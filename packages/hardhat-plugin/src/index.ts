@@ -340,6 +340,12 @@ ignitionScope
       "./utils/verifyEtherscanContract"
     );
 
+    const deploymentDir = path.join(
+      hre.config.paths.ignition,
+      "deployments",
+      deploymentId
+    );
+
     if (
       hre.config.etherscan === undefined ||
       hre.config.etherscan.apiKey === undefined ||
@@ -350,12 +356,6 @@ ignitionScope
         "No etherscan API key configured"
       );
     }
-
-    const deploymentDir = path.join(
-      hre.config.paths.ignition,
-      "deployments",
-      deploymentId
-    );
 
     try {
       for await (const [chainConfig, contractInfo] of verify(

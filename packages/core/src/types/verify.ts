@@ -13,6 +13,19 @@ export interface ChainConfig {
 }
 
 /**
+ * A map of source names to library names to their addresses.
+ * Used to verify contracts with libraries that cannot be derived from the bytecode.
+ * i.e. contracts that use libraries in their constructor
+ *
+ * @beta
+ */
+export interface SourceToLibraryToAddress {
+  [sourceName: string]: {
+    [libraryName: string]: string;
+  };
+}
+
+/**
  * The information required to verify a contract on Etherscan.
  *
  * @beta
