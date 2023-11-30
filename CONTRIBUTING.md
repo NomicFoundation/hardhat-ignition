@@ -76,7 +76,7 @@ To publish ignition:
 6. Update the `CHANGELOG.md` under `./packages/core`.
 7. Update the `CHANGELOG.md` under `./packages/hardhat-plugin`.
 8. Update the `CHANGELOG.md` under `./packages/ui`.
-9. Update the package versions based on semver: `npm version --no-git-tag-version --workspaces patch #minor #major`
+9. Update the package versions based on semver: `npm run update-version patch #minor #major`
 10. Update the version of dependencies:
 
 - cores version in hardhat-ui deps

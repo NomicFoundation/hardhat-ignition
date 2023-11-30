@@ -21,10 +21,12 @@
     "watch": "tsc --build --watch packages/core packages/hardhat-plugin",
     "fullcheck": "npm run build && npm run lint && npm run test:coverage && npm run test:examples",
     "typedocs": "typedoc --entryPointStrategy packages --out ./typedocs ./packages/core && open-cli ./typedocs/index.html",
+    "update-version": "node scripts/update_version.js",
     "clean": "npm run clean --workspaces --if-present"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "7.34.4",
+    "@npmcli/package-json": "5.0.0",
     "@typescript-eslint/eslint-plugin": "4.31.2",
     "@typescript-eslint/parser": "4.31.2",
     "eslint": "^7.32.0",
