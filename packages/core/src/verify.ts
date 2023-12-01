@@ -4,6 +4,10 @@ import { builtinChains } from "./internal/chain-config";
 import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployment-loader";
 import { encodeDeploymentArguments } from "./internal/execution/abi";
 import { loadDeploymentState } from "./internal/execution/deployment-state-helpers";
+import {
+  DeploymentExecutionState,
+  ExecutionSateType,
+} from "./internal/execution/types/execution-state";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
 import { Artifact, BuildInfo } from "./types/artifact";
@@ -37,7 +41,13 @@ export async function* verify(
     });
   }
 
-  const deployedContracts = findDeployedContracts(deploymentState);
+  const deployedContracts = findDeployedContracts(
+    deploymentState,
+    (exState): exState is DeploymentExecutionState => {
+      return exState.type === ExecutionSateType.DEPLOYMENT_EXECUTION_STATE;
+    }
+  );
+
   const contracts = Object.entries(deployedContracts);
 
   if (contracts.length === 0) {
