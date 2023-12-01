@@ -4,6 +4,7 @@ import { builtinChains } from "./internal/chain-config";
 import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployment-loader";
 import { encodeDeploymentArguments } from "./internal/execution/abi";
 import { loadDeploymentState } from "./internal/execution/deployment-state-helpers";
+import { DeploymentState } from "./internal/execution/types/deployment-state";
 import {
   DeploymentExecutionState,
   ExecutionSateType,
@@ -41,6 +42,8 @@ export async function* verify(
     });
   }
 
+  const chainConfig = resolveChainConfig(deploymentState, customChains);
+
   const deployedContracts = findDeployedContracts(
     deploymentState,
     (exState): exState is DeploymentExecutionState => {
@@ -53,19 +56,6 @@ export async function* verify(
   if (contracts.length === 0) {
     throw new IgnitionError(ERRORS.VERIFY.NO_CONTRACTS_DEPLOYED, {
       deploymentDir,
-    });
-  }
-
-  // implementation note:
-  // if a user has set a custom chain with the same chainId as a builtin chain,
-  // the custom chain will be used instead of the builtin chain
-  const chainConfig = [...customChains, ...builtinChains].find(
-    (c) => c.chainId === deploymentState.chainId
-  );
-
-  if (chainConfig === undefined) {
-    throw new IgnitionError(ERRORS.VERIFY.UNSUPPORTED_CHAIN, {
-      chainId: deploymentState.chainId,
     });
   }
 
@@ -103,6 +93,26 @@ export async function* verify(
 
     yield verifyResult;
   }
+}
+
+function resolveChainConfig(
+  deploymentState: DeploymentState,
+  customChains: ChainConfig[]
+) {
+  // implementation note:
+  // if a user has set a custom chain with the same chainId as a builtin chain,
+  // the custom chain will be used instead of the builtin chain
+  const chainConfig = [...customChains, ...builtinChains].find(
+    (c) => c.chainId === deploymentState.chainId
+  );
+
+  if (chainConfig === undefined) {
+    throw new IgnitionError(ERRORS.VERIFY.UNSUPPORTED_CHAIN, {
+      chainId: deploymentState.chainId,
+    });
+  }
+
+  return chainConfig;
 }
 
 function resolveLibraryInfoForArtifact(
