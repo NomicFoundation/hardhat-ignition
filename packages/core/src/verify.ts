@@ -12,6 +12,7 @@ import {
 } from "./internal/execution/types/execution-state";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
+import { findExecutionStatesByType } from "./internal/views/find-execution-states-by-type";
 import { Artifact, BuildInfo } from "./types/artifact";
 import {
   ChainConfig,
@@ -57,14 +58,12 @@ export async function* verify(
     });
   }
 
-  for (const [futureId] of Object.entries(deployedContracts)) {
-    const exState = deploymentState.executionStates[futureId];
+  const deploymentExStates = findExecutionStatesByType(
+    ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
+    deploymentState
+  );
 
-    assertIgnitionInvariant(
-      exState.type === "DEPLOYMENT_EXECUTION_STATE",
-      "execution state is not a deployment"
-    );
-
+  for (const exState of deploymentExStates) {
     const verifyInfo = await convertExStateToVerifyInfo(
       exState,
       deploymentLoader
