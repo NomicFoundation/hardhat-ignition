@@ -51,15 +51,13 @@ export async function* verify(
     }
   );
 
-  const contracts = Object.entries(deployedContracts);
-
-  if (contracts.length === 0) {
+  if (Object.keys(deployedContracts).length === 0) {
     throw new IgnitionError(ERRORS.VERIFY.NO_CONTRACTS_DEPLOYED, {
       deploymentDir,
     });
   }
 
-  for (const [futureId, contract] of contracts) {
+  for (const [futureId, contract] of Object.entries(deployedContracts)) {
     const exState = deploymentState.executionStates[futureId];
     const [buildInfo, artifact] = await Promise.all([
       deploymentLoader.readBuildInfo(futureId),
