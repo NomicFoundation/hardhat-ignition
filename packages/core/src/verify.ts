@@ -12,7 +12,6 @@ import {
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
 import { Artifact, BuildInfo } from "./types/artifact";
-import { DeployedContract } from "./types/deploy";
 import {
   ChainConfig,
   SourceToLibraryToAddress,
@@ -70,10 +69,7 @@ export async function* verify(
       deploymentLoader.loadArtifact(exState.artifactId),
     ]);
 
-    const libraries = resolveLibraryInfoForArtifact(
-      artifact,
-      deployedContracts
-    );
+    const libraries = resolveLibraryInfoForArtifact(artifact, exState);
 
     const { contractName, constructorArgs } = exState;
 
@@ -116,7 +112,7 @@ function resolveChainConfig(
 
 function resolveLibraryInfoForArtifact(
   artifact: Artifact,
-  deployedContracts: Record<string, DeployedContract>
+  exState: DeploymentExecutionState
 ): SourceToLibraryToAddress | null {
   const sourceToLibraryToAddress: SourceToLibraryToAddress = {};
 
@@ -124,9 +120,7 @@ function resolveLibraryInfoForArtifact(
     for (const [libName] of Object.entries(refObj)) {
       sourceToLibraryToAddress[sourceName] ??= {};
 
-      const libraryAddress = Object.values(deployedContracts).find(
-        (contract) => contract.contractName === libName
-      )?.address;
+      const libraryAddress = exState.libraries[libName];
 
       assertIgnitionInvariant(
         libraryAddress !== undefined,
