@@ -43,19 +43,21 @@ describe("getApiKeyAndUrls", function () {
     ]);
   });
 
-  it("should throw when given a string if the network name is not mainnet", function () {
-    assert.throws(
-      () =>
-        getApiKeyAndUrls("testApiKey", {
-          network: "goerli",
-          chainId: 5,
-          urls: {
-            apiURL: "https://api-goerli.etherscan.io/api",
-            browserURL: "https://goerli.etherscan.io",
-          },
-        }),
-      /No etherscan API key configured for network goerli/
-    );
+  it("should return the correct API URLs when given a string and the network is not mainnet", function () {
+    const apiKeyList = getApiKeyAndUrls("goerliApiKey", {
+      network: "goerli",
+      chainId: 5,
+      urls: {
+        apiURL: "https://api-goerli.etherscan.io/api",
+        browserURL: "https://goerli.etherscan.io",
+      },
+    });
+
+    assert.deepEqual(apiKeyList, [
+      "goerliApiKey",
+      "https://api-goerli.etherscan.io/api",
+      "https://goerli.etherscan.io",
+    ]);
   });
 
   it("should throw when given an object and a nonexistent network name", function () {
