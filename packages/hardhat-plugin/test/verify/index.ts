@@ -7,12 +7,25 @@ describe("verify", function () {
   describe("when there is no etherscan API key configured", function () {
     useEphemeralIgnitionProject("verify-no-api-key");
 
-    it("should throw", async function () {
+    it("should throw in the verify task", async function () {
       await assert.isRejected(
         this.hre.run(
           { scope: "ignition", task: "verify" },
           {
             deploymentId: "test",
+          }
+        ),
+        /No etherscan API key configured/
+      );
+    });
+
+    it("should throw in the deploy task", async function () {
+      await assert.isRejected(
+        this.hre.run(
+          { scope: "ignition", task: "deploy" },
+          {
+            modulePath: "any",
+            verify: true,
           }
         ),
         /No etherscan API key configured/

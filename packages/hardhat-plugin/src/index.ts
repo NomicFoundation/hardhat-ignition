@@ -87,6 +87,18 @@ ignitionScope
         "./utils/shouldBeHardhatPluginError"
       );
 
+      if (
+        verify &&
+        (hre.config.etherscan === undefined ||
+          hre.config.etherscan.apiKey === undefined ||
+          hre.config.etherscan.apiKey === "")
+      ) {
+        throw new NomicLabsHardhatPluginError(
+          "@nomicfoundation/hardhat-ignition",
+          "No etherscan API key configured"
+        );
+      }
+
       const chainId = Number(
         await hre.network.provider.request({
           method: "eth_chainId",
@@ -156,6 +168,10 @@ ignitionScope
         });
 
         if (result.type === "SUCCESSFUL_DEPLOYMENT" && verify) {
+          console.log("");
+          console.log("Verifying deployed contracts");
+          console.log("");
+
           await hre.run(
             { scope: "ignition", task: "verify" },
             { deploymentId }
