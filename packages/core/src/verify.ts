@@ -59,15 +59,16 @@ export async function* verify(
 
   for (const [futureId, contract] of Object.entries(deployedContracts)) {
     const exState = deploymentState.executionStates[futureId];
-    const [buildInfo, artifact] = await Promise.all([
-      deploymentLoader.readBuildInfo(futureId),
-      deploymentLoader.loadArtifact(futureId),
-    ]);
 
     assertIgnitionInvariant(
       exState.type === "DEPLOYMENT_EXECUTION_STATE",
       "execution state is not a deployment"
     );
+
+    const [buildInfo, artifact] = await Promise.all([
+      deploymentLoader.readBuildInfo(exState.artifactId),
+      deploymentLoader.loadArtifact(exState.artifactId),
+    ]);
 
     const libraries = resolveLibraryInfoForArtifact(
       artifact,
