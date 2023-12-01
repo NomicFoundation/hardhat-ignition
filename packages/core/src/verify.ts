@@ -11,7 +11,6 @@ import {
   ExecutionSateType,
 } from "./internal/execution/types/execution-state";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
-import { findDeployedContracts } from "./internal/views/find-deployed-contracts";
 import { findExecutionStatesByType } from "./internal/views/find-execution-states-by-type";
 import { Artifact, BuildInfo } from "./types/artifact";
 import {
@@ -45,23 +44,16 @@ export async function* verify(
 
   const chainConfig = resolveChainConfig(deploymentState, customChains);
 
-  const deployedContracts = findDeployedContracts(
-    deploymentState,
-    (exState): exState is DeploymentExecutionState => {
-      return exState.type === ExecutionSateType.DEPLOYMENT_EXECUTION_STATE;
-    }
-  );
-
-  if (Object.keys(deployedContracts).length === 0) {
-    throw new IgnitionError(ERRORS.VERIFY.NO_CONTRACTS_DEPLOYED, {
-      deploymentDir,
-    });
-  }
-
   const deploymentExStates = findExecutionStatesByType(
     ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
     deploymentState
   );
+
+  if (deploymentExStates.length === 0) {
+    throw new IgnitionError(ERRORS.VERIFY.NO_CONTRACTS_DEPLOYED, {
+      deploymentDir,
+    });
+  }
 
   for (const exState of deploymentExStates) {
     const verifyInfo = await convertExStateToVerifyInfo(
