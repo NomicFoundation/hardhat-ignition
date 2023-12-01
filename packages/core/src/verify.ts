@@ -5,6 +5,7 @@ import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployme
 import { encodeDeploymentArguments } from "./internal/execution/abi";
 import { loadDeploymentState } from "./internal/execution/deployment-state-helpers";
 import { DeploymentState } from "./internal/execution/types/deployment-state";
+import { ExecutionResultType } from "./internal/execution/types/execution-result";
 import {
   DeploymentExecutionState,
   ExecutionSateType,
@@ -56,7 +57,7 @@ export async function* verify(
     });
   }
 
-  for (const [futureId, contract] of Object.entries(deployedContracts)) {
+  for (const [futureId] of Object.entries(deployedContracts)) {
     const exState = deploymentState.executionStates[futureId];
 
     assertIgnitionInvariant(
@@ -64,27 +65,12 @@ export async function* verify(
       "execution state is not a deployment"
     );
 
-    const [buildInfo, artifact] = await Promise.all([
-      deploymentLoader.readBuildInfo(exState.artifactId),
-      deploymentLoader.loadArtifact(exState.artifactId),
-    ]);
+    const verifyInfo = await convertExStateToVerifyInfo(
+      exState,
+      deploymentLoader
+    );
 
-    const libraries = resolveLibraryInfoForArtifact(artifact, exState);
-
-    const { contractName, constructorArgs } = exState;
-
-    const verifyResult: VerifyResult = [
-      chainConfig,
-      {
-        address: contract.address,
-        compilerVersion: buildInfo.solcLongVersion.startsWith("v")
-          ? buildInfo.solcLongVersion
-          : `v${buildInfo.solcLongVersion}`,
-        sourceCode: resolveSourceCodeForLibraries(buildInfo, libraries),
-        name: `${artifact.sourceName}:${contractName}`,
-        args: encodeDeploymentArguments(artifact, constructorArgs),
-      },
-    ];
+    const verifyResult: VerifyResult = [chainConfig, verifyInfo];
 
     yield verifyResult;
   }
@@ -110,9 +96,59 @@ function resolveChainConfig(
   return chainConfig;
 }
 
+async function convertExStateToVerifyInfo(
+  exState: DeploymentExecutionState,
+  deploymentLoader: FileDeploymentLoader
+) {
+  const [buildInfo, artifact] = await Promise.all([
+    deploymentLoader.readBuildInfo(exState.artifactId),
+    deploymentLoader.loadArtifact(exState.artifactId),
+  ]);
+
+  const { contractName, constructorArgs, libraries } = exState;
+
+  assertIgnitionInvariant(
+    exState.result !== undefined &&
+      exState.result.type === ExecutionResultType.SUCCESS,
+    `Deployment execution state ${exState.id} should have a successful result to retrieve address`
+  );
+
+  const verifyInfo = {
+    address: exState.result.address,
+    compilerVersion: buildInfo.solcLongVersion.startsWith("v")
+      ? buildInfo.solcLongVersion
+      : `v${buildInfo.solcLongVersion}`,
+    sourceCode: prepareInputBasedOn(buildInfo, artifact, libraries),
+    name: `${artifact.sourceName}:${contractName}`,
+    args: encodeDeploymentArguments(artifact, constructorArgs),
+  };
+
+  return verifyInfo;
+}
+
+function prepareInputBasedOn(
+  buildInfo: BuildInfo,
+  artifact: Artifact,
+  libraries: Record<string, string>
+): string {
+  const sourceToLibraryAddresses = resolveLibraryInfoForArtifact(
+    artifact,
+    libraries
+  );
+
+  if (sourceToLibraryAddresses === null) {
+    return JSON.stringify(buildInfo.input);
+  }
+
+  const { input } = buildInfo;
+  input.settings.libraries = sourceToLibraryAddresses;
+
+  return JSON.stringify(input);
+}
+
 function resolveLibraryInfoForArtifact(
   artifact: Artifact,
-  exState: DeploymentExecutionState
+  libraries: Record<string, string>
 ): SourceToLibraryToAddress | null {
   const sourceToLibraryToAddress: SourceToLibraryToAddress = {};
 
@@ -120,7 +156,7 @@ function resolveLibraryInfoForArtifact(
     for (const [libName] of Object.entries(refObj)) {
       sourceToLibraryToAddress[sourceName] ??= {};
 
-      const libraryAddress = exState.libraries[libName];
+      const libraryAddress = libraries[libName];
 
       assertIgnitionInvariant(
         libraryAddress !== undefined,
@@ -136,18 +172,4 @@ function resolveLibraryInfoForArtifact(
   }
 
   return sourceToLibraryToAddress;
-}
-
-function resolveSourceCodeForLibraries(
-  buildInfo: BuildInfo,
-  libraries: SourceToLibraryToAddress | null
-): string {
-  if (libraries === null) {
-    return JSON.stringify(buildInfo.input);
-  }
-
-  const { input } = buildInfo;
-  input.settings.libraries = libraries;
-
-  return JSON.stringify(input);
 }
