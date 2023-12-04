@@ -345,7 +345,9 @@ ignitionScope
     "Verify contracts from a deployment against the configured block explorers"
   )
   .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
-    const { verify } = await import("@nomicfoundation/ignition-core");
+    const { getVerificationInformation } = await import(
+      "@nomicfoundation/ignition-core"
+    );
     const { Etherscan } = await import(
       "@nomicfoundation/hardhat-verify/etherscan"
     );
@@ -375,7 +377,10 @@ ignitionScope
     }
 
     try {
-      for await (const [chainConfig, contractInfo] of verify(
+      for await (const [
+        chainConfig,
+        contractInfo,
+      ] of getVerificationInformation(
         deploymentDir,
         hre.config.etherscan.customChains
       )) {

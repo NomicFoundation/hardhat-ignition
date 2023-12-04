@@ -1,12 +1,12 @@
 import { assert } from "chai";
 import path from "path";
 
-import { VerifyResult, verify } from "../src";
+import { VerifyResult, getVerificationInformation } from "../src";
 
 describe("verify", () => {
   it("should not verify an unitialized deployment", async () => {
     await assert.isRejected(
-      verify("test").next(),
+      getVerificationInformation("test").next(),
       /IGN1000: Cannot verify contracts for nonexistant deployment at test/
     );
   });
@@ -20,7 +20,7 @@ describe("verify", () => {
     );
 
     await assert.isRejected(
-      verify(deploymentDir).next(),
+      getVerificationInformation(deploymentDir).next(),
       /IGN1001: Cannot verify deployment/
     );
   });
@@ -34,7 +34,7 @@ describe("verify", () => {
     );
 
     await assert.isRejected(
-      verify(deploymentDir).next(),
+      getVerificationInformation(deploymentDir).next(),
       /IGN1002: Verification not natively supported for chainId 123456789\. Please use a custom chain configuration to add support\./
     );
   });
@@ -60,7 +60,8 @@ describe("verify", () => {
 
     const deploymentDir = path.join(__dirname, "mocks", "verify", "success");
 
-    const result = (await verify(deploymentDir).next()).value;
+    const result = (await getVerificationInformation(deploymentDir).next())
+      .value;
 
     assert.deepEqual(result, expectedResult);
   });
@@ -87,7 +88,7 @@ describe("verify", () => {
     const deploymentDir = path.join(__dirname, "mocks", "verify", "success");
 
     const result = (
-      await verify(deploymentDir, [
+      await getVerificationInformation(deploymentDir, [
         {
           network: "mainnet",
           chainId: 1,
@@ -112,7 +113,7 @@ describe("verify", () => {
     const deploymentDir = path.join(__dirname, "mocks", "verify", "libraries");
 
     let success: boolean = false;
-    for await (const [, info] of verify(deploymentDir)) {
+    for await (const [, info] of getVerificationInformation(deploymentDir)) {
       if (info.name === "contracts/Lock.sol:WAAIT") {
         const librariesOutput = JSON.parse(info.sourceCode).settings.libraries;
 

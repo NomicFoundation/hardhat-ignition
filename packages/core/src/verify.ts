@@ -27,7 +27,7 @@ import {
  *
  * @beta
  */
-export async function* verify(
+export async function* getVerificationInformation(
   deploymentDir: string,
   customChains: ChainConfig[] = []
 ): AsyncGenerator<VerifyResult> {
