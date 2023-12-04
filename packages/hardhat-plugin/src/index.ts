@@ -14,7 +14,10 @@ import path from "path";
 
 import "./type-extensions";
 import { calculateDeploymentStatusDisplay } from "./ui/helpers/calculate-deployment-status-display";
+import { getApiKeyAndUrls } from "./utils/getApiKeyAndUrls";
 import { resolveDeploymentId } from "./utils/resolve-deployment-id";
+import { shouldBeHardhatPluginError } from "./utils/shouldBeHardhatPluginError";
+import { verifyEtherscanContract } from "./utils/verifyEtherscanContract";
 
 interface EtherscanConfig {
   apiKey: string | Record<string, string>;
@@ -92,9 +95,6 @@ ignitionScope
       );
       const { loadModule } = await import("./load-module");
       const { PrettyEventHandler } = await import("./ui/pretty-event-handler");
-      const { shouldBeHardhatPluginError } = await import(
-        "./utils/shouldBeHardhatPluginError"
-      );
 
       if (verify) {
         const etherescanConfig = readEtherscanFromConfig(hre);
@@ -219,9 +219,7 @@ ignitionScope
 
       const { loadModule } = await import("./load-module");
       const { open } = await import("./utils/open");
-      const { shouldBeHardhatPluginError } = await import(
-        "./utils/shouldBeHardhatPluginError"
-      );
+
       const { writeVisualization } = await import(
         "./visualization/write-visualization"
       );
@@ -279,9 +277,6 @@ ignitionScope
   .setDescription("Show the current status of a deployment")
   .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
     const { status } = await import("@nomicfoundation/ignition-core");
-    const { shouldBeHardhatPluginError } = await import(
-      "./utils/shouldBeHardhatPluginError"
-    );
 
     const deploymentDir = path.join(
       hre.config.paths.ignition,
@@ -321,9 +316,6 @@ ignitionScope
       const { HardhatArtifactResolver } = await import(
         "./hardhat-artifact-resolver"
       );
-      const { shouldBeHardhatPluginError } = await import(
-        "./utils/shouldBeHardhatPluginError"
-      );
 
       const deploymentDir = path.join(
         hre.config.paths.ignition,
@@ -358,14 +350,6 @@ ignitionScope
   .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
     const { getVerificationInformation } = await import(
       "@nomicfoundation/ignition-core"
-    );
-
-    const { getApiKeyAndUrls } = await import("./utils/getApiKeyAndUrls");
-    const { shouldBeHardhatPluginError } = await import(
-      "./utils/shouldBeHardhatPluginError"
-    );
-    const { verifyEtherscanContract } = await import(
-      "./utils/verifyEtherscanContract"
     );
 
     const etherscanConfig = readEtherscanFromConfig(hre);
