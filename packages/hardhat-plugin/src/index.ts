@@ -75,6 +75,7 @@ ignitionScope
       },
       hre
     ) => {
+      const { default: chalk } = await import("chalk");
       const { default: Prompt } = await import("prompts");
       const { deploy } = await import("@nomicfoundation/ignition-core");
 
@@ -169,7 +170,7 @@ ignitionScope
 
         if (result.type === "SUCCESSFUL_DEPLOYMENT" && verify) {
           console.log("");
-          console.log("Verifying deployed contracts");
+          console.log(chalk.bold("Verifying deployed contracts"));
           console.log("");
 
           await hre.run(
@@ -398,8 +399,9 @@ ignitionScope
           console.log("");
         } else {
           if (/already verified/gi.test(result.reason.message)) {
+            const contractURL = instance.getContractUrl(contractInfo.address);
             console.log(
-              `Contract ${contractInfo.name} already verified on network ${chainConfig.network}`
+              `Contract ${contractInfo.name} already verified on network ${chainConfig.network}:\n  - ${contractURL}`
             );
             console.log("");
             continue;
