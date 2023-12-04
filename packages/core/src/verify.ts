@@ -24,7 +24,6 @@ import {
  *
  * @param deploymentDir - the file directory of the deployment
  * @param customChains - an array of custom chain configurations
- * @param libraryInfo - an object containing library names and addresses
  *
  * @beta
  */
