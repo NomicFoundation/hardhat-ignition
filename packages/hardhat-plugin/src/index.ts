@@ -1,7 +1,7 @@
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
 import { Etherscan } from "@nomicfoundation/hardhat-verify/etherscan";
 import {
-  ChainConfig,
   DeploymentParameters,
   IgnitionError,
   StatusResult,
@@ -9,7 +9,6 @@ import {
 import { readdirSync } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import { NomicLabsHardhatPluginError, lazyObject } from "hardhat/plugins";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import path from "path";
 
 import "./type-extensions";
@@ -18,11 +17,6 @@ import { getApiKeyAndUrls } from "./utils/getApiKeyAndUrls";
 import { resolveDeploymentId } from "./utils/resolve-deployment-id";
 import { shouldBeHardhatPluginError } from "./utils/shouldBeHardhatPluginError";
 import { verifyEtherscanContract } from "./utils/verifyEtherscanContract";
-
-interface EtherscanConfig {
-  apiKey: string | Record<string, string>;
-  customChains: ChainConfig[];
-}
 
 /* ignition config defaults */
 const IGNITION_DIR = "ignition";
@@ -97,12 +91,10 @@ ignitionScope
       const { PrettyEventHandler } = await import("./ui/pretty-event-handler");
 
       if (verify) {
-        const etherescanConfig = readEtherscanFromConfig(hre);
-
         if (
-          etherescanConfig === undefined ||
-          etherescanConfig.apiKey === undefined ||
-          etherescanConfig.apiKey === ""
+          hre.config.etherscan === undefined ||
+          hre.config.etherscan.apiKey === undefined ||
+          hre.config.etherscan.apiKey === ""
         ) {
           throw new NomicLabsHardhatPluginError(
             "@nomicfoundation/hardhat-ignition",
@@ -352,8 +344,6 @@ ignitionScope
       "@nomicfoundation/ignition-core"
     );
 
-    const etherscanConfig = readEtherscanFromConfig(hre);
-
     const deploymentDir = path.join(
       hre.config.paths.ignition,
       "deployments",
@@ -361,9 +351,9 @@ ignitionScope
     );
 
     if (
-      etherscanConfig === undefined ||
-      etherscanConfig.apiKey === undefined ||
-      etherscanConfig.apiKey === ""
+      hre.config.etherscan === undefined ||
+      hre.config.etherscan.apiKey === undefined ||
+      hre.config.etherscan.apiKey === ""
     ) {
       throw new NomicLabsHardhatPluginError(
         "@nomicfoundation/hardhat-ignition",
@@ -377,10 +367,10 @@ ignitionScope
         contractInfo,
       ] of getVerificationInformation(
         deploymentDir,
-        etherscanConfig.customChains
+        hre.config.etherscan.customChains
       )) {
         const apiKeyAndUrls = getApiKeyAndUrls(
-          etherscanConfig.apiKey,
+          hre.config.etherscan.apiKey,
           chainConfig
         );
 
@@ -456,10 +446,4 @@ function resolveParametersString(paramString: string): DeploymentParameters {
     console.warn(`Could not parse JSON parameters`);
     process.exit(0);
   }
-}
-
-function readEtherscanFromConfig(
-  hre: HardhatRuntimeEnvironment
-): EtherscanConfig {
-  return (hre.config as any).etherscan;
 }
