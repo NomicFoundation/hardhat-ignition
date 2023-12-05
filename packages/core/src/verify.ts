@@ -9,6 +9,7 @@ import { ExecutionResultType } from "./internal/execution/types/execution-result
 import {
   DeploymentExecutionState,
   ExecutionSateType,
+  ExecutionStatus,
 } from "./internal/execution/types/execution-state";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findExecutionStatesByType } from "./internal/views/find-execution-states-by-type";
@@ -46,7 +47,7 @@ export async function* getVerificationInformation(
   const deploymentExStates = findExecutionStatesByType(
     ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
     deploymentState
-  );
+  ).filter((exState) => exState.status === ExecutionStatus.SUCCESS);
 
   if (deploymentExStates.length === 0) {
     throw new IgnitionError(ERRORS.VERIFY.NO_CONTRACTS_DEPLOYED, {
