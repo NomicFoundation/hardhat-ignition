@@ -5,7 +5,7 @@ export * from "./errors";
 export { ErrorDescriptor } from "./errors-list";
 export { IgnitionModuleSerializer } from "./ignition-module-serializer";
 export { formatSolidityParameter } from "./internal/formatters";
-export { list } from "./list";
+export { listDeployments } from "./list-deployments";
 export { status } from "./status";
 export * from "./type-guards";
 export * from "./types/artifact";
