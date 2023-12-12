@@ -5,7 +5,7 @@ import {
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
-import { readdirSync } from "fs-extra";
+import { readdirSync, rm } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import {
   HardhatPluginError,
@@ -75,6 +75,7 @@ ignitionScope
     "defaultSender",
     "Set the default sender for the deployment"
   )
+  .addFlag("reset", "Wipes the existing deployment state before deploying")
   .addFlag("verify", "Verify the deployment on Etherscan")
   .setDescription("Deploy a module to the specified network")
   .setAction(
@@ -84,12 +85,14 @@ ignitionScope
         parameters: parametersInput,
         deploymentId: givenDeploymentId,
         defaultSender,
+        reset,
         verify,
       }: {
         modulePath: string;
         parameters?: string;
         deploymentId: string | undefined;
         defaultSender: string | undefined;
+        reset: boolean;
         verify: boolean;
       },
       hre
@@ -123,6 +126,13 @@ ignitionScope
         })
       );
 
+      const deploymentId = resolveDeploymentId(givenDeploymentId, chainId);
+
+      const deploymentDir =
+        hre.network.name === "hardhat"
+          ? undefined
+          : path.join(hre.config.paths.ignition, "deployments", deploymentId);
+
       if (chainId !== 31337) {
         const prompt = await Prompt({
           type: "confirm",
@@ -135,6 +145,24 @@ ignitionScope
           console.log("Deploy cancelled");
           return;
         }
+
+        if (reset) {
+          const resetPrompt = await Prompt({
+            type: "confirm",
+            name: "resetConfirmation",
+            message: `Confirm reset of deployment "${deploymentId}" on chain ${chainId}?`,
+            initial: false,
+          });
+
+          if (resetPrompt.resetConfirmation !== true) {
+            console.log("Deploy cancelled");
+            return;
+          }
+        }
+      }
+
+      if (reset && deploymentDir !== undefined) {
+        await rm(deploymentDir, { recursive: true, force: true });
       }
 
       await hre.run("compile", { quiet: true });
@@ -161,13 +189,6 @@ ignitionScope
       const accounts = (await hre.network.provider.request({
         method: "eth_accounts",
       })) as string[];
-
-      const deploymentId = resolveDeploymentId(givenDeploymentId, chainId);
-
-      const deploymentDir =
-        hre.network.name === "hardhat"
-          ? undefined
-          : path.join(hre.config.paths.ignition, "deployments", deploymentId);
 
       const artifactResolver = new HardhatArtifactResolver(hre);
 
