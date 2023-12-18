@@ -161,6 +161,13 @@ ignitionScope
         }
       }
 
+      if (reset && deploymentDir === undefined) {
+        console.warn(
+          "Warning: Cannot reset deployment on ephemeral hardhat network"
+        );
+        process.exit(0);
+      }
+
       if (reset && deploymentDir !== undefined) {
         await rm(deploymentDir, { recursive: true, force: true });
       }
