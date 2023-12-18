@@ -1,42 +1,40 @@
-/* eslint-disable import/no-unused-modules */
+import { status } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
-import { ensureDir, copyFile, pathExists } from "fs-extra";
-import path from "path";
 
 import { useFileIgnitionProject } from "../test-helpers/use-ignition-project";
 
 describe("reset flag", function () {
-  useFileIgnitionProject("reset-flag", "customResetId");
+  useFileIgnitionProject("reset-flag", "custom-reset-id");
 
   it("should reset a deployment", async function () {
     this.hre.network.name = "something-else";
 
-    const deploymentDir = path.join(
-      path.resolve(__dirname, `../fixture-projects/reset-flag/ignition`),
-      "deployments",
-      "customResetId"
+    await this.hre.run(
+      { scope: "ignition", task: "deploy" },
+      {
+        modulePath: "./ignition/modules/FirstPass.js",
+        deploymentId: "custom-reset-id",
+        reset: true,
+      }
     );
 
-    await ensureDir(deploymentDir);
-
-    await copyFile(
-      path.resolve(__dirname, "../fixture-projects/reset-flag/journal.jsonl"),
-      path.join(deploymentDir, "journal.jsonl")
+    await this.hre.run(
+      { scope: "ignition", task: "deploy" },
+      {
+        modulePath: "./ignition/modules/SecondPass.js",
+        deploymentId: "custom-reset-id",
+        reset: true,
+      }
     );
 
-    await assert.isFulfilled(
-      this.hre.run(
-        { scope: "ignition", task: "deploy" },
-        {
-          modulePath: "./ignition/modules/LockModule.js",
-          deploymentId: "customResetId",
-          reset: true,
-        }
-      )
-    );
+    const result = await status(this.deploymentDir!);
 
-    await assert.isFulfilled(
-      pathExists(path.join(deploymentDir, "deployed_addresses.json"))
+    // ResetModule#B will only be in the success list if the second
+    // run ran without any reconciliation errors - so the retry
+    // cleared the first pass
+    assert(
+      result.successful.includes("ResetModule#B"),
+      "Retry did not clear first pass, so second pass failed"
     );
   });
 });

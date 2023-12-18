@@ -161,15 +161,16 @@ ignitionScope
         }
       }
 
-      if (reset && deploymentDir === undefined) {
-        console.warn(
-          "Warning: Cannot reset deployment on ephemeral hardhat network"
-        );
-        process.exit(0);
-      }
+      if (reset) {
+        if (deploymentDir === undefined) {
+          console.warn(
+            "Deploy cancelled: Cannot reset deployment on ephemeral Hardhat network"
+          );
 
-      if (reset && deploymentDir !== undefined) {
-        await rm(deploymentDir, { recursive: true, force: true });
+          process.exit(0);
+        } else {
+          await rm(deploymentDir, { recursive: true, force: true });
+        }
       }
 
       await hre.run("compile", { quiet: true });
