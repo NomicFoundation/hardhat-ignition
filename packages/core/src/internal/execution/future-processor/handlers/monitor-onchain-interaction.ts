@@ -75,13 +75,27 @@ export async function monitorOnchainInteraction(
     `No transaction found in OnchainInteraction ${exState.id}/${lastNetworkInteraction.id} when trying to check its transactions`
   );
 
-  const transactions = await Promise.all(
-    lastNetworkInteraction.transactions.map((tx) =>
-      jsonRpcClient.getTransaction(tx.hash)
-    )
-  );
+  let transaction:
+    | Awaited<ReturnType<typeof jsonRpcClient.getTransaction>>
+    | undefined;
 
-  const transaction = transactions.find((tx) => tx !== undefined);
+  // Small retry loop for up to 10 seconds to handle blockchain nodes that are slow to propagate transactions.
+  // See https://github.com/NomicFoundation/hardhat-ignition/issues/665
+  for (let i = 0; i < 10; i++) {
+    const transactions = await Promise.all(
+      lastNetworkInteraction.transactions.map((tx) =>
+        jsonRpcClient.getTransaction(tx.hash)
+      )
+    );
+
+    transaction = transactions.find((tx) => tx !== undefined);
+
+    if (transaction !== undefined) {
+      break;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
 
   // We do not try to recover from dopped transactions mid-execution
   if (transaction === undefined) {
