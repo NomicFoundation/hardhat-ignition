@@ -1,13 +1,18 @@
 import { assert } from "chai";
 
+import { monitorOnchainInteraction } from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction";
 import { runStaticCall } from "../../../../src/internal/execution/future-processor/helpers/network-interaction-execution";
 import {
-  JsonRpcClient,
+  Block,
   CallParams,
   EstimateGasParams,
+  JsonRpcClient,
   TransactionParams,
-  Block,
 } from "../../../../src/internal/execution/jsonrpc-client";
+import {
+  DeploymentExecutionState,
+  ExecutionSateType,
+} from "../../../../src/internal/execution/types/execution-state";
 import {
   NetworkFees,
   RawStaticCallResult,
@@ -18,12 +23,6 @@ import {
   NetworkInteractionType,
   StaticCall,
 } from "../../../../src/internal/execution/types/network-interaction";
-import { monitorOnchainInteraction } from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction";
-import { deploymentStateReducer } from "../../../../src/internal/execution/reducers/deployment-state-reducer";
-import {
-  DeploymentExecutionState,
-  ExecutionSateType,
-} from "../../../../src/internal/execution/types/execution-state";
 
 class StubJsonRpcClient implements JsonRpcClient {
   public async getChainId(): Promise<number> {
