@@ -10,13 +10,17 @@ import {
   DeploymentExecutionState,
   SendDataExecutionState,
 } from "../../types/execution-state";
+import { Transaction } from "../../types/jsonrpc";
 import {
   JournalMessageType,
   OnchainInteractionBumpFeesMessage,
   OnchainInteractionTimeoutMessage,
   TransactionConfirmMessage,
 } from "../../types/messages";
-import { NetworkInteractionType } from "../../types/network-interaction";
+import {
+  NetworkInteractionType,
+  OnchainInteraction,
+} from "../../types/network-interaction";
 
 const debug = setupDebug("hardhat-ignition:onchain-interaction-monitor");
 
@@ -79,31 +83,10 @@ export async function monitorOnchainInteraction(
     `No transaction found in OnchainInteraction ${exState.id}/${lastNetworkInteraction.id} when trying to check its transactions`
   );
 
-  let transaction:
-    | Awaited<ReturnType<typeof jsonRpcClient.getTransaction>>
-    | undefined;
-
-  // Small retry loop for up to 10 seconds to handle blockchain nodes that are slow to propagate transactions.
-  // See https://github.com/NomicFoundation/hardhat-ignition/issues/665
-  for (let i = 0; i < 10; i++) {
-    debug("Retrieving transaction from mempool");
-
-    const transactions = await Promise.all(
-      lastNetworkInteraction.transactions.map((tx) =>
-        jsonRpcClient.getTransaction(tx.hash)
-      )
-    );
-
-    transaction = transactions.find((tx) => tx !== undefined);
-
-    if (transaction !== undefined) {
-      break;
-    }
-
-    debug("Transaction not found in mempool, waiting 1 second before retrying");
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
+  const transaction = await _getTransactionWithRetry(
+    jsonRpcClient,
+    lastNetworkInteraction
+  );
 
   // We do not try to recover from dopped transactions mid-execution
   if (transaction === undefined) {
@@ -162,4 +145,35 @@ export async function monitorOnchainInteraction(
     futureId: exState.id,
     networkInteractionId: lastNetworkInteraction.id,
   };
+}
+
+async function _getTransactionWithRetry(
+  jsonRpcClient: JsonRpcClient,
+  lastNetworkInteraction: OnchainInteraction
+): Promise<Transaction | undefined> {
+  let transaction: Transaction | undefined;
+
+  // Small retry loop for up to 10 seconds to handle blockchain nodes that are slow to propagate transactions.
+  // See https://github.com/NomicFoundation/hardhat-ignition/issues/665
+  for (let i = 0; i < 10; i++) {
+    debug("Retrieving transaction from mempool");
+
+    const transactions = await Promise.all(
+      lastNetworkInteraction.transactions.map((tx) =>
+        jsonRpcClient.getTransaction(tx.hash)
+      )
+    );
+
+    transaction = transactions.find((tx) => tx !== undefined);
+
+    if (transaction !== undefined) {
+      break;
+    }
+
+    debug("Transaction not found in mempool, waiting 1 second before retrying");
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  return transaction;
 }
