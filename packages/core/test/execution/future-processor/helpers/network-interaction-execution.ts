@@ -1,6 +1,9 @@
 import { assert } from "chai";
 
-import { monitorOnchainInteraction } from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction";
+import {
+  GetTransactionRetryConfig,
+  monitorOnchainInteraction,
+} from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction";
 import { runStaticCall } from "../../../../src/internal/execution/future-processor/helpers/network-interaction-execution";
 import {
   Block,
@@ -139,7 +142,12 @@ describe("Network interactions", () => {
     const millisecondBeforeBumpingFees = 1;
     const maxFeeBumps = 1;
 
-    let mockClient: MockJsonRpcClient;
+    const testGetTransactionRetryConfig: GetTransactionRetryConfig = {
+      maxRetries: 10,
+      retryInterval: 1,
+    };
+
+    let mockClient: MockGetTransactionJsonRpcClient;
     let fakeTransactionTrackingTimer: FakeTransactionTrackingTimer;
 
     const exampleDeploymentExecutionState: DeploymentExecutionState = {
@@ -159,7 +167,7 @@ describe("Network interactions", () => {
     };
 
     beforeEach(() => {
-      mockClient = new MockJsonRpcClient();
+      mockClient = new MockGetTransactionJsonRpcClient();
       fakeTransactionTrackingTimer = new FakeTransactionTrackingTimer();
     });
 
@@ -202,7 +210,8 @@ describe("Network interactions", () => {
         fakeTransactionTrackingTimer,
         requiredConfirmations,
         millisecondBeforeBumpingFees,
-        maxFeeBumps
+        maxFeeBumps,
+        testGetTransactionRetryConfig
       );
 
       if (message === undefined) {
@@ -245,7 +254,8 @@ describe("Network interactions", () => {
           fakeTransactionTrackingTimer,
           requiredConfirmations,
           millisecondBeforeBumpingFees,
-          maxFeeBumps
+          maxFeeBumps,
+          testGetTransactionRetryConfig
         ),
         /IGN401: Error while executing test: all the transactions of its network interaction 1 were dropped\. Please try rerunning Hardhat Ignition\./
       );
@@ -313,7 +323,7 @@ describe("Network interactions", () => {
   });
 });
 
-class MockJsonRpcClient extends StubJsonRpcClient {
+class MockGetTransactionJsonRpcClient extends StubJsonRpcClient {
   public calls: number = 0;
   public callToFindResult: number = Number.MAX_SAFE_INTEGER;
   public result: Omit<Transaction, "receipt"> | undefined = undefined;

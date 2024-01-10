@@ -24,6 +24,11 @@ import {
 
 const debug = setupDebug("hardhat-ignition:onchain-interaction-monitor");
 
+export interface GetTransactionRetryConfig {
+  maxRetries: number;
+  retryInterval: number;
+}
+
 /**
  * Checks the transactions of the latest network interaction of the execution state,
  * and returns a message, or undefined if we need to wait for more confirmations.
@@ -59,7 +64,11 @@ export async function monitorOnchainInteraction(
   transactionTrackingTimer: TransactionTrackingTimer,
   requiredConfirmations: number,
   millisecondBeforeBumpingFees: number,
-  maxFeeBumps: number
+  maxFeeBumps: number,
+  getTransactionRetryConfig: GetTransactionRetryConfig = {
+    maxRetries: 10,
+    retryInterval: 1000,
+  }
 ): Promise<
   | TransactionConfirmMessage
   | OnchainInteractionBumpFeesMessage
@@ -85,7 +94,9 @@ export async function monitorOnchainInteraction(
 
   const transaction = await _getTransactionWithRetry(
     jsonRpcClient,
-    lastNetworkInteraction
+    lastNetworkInteraction,
+    getTransactionRetryConfig,
+    exState.id
   );
 
   // We do not try to recover from dopped transactions mid-execution
@@ -149,17 +160,24 @@ export async function monitorOnchainInteraction(
 
 async function _getTransactionWithRetry(
   jsonRpcClient: JsonRpcClient,
-  lastNetworkInteraction: OnchainInteraction
+  onchainInteraction: OnchainInteraction,
+  retryConfig: GetTransactionRetryConfig,
+  futureId: string
 ): Promise<Transaction | undefined> {
   let transaction: Transaction | undefined;
 
-  // Small retry loop for up to 10 seconds to handle blockchain nodes that are slow to propagate transactions.
+  // Small retry loop for up to X seconds to handle blockchain nodes
+  // that are slow to propagate transactions.
   // See https://github.com/NomicFoundation/hardhat-ignition/issues/665
-  for (let i = 0; i < 10; i++) {
-    debug("Retrieving transaction from mempool");
+  for (let i = 0; i < retryConfig.maxRetries; i++) {
+    debug(
+      `Retrieving transaction for interaction ${futureId}/${
+        onchainInteraction.id
+      } from mempool (attempt ${i + 1}/${retryConfig.maxRetries})`
+    );
 
     const transactions = await Promise.all(
-      lastNetworkInteraction.transactions.map((tx) =>
+      onchainInteraction.transactions.map((tx) =>
         jsonRpcClient.getTransaction(tx.hash)
       )
     );
@@ -170,9 +188,13 @@ async function _getTransactionWithRetry(
       break;
     }
 
-    debug("Transaction not found in mempool, waiting 1 second before retrying");
+    debug(
+      `Transaction lookup for ${futureId}/${onchainInteraction.id} not found in mempool, waiting ${retryConfig.retryInterval} seconds before retrying`
+    );
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) =>
+      setTimeout(resolve, retryConfig.retryInterval)
+    );
   }
 
   return transaction;
