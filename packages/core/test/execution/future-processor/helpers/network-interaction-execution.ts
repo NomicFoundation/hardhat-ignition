@@ -18,6 +18,12 @@ import {
   NetworkInteractionType,
   StaticCall,
 } from "../../../../src/internal/execution/types/network-interaction";
+import { monitorOnchainInteraction } from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction";
+import { deploymentStateReducer } from "../../../../src/internal/execution/reducers/deployment-state-reducer";
+import {
+  DeploymentExecutionState,
+  ExecutionSateType,
+} from "../../../../src/internal/execution/types/execution-state";
 
 class StubJsonRpcClient implements JsonRpcClient {
   public async getChainId(): Promise<number> {
@@ -119,6 +125,68 @@ describe("Network interactions", () => {
       const result = await runStaticCall(mockClient, staticCall);
       assert.equal(result, expectedResult);
       assert.equal(mockClient.calls, 1);
+    });
+  });
+
+  describe("monitorOnchainInteraction", () => {
+    it("Should retry when transactions are missing from the mempool", async () => {
+      class MockJsonRpcClient extends StubJsonRpcClient {
+        public calls: number = 0;
+
+        public async getTransaction(
+          _txHash: string
+        ): Promise<Omit<Transaction, "receipt"> | undefined> {
+          this.calls += 1;
+
+          return undefined;
+        }
+      }
+
+      const deploymentExecutionState = {
+        id: "test",
+        artifactId: "",
+        contractName: "",
+        constructorArgs: [],
+        libraries: {},
+        value: 0n,
+        from: "",
+        type: ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
+        networkInteractions: [
+          {
+            data: "",
+            id: 1,
+            to: "",
+            value: 0n,
+            shouldBeResent: true,
+            type: NetworkInteractionType.ONCHAIN_INTERACTION,
+            transactions: [
+              {
+                hash: "",
+                fees: {
+                  maxFeePerGas: 0n,
+                  maxPriorityFeePerGas: 0n,
+                },
+              },
+            ],
+          },
+        ],
+      };
+
+      const mockClient = new MockJsonRpcClient();
+
+      await assert.isRejected(
+        monitorOnchainInteraction(
+          deploymentExecutionState as unknown as DeploymentExecutionState,
+          mockClient,
+          {} as any,
+          1,
+          1,
+          1
+        ),
+        /IGN401: Error while executing test: all the transactions of its network interaction 1 were dropped\. Please try rerunning Hardhat Ignition\./
+      );
+
+      assert.equal(mockClient.calls, 10);
     });
   });
 

@@ -1,3 +1,5 @@
+import setupDebug from "debug";
+
 import { IgnitionError } from "../../../../errors";
 import { ERRORS } from "../../../../errors-list";
 import { assertIgnitionInvariant } from "../../../utils/assertions";
@@ -15,6 +17,8 @@ import {
   TransactionConfirmMessage,
 } from "../../types/messages";
 import { NetworkInteractionType } from "../../types/network-interaction";
+
+const debug = setupDebug("hardhat-ignition:onchain-interaction-monitor");
 
 /**
  * Checks the transactions of the latest network interaction of the execution state,
@@ -82,6 +86,8 @@ export async function monitorOnchainInteraction(
   // Small retry loop for up to 10 seconds to handle blockchain nodes that are slow to propagate transactions.
   // See https://github.com/NomicFoundation/hardhat-ignition/issues/665
   for (let i = 0; i < 10; i++) {
+    debug("Retrieving transaction from mempool");
+
     const transactions = await Promise.all(
       lastNetworkInteraction.transactions.map((tx) =>
         jsonRpcClient.getTransaction(tx.hash)
@@ -93,6 +99,8 @@ export async function monitorOnchainInteraction(
     if (transaction !== undefined) {
       break;
     }
+
+    debug("Transaction not found in mempool, waiting 1 second before retrying");
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
