@@ -51,6 +51,13 @@ export class EthersIgnitionHelper {
     this._deploymentDir = deploymentDir;
   }
 
+  /**
+   * Deploys the given Ignition module and returns the results returned by the module.
+   *
+   * @param ignitionModule - The Ignition module to deploy.
+   * @param options - The options to use for the deployment.
+   * @returns Ethers contract instances for each contract returned by the module.
+   */
   public async deploy<
     ModuleIdT extends string,
     ContractNameT extends string,
