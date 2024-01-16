@@ -28,14 +28,33 @@ import {
  * @beta
  */
 export interface ContractOptions {
+  /**
+   * The future id.
+   */
   id?: string;
+
+  /**
+   * The futures to execute before this one.
+   */
   after?: Future[];
+
+  /**
+   * The libraries to link to the contract.
+   */
   libraries?: Record<string, ContractFuture<string>>;
+
+  /**
+   * The value in wei to send with the transaction.
+   */
   value?:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
     | StaticCallFuture<string, string>
     | ReadEventArgumentFuture;
+
+  /**
+   * The account to send the transaction from.
+   */
   from?: string | AccountRuntimeValue;
 }
 
@@ -45,9 +64,24 @@ export interface ContractOptions {
  * @beta
  */
 export interface LibraryOptions {
+  /**
+   * The future id.
+   */
   id?: string;
+
+  /**
+   * The futures to execute before this one.
+   */
   after?: Future[];
+
+  /**
+   * The libraries to link to the contract.
+   */
   libraries?: Record<string, ContractFuture<string>>;
+
+  /**
+   * The account to send the transaction from.
+   */
   from?: string | AccountRuntimeValue;
 }
 
@@ -57,13 +91,28 @@ export interface LibraryOptions {
  * @beta
  */
 export interface CallOptions {
+  /**
+   * The future id.
+   */
   id?: string;
+
+  /**
+   * The futures to execute before this one.
+   */
   after?: Future[];
+
+  /**
+   * The value in wei to send with the transaction.
+   */
   value?:
     | bigint
     | ModuleParameterRuntimeValue<bigint>
     | StaticCallFuture<string, string>
     | ReadEventArgumentFuture;
+
+  /**
+   * The account to send the transaction from.
+   */
   from?: string | AccountRuntimeValue;
 }
 
@@ -73,8 +122,19 @@ export interface CallOptions {
  * @beta
  */
 export interface StaticCallOptions {
+  /**
+   * The future id.
+   */
   id?: string;
+
+  /**
+   * The futures to execute before this one.
+   */
   after?: Future[];
+
+  /**
+   * The account to send the transaction from.
+   */
   from?: string | AccountRuntimeValue;
 }
 
@@ -84,7 +144,14 @@ export interface StaticCallOptions {
  * @beta
  */
 export interface ContractAtOptions {
+  /**
+   * The future id.
+   */
   id?: string;
+
+  /**
+   * The futures to execute before this one.
+   */
   after?: Future[];
 }
 
@@ -118,7 +185,14 @@ export interface ReadEventArgumentOptions {
  * @beta
  */
 export interface SendDataOptions {
+  /**
+   * The futures to execute before this one.
+   */
   after?: Future[];
+
+  /**
+   * The account to send the transaction from.
+   */
   from?: string | AccountRuntimeValue;
 }
 
@@ -129,8 +203,9 @@ export interface SendDataOptions {
  */
 export interface IgnitionModuleBuilder {
   /**
-   * Returns an account runtime value that can be used to specify the
-   * account to use for a transaction.
+   * Returns an account runtime value representing the
+   * Hardhat account the underlying transactions for a
+   * future will be sent from.
    *
    * @param accountIndex - The index of the account to return
    *
@@ -145,7 +220,7 @@ export interface IgnitionModuleBuilder {
   getAccount(accountIndex: number): AccountRuntimeValue;
 
   /**
-   * Allows you to specify a parameter that can be dynamically set during deployment.
+   * A parameter whose value can be set at deployment.
    *
    * @param parameterName - The name of the parameter
    * @param defaultValue - The default value to use if the parameter is not provided
@@ -162,7 +237,7 @@ export interface IgnitionModuleBuilder {
   ): ModuleParameterRuntimeValue<ParamTypeT>;
 
   /**
-   * Deploys a contract.
+   * Deploy a contract.
    *
    * @param contractName - The name of the contract to deploy
    * @param args - The arguments to pass to the contract constructor
@@ -180,7 +255,7 @@ export interface IgnitionModuleBuilder {
   ): NamedArtifactContractDeploymentFuture<ContractNameT>;
 
   /**
-   * Deploys a contract.
+   * Deploy a contract.
    *
    * @param contractName - The name of the contract to deploy
    * @param artifact - The artifact of the contract to deploy
@@ -200,7 +275,7 @@ export interface IgnitionModuleBuilder {
   ): ContractDeploymentFuture<AbiT>;
 
   /**
-   * Deploys a library.
+   * Deploy a library.
    *
    * @param libraryName - The name of the library to deploy
    * @param options - The options for the deployment
@@ -217,7 +292,7 @@ export interface IgnitionModuleBuilder {
   ): NamedArtifactLibraryDeploymentFuture<LibraryNameT>;
 
   /**
-   * Deploys a library.
+   * Deploy a library.
    *
    * @param libraryName - The name of the library to deploy
    * @param artifact - The artifact of the library to deploy
@@ -236,7 +311,7 @@ export interface IgnitionModuleBuilder {
   ): LibraryDeploymentFuture<AbiT>;
 
   /**
-   * Calls a contract function.
+   * Call a contract function.
    *
    * @param contractFuture - The contract to call
    * @param functionName - The name of the function to call
@@ -257,7 +332,11 @@ export interface IgnitionModuleBuilder {
   ): ContractCallFuture<ContractNameT, FunctionNameT>;
 
   /**
-   * Statically calls a readonly contract function and returns the result.
+   * Statically call a contract function and return the result.
+   *
+   * Read data from a contract without sending a transaction.
+   *
+   * Note: This is only supported for functions that are marked as `view` or `pure`, or variables marked `public`.
    *
    * @param contractFuture - The contract to call
    * @param functionName - The name of the function to call
@@ -280,7 +359,9 @@ export interface IgnitionModuleBuilder {
   ): StaticCallFuture<ContractNameT, FunctionNameT>;
 
   /**
-   * Creates a contract instance at the specified address.
+   * Create a future for an existing deployed contract so that it can be referenced in subsequent futures.
+   *
+   * The resulting future can be used anywhere a contract future or address is expected.
    *
    * @param contractName - The name of the contract
    * @param address - The address of the contract
@@ -301,7 +382,9 @@ export interface IgnitionModuleBuilder {
   ): NamedArtifactContractAtFuture<ContractNameT>;
 
   /**
-   * Creates a contract instance at the specified address.
+   * Create a future for an existing deployed contract so that it can be referenced in subsequent futures.
+   *
+   * The resulting future can be used anywhere a contract future or address is expected.
    *
    * @param contractName - The name of the contract
    * @param artifact - The artifact of the contract
@@ -324,7 +407,10 @@ export interface IgnitionModuleBuilder {
   ): ContractAtFuture<AbiT>;
 
   /**
-   * Reads an event argument from a contract.
+   * Read an event argument from a contract.
+   *
+   * The resulting value can be used wherever a value of the same type is expected.
+   * i.e. contract function arguments, `send` value, etc.
    *
    * @param futureToReadFrom - The future to read the event from
    * @param eventName - The name of the event
@@ -361,7 +447,9 @@ export interface IgnitionModuleBuilder {
   ): ReadEventArgumentFuture;
 
   /**
-   * Sends a transaction.
+   * Send an arbitrary transaction.
+   *
+   * Can be used to transfer ether and/or send raw data to an address.
    *
    * @param id - A custom id for the Future
    * @param to - The address to send the transaction to
@@ -393,7 +481,7 @@ export interface IgnitionModuleBuilder {
   ): SendDataFuture;
 
   /**
-   * Allows you to use the results of another module within this module.
+   * Allows you to deploy then use the results of another module within this module.
    *
    * @param ignitionSubmodule - The submodule to use
    *
