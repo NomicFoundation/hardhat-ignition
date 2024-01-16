@@ -1,8 +1,8 @@
 export { batches } from "./batches";
 export { buildModule } from "./build-module";
 export { deploy } from "./deploy";
-export * from "./errors";
-export { ErrorDescriptor } from "./errors-list";
+export * from "./internal/errors";
+export { ErrorDescriptor } from "./internal/errors-list";
 export { IgnitionModuleSerializer } from "./ignition-module-serializer";
 export { formatSolidityParameter } from "./internal/formatters";
 export { status } from "./status";

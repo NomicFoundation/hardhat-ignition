@@ -1,7 +1,5 @@
 import type { IgnitionModule, IgnitionModuleResult } from "../types/module";
 
-import { IgnitionError } from "../errors";
-import { ERRORS } from "../errors-list";
 import { isContractFuture } from "../type-guards";
 import { ArtifactResolver } from "../types/artifact";
 import {
@@ -20,6 +18,8 @@ import {
 
 import { Batcher } from "./batcher";
 import { DeploymentLoader } from "./deployment-loader/types";
+import { IgnitionError } from "./errors";
+import { ERRORS } from "./errors-list";
 import {
   initializeDeploymentState,
   loadDeploymentState,

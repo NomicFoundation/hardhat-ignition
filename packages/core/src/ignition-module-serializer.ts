@@ -1,5 +1,5 @@
-import { IgnitionError } from "./errors";
-import { ERRORS } from "./errors-list";
+import { IgnitionError } from "./internal/errors";
+import { ERRORS } from "./internal/errors-list";
 import {
   AccountRuntimeValueImplementation,
   ArtifactContractAtFutureImplementation,

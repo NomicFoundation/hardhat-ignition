@@ -7,10 +7,10 @@ import type {
   Result,
 } from "ethers";
 
-import { IgnitionError } from "../../errors";
-import { ERRORS } from "../../errors-list";
 import { Artifact } from "../../types/artifact";
 import { ArgumentType, SolidityParameterType } from "../../types/module";
+import { IgnitionError } from "../errors";
+import { ERRORS } from "../errors-list";
 import { assertIgnitionInvariant } from "../utils/assertions";
 
 import { linkLibraries } from "./libraries";
