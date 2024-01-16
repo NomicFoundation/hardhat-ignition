@@ -78,7 +78,7 @@ export interface JsonRpcClient {
    * Returns the balance of an account.
    *
    * @param address The account's address.
-   * @param blockTag Weather if we should fetch the latest block balance or the
+   * @param blockTag Whether we should fetch the latest block balance or the
    * pending balance.
    */
   getBalance: (
