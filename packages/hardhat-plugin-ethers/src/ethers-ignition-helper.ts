@@ -52,11 +52,13 @@ export class EthersIgnitionHelper {
   }
 
   /**
-   * Deploys the given Ignition module and returns the results of the module as Ethers contract instances.
+   * Deploys the given Ignition module and returns the results of the module as
+   * Ethers contract instances.
    *
    * @param ignitionModule - The Ignition module to deploy.
    * @param options - The options to use for the deployment.
-   * @returns Ethers contract instances for each contract returned by the module.
+   * @returns Ethers contract instances for each contract returned by the
+   * module.
    */
   public async deploy<
     ModuleIdT extends string,

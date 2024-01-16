@@ -334,9 +334,9 @@ export interface IgnitionModuleBuilder {
   /**
    * Statically call a contract function and return the result.
    *
-   * Read data from a contract without sending a transaction.
-   *
-   * Note: This is only supported for functions that are marked as `view` or `pure`, or variables marked `public`.
+   * This allows you to read data from a contract without sending a transaction.
+   * This is only supported for functions that are marked as `view` or `pure`,
+   * or variables marked `public`.
    *
    * @param contractFuture - The contract to call
    * @param functionName - The name of the function to call
@@ -359,9 +359,11 @@ export interface IgnitionModuleBuilder {
   ): StaticCallFuture<ContractNameT, FunctionNameT>;
 
   /**
-   * Create a future for an existing deployed contract so that it can be referenced in subsequent futures.
+   * Create a future for an existing deployed contract so that it can be
+   * referenced in subsequent futures.
    *
-   * The resulting future can be used anywhere a contract future or address is expected.
+   * The resulting future can be used anywhere a contract future or address
+   * is expected.
    *
    * @param contractName - The name of the contract
    * @param address - The address of the contract

@@ -46,7 +46,8 @@ export class ViemIgnitionHelper {
   }
 
   /**
-   * Deploys the given Ignition module and returns the results of the module as Viem contract instances.
+   * Deploys the given Ignition module and returns the results of the module
+   * as Viem contract instances.
    *
    * @param ignitionModule - The Ignition module to deploy.
    * @param options - The options to use for the deployment.
