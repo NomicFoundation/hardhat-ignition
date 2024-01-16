@@ -167,8 +167,8 @@ export interface ReadEventArgumentOptions {
   id?: string;
 
   /**
-   * The contract that emitted the event. If omitted the contract associated with
-   * the future you are reading the event from will be used.
+   * The contract that emitted the event. If omitted the contract associated
+   * with the future you are reading the event from will be used.
    */
   emitter?: ContractFuture<string>;
 
@@ -223,7 +223,8 @@ export interface IgnitionModuleBuilder {
    * A parameter whose value can be set at deployment.
    *
    * @param parameterName - The name of the parameter
-   * @param defaultValue - The default value to use if the parameter is not provided
+   * @param defaultValue - The default value to use if the parameter is not
+   * provided
    *
    * @example
    * ```
@@ -301,7 +302,11 @@ export interface IgnitionModuleBuilder {
    * @example
    * ```
    * const owner = m.getAccount(1);
-   * const myLibrary = m.library("MyLibrary", myLibraryArtifact, { from: owner });
+   * const myLibrary = m.library(
+   *   "MyLibrary",
+   *   myLibraryArtifact,
+   *   { from: owner }
+   * );
    * ```
    */
   library<const AbiT extends Abi>(
@@ -347,7 +352,12 @@ export interface IgnitionModuleBuilder {
    * @example
    * ```
    * const myContract = m.contract("MyContract");
-   * const counter = m.staticCall(myContract, "getCounterAndOwner", [], "counter");
+   * const counter = m.staticCall(
+   *   myContract,
+   *   "getCounterAndOwner",
+   *   [],
+   *   "counter"
+   * );
    * ```
    */
   staticCall<ContractNameT extends string, FunctionNameT extends string>(
@@ -384,9 +394,11 @@ export interface IgnitionModuleBuilder {
   ): NamedArtifactContractAtFuture<ContractNameT>;
 
   /**
-   * Create a future for an existing deployed contract so that it can be referenced in subsequent futures.
+   * Create a future for an existing deployed contract so that it can be
+   * referenced in subsequent futures.
    *
-   * The resulting future can be used anywhere a contract future or address is expected.
+   * The resulting future can be used anywhere a contract future or address is
+   * expected.
    *
    * @param contractName - The name of the contract
    * @param artifact - The artifact of the contract
@@ -395,7 +407,11 @@ export interface IgnitionModuleBuilder {
    *
    * @example
    * ```
-   * const myContract = m.contractAt("MyContract", myContractArtifact, "0x1234...");
+   * const myContract = m.contractAt(
+   *   "MyContract",
+   *   myContractArtifact,
+   *   "0x1234..."
+   * );
    * ```
    */
   contractAt<const AbiT extends Abi>(
@@ -411,8 +427,8 @@ export interface IgnitionModuleBuilder {
   /**
    * Read an event argument from a contract.
    *
-   * The resulting value can be used wherever a value of the same type is expected.
-   * i.e. contract function arguments, `send` value, etc.
+   * The resulting value can be used wherever a value of the same type is
+   * expected i.e. contract function arguments, `send` value, etc.
    *
    * @param futureToReadFrom - The future to read the event from
    * @param eventName - The name of the event
@@ -483,7 +499,8 @@ export interface IgnitionModuleBuilder {
   ): SendDataFuture;
 
   /**
-   * Allows you to deploy then use the results of another module within this module.
+   * Allows you to deploy then use the results of another module within this
+   * module.
    *
    * @param ignitionSubmodule - The submodule to use
    *
