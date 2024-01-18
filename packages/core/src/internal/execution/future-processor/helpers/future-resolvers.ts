@@ -85,7 +85,15 @@ export function resolveArgs(
         return resolveAccountRuntimeValue(arv, accounts);
       },
       moduleParameterRuntimeValue: (mprv) => {
-        return resolveModuleParameter(mprv, { deploymentParameters });
+        const resolvedParam = resolveModuleParameter(mprv, {
+          deploymentParameters,
+        });
+
+        if (isAccountRuntimeValue(resolvedParam)) {
+          return resolveAccountRuntimeValue(resolvedParam, accounts);
+        }
+
+        return resolvedParam;
       },
     });
 

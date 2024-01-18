@@ -109,5 +109,23 @@ describe("getParameter", () => {
       assert.equal(param.name, "p");
       assert.deepEqual(param.defaultValue, defaultValue);
     });
+
+    it("should accept account runtime values as default", () => {
+      const mod = buildModule("MyModule", (m) => {
+        const p = m.getParameter("p", m.getAccount(1));
+
+        const contract = m.contract("Contract", [p]);
+
+        return { contract };
+      });
+
+      const param = mod.results.contract.constructorArgs[0];
+      assertInstanceOf(param, ModuleParameterRuntimeValueImplementation);
+      assert.equal(param.name, "p");
+      assert.deepEqual(param.defaultValue, {
+        accountIndex: 1,
+        type: "ACCOUNT",
+      });
+    });
   });
 });

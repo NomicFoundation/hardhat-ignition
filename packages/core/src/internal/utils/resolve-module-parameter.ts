@@ -6,10 +6,10 @@ import {
 
 import { assertIgnitionInvariant } from "./assertions";
 
-export function resolveModuleParameter(
-  moduleParamRuntimeValue: ModuleParameterRuntimeValue<ModuleParameterType>,
+export function resolveModuleParameter<ParamTypeT extends ModuleParameterType>(
+  moduleParamRuntimeValue: ModuleParameterRuntimeValue<ParamTypeT>,
   context: { deploymentParameters: DeploymentParameters }
-): ModuleParameterType {
+): ParamTypeT {
   if (context.deploymentParameters === undefined) {
     assertIgnitionInvariant(
       moduleParamRuntimeValue.defaultValue !== undefined,
@@ -42,5 +42,6 @@ export function resolveModuleParameter(
     return moduleParamRuntimeValue.defaultValue;
   }
 
-  return moduleParamValue;
+  // I believe this is a safe coercion as the type of the module parameter would already have been validated during validation stage
+  return moduleParamValue as ParamTypeT;
 }

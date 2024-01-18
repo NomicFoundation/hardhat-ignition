@@ -344,7 +344,7 @@ export type SolidityParameterType =
  *
  * @beta
  */
-export type ModuleParameterType = SolidityParameterType;
+export type ModuleParameterType = SolidityParameterType | AccountRuntimeValue;
 
 /**
  * The different runtime values supported by Ignition.
