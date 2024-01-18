@@ -1,3 +1,4 @@
+import { IgnitionError } from "../../../errors";
 import {
   isArtifactType,
   isModuleParameterRuntimeValue,
@@ -5,7 +6,6 @@ import {
 import { ArtifactResolver } from "../../../types/artifact";
 import { DeploymentParameters } from "../../../types/deploy";
 import { NamedArtifactContractAtFuture } from "../../../types/module";
-import { IgnitionError } from "../../errors";
 import { ERRORS } from "../../errors-list";
 
 export async function validateNamedContractAt(

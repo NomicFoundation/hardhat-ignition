@@ -1,4 +1,4 @@
-import { IgnitionError } from "./internal/errors";
+import { IgnitionError } from "./errors";
 import { ERRORS } from "./internal/errors-list";
 import {
   AccountRuntimeValueImplementation,

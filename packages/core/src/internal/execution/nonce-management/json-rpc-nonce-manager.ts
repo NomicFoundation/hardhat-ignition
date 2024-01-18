@@ -1,4 +1,4 @@
-import { IgnitionError } from "../../errors";
+import { IgnitionError } from "../../../errors";
 import { ERRORS } from "../../errors-list";
 import { JsonRpcClient } from "../jsonrpc-client";
 

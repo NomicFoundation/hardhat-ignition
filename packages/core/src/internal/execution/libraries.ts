@@ -13,8 +13,8 @@
  * @file
  */
 
+import { IgnitionError } from "../../errors";
 import { Artifact } from "../../types/artifact";
-import { IgnitionError } from "../errors";
 import { ERRORS } from "../errors-list";
 import { assertIgnitionInvariant } from "../utils/assertions";
 

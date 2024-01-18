@@ -1,8 +1,8 @@
+import { IgnitionError } from "../../errors";
 import { ArtifactResolver } from "../../types/artifact";
 import { DeploymentParameters } from "../../types/deploy";
 import { Future, IgnitionModule } from "../../types/module";
 import { DeploymentLoader } from "../deployment-loader/types";
-import { IgnitionError } from "../errors";
 import { ERRORS } from "../errors-list";
 import { DeploymentState } from "../execution/types/deployment-state";
 import {

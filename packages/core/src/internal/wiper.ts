@@ -1,5 +1,6 @@
+import { IgnitionError } from "../errors";
+
 import { DeploymentLoader } from "./deployment-loader/types";
-import { IgnitionError } from "./errors";
 import { ERRORS } from "./errors-list";
 import {
   applyNewMessage,

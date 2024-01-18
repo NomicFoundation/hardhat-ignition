@@ -1,8 +1,8 @@
+import { IgnitionError } from "../../../errors";
 import { isArtifactType } from "../../../type-guards";
 import { ArtifactResolver } from "../../../types/artifact";
 import { DeploymentParameters } from "../../../types/deploy";
 import { ReadEventArgumentFuture } from "../../../types/module";
-import { IgnitionError } from "../../errors";
 import { ERRORS } from "../../errors-list";
 import { validateArtifactEventArgumentParams } from "../../execution/abi";
 

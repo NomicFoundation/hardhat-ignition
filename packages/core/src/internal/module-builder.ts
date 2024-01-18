@@ -1,5 +1,6 @@
 import { inspect } from "util";
 
+import { IgnitionError } from "../errors";
 import {
   isAccountRuntimeValue,
   isAddressResolvableFuture,
@@ -46,7 +47,6 @@ import {
   StaticCallOptions,
 } from "../types/module-builder";
 
-import { IgnitionError } from "./errors";
 import { ERRORS } from "./errors-list";
 import { equalAddresses, isAddress } from "./execution/utils/address";
 import {

@@ -1,5 +1,5 @@
+import { IgnitionError } from "../../errors";
 import { EIP1193Provider } from "../../types/provider";
-import { IgnitionError } from "../errors";
 import { ERRORS } from "../errors-list";
 
 import {

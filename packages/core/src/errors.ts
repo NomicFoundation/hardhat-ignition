@@ -1,8 +1,11 @@
-import { ERRORS, ErrorDescriptor, getErrorCode } from "./errors-list";
+import { ERRORS, getErrorCode } from "./internal/errors-list";
+import { ErrorDescriptor } from "./types/errors";
 
 /**
  * Base error class extended by all custom errors.
  * Placeholder to allow us to customize error output formatting in the future.
+ *
+ * @beta
  */
 export class CustomError extends Error {
   constructor(message: string, cause?: Error) {
@@ -14,6 +17,8 @@ export class CustomError extends Error {
 /**
  * All exceptions intentionally thrown with Ignition-core
  * extend this class.
+ *
+ * @beta
  */
 export class IgnitionError extends CustomError {
   // We store the error descriptor as private field to avoid
@@ -48,6 +53,8 @@ export class IgnitionError extends CustomError {
 
 /**
  * This class is used to throw errors from Ignition plugins made by third parties.
+ *
+ * @beta
  */
 export class IgnitionPluginError extends CustomError {
   public static isIgnitionPluginError(
@@ -73,6 +80,8 @@ export class IgnitionPluginError extends CustomError {
 /**
  * This class is used to throw errors from *core* Ignition plugins.
  * If you are developing a third-party plugin, use IgnitionPluginError instead.
+ *
+ * @beta
  */
 export class NomicIgnitionPluginError extends IgnitionPluginError {
   public static isNomicIgnitionPluginError(
@@ -103,7 +112,7 @@ export class NomicIgnitionPluginError extends IgnitionPluginError {
  * @param template - The template string.
  * @param values - A map of variable names to their values.
  */
-export function applyErrorMessageTemplate(
+function applyErrorMessageTemplate(
   template: string,
   values: { [templateVar: string]: any }
 ): string {

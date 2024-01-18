@@ -1,6 +1,6 @@
 import setupDebug from "debug";
 
-import { IgnitionError } from "../../../errors";
+import { IgnitionError } from "../../../../errors";
 import { ERRORS } from "../../../errors-list";
 import { assertIgnitionInvariant } from "../../../utils/assertions";
 import { JsonRpcClient } from "../../jsonrpc-client";
