@@ -36,9 +36,10 @@ export class IgnitionError extends CustomError {
     cause?: Error
   ) {
     const prefix = `${getErrorCode(errorDescriptor)}: `;
-    const formattedMessage = applyErrorMessageTemplate(
+    const formattedMessage = _applyErrorMessageTemplate(
       errorDescriptor.message,
-      messageArguments
+      messageArguments,
+      false
     );
 
     super(prefix + formattedMessage, cause);
@@ -95,28 +96,6 @@ export class NomicIgnitionPluginError extends IgnitionPluginError {
   }
 
   private readonly _isNomicIgnitionPluginError = true;
-}
-
-/**
- * This function applies error messages templates like this:
- *
- *  - Template is a string which contains a variable tags. A variable tag is a
- *    a variable name surrounded by %. Eg: %plugin1%
- *  - A variable name is a string of alphanumeric ascii characters.
- *  - Every variable tag is replaced by its value.
- *  - %% is replaced by %.
- *  - Values can't contain variable tags.
- *  - If a variable is not present in the template, but present in the values
- *    object, an error is thrown.
- *
- * @param template - The template string.
- * @param values - A map of variable names to their values.
- */
-function applyErrorMessageTemplate(
-  template: string,
-  values: { [templateVar: string]: any }
-): string {
-  return _applyErrorMessageTemplate(template, values, false);
 }
 
 function _applyErrorMessageTemplate(
