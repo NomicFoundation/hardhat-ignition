@@ -395,7 +395,7 @@ export interface ModuleParameterRuntimeValue<
  * @beta
  */
 export interface ModuleParameters {
-  [parameterName: string]: ModuleParameterType;
+  [parameterName: string]: SolidityParameterType;
 }
 
 /**
