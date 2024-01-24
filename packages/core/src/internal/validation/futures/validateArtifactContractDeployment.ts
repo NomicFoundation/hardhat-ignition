@@ -5,7 +5,10 @@ import {
 } from "../../../type-guards";
 import { ArtifactResolver } from "../../../types/artifact";
 import { DeploymentParameters } from "../../../types/deploy";
-import { ContractDeploymentFuture } from "../../../types/module";
+import {
+  AccountRuntimeValue,
+  ContractDeploymentFuture,
+} from "../../../types/module";
 import { ERRORS } from "../../errors-list";
 import { validateContractConstructorArgsLength } from "../../execution/abi";
 import { validateLibraryNames } from "../../execution/libraries";
@@ -41,7 +44,17 @@ export async function validateArtifactContractDeployment(
   const runtimeValues = retrieveNestedRuntimeValues(future.constructorArgs);
   const moduleParams = runtimeValues.filter(isModuleParameterRuntimeValue);
   const accountParams = [
-    ...runtimeValues.filter(isAccountRuntimeValue),
+    ...(runtimeValues
+      .map((rv) => {
+        if (isAccountRuntimeValue(rv)) {
+          return rv;
+        } else if (isAccountRuntimeValue(rv.defaultValue)) {
+          return rv.defaultValue;
+        } else {
+          return undefined;
+        }
+      })
+      .filter((rv) => rv !== undefined) as AccountRuntimeValue[]),
     ...(isAccountRuntimeValue(future.from) ? [future.from] : []),
   ];
 

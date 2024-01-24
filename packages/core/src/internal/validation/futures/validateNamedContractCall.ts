@@ -6,7 +6,7 @@ import {
 } from "../../../type-guards";
 import { ArtifactResolver } from "../../../types/artifact";
 import { DeploymentParameters } from "../../../types/deploy";
-import { ContractCallFuture } from "../../../types/module";
+import { AccountRuntimeValue, ContractCallFuture } from "../../../types/module";
 import { ERRORS } from "../../errors-list";
 import { validateArtifactFunction } from "../../execution/abi";
 import {
@@ -52,7 +52,17 @@ export async function validateNamedContractCall(
   const runtimeValues = retrieveNestedRuntimeValues(future.args);
   const moduleParams = runtimeValues.filter(isModuleParameterRuntimeValue);
   const accountParams = [
-    ...runtimeValues.filter(isAccountRuntimeValue),
+    ...(runtimeValues
+      .map((rv) => {
+        if (isAccountRuntimeValue(rv)) {
+          return rv;
+        } else if (isAccountRuntimeValue(rv.defaultValue)) {
+          return rv.defaultValue;
+        } else {
+          return undefined;
+        }
+      })
+      .filter((rv) => rv !== undefined) as AccountRuntimeValue[]),
     ...(isAccountRuntimeValue(future.from) ? [future.from] : []),
   ];
 
