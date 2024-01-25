@@ -42,7 +42,8 @@ export function resolveValue(
     | StaticCallFuture<string, string>
     | ReadEventArgumentFuture,
   deploymentParameters: DeploymentParameters,
-  deploymentState: DeploymentState
+  deploymentState: DeploymentState,
+  accounts: string[]
 ): bigint {
   if (typeof givenValue === "bigint") {
     return givenValue;
@@ -54,6 +55,7 @@ export function resolveValue(
   } else {
     result = resolveModuleParameter(givenValue, {
       deploymentParameters,
+      accounts,
     });
   }
 
@@ -85,15 +87,10 @@ export function resolveArgs(
         return resolveAccountRuntimeValue(arv, accounts);
       },
       moduleParameterRuntimeValue: (mprv) => {
-        const resolvedParam = resolveModuleParameter(mprv, {
+        return resolveModuleParameter(mprv, {
           deploymentParameters,
+          accounts,
         });
-
-        if (isAccountRuntimeValue(resolvedParam)) {
-          return resolveAccountRuntimeValue(resolvedParam, accounts);
-        }
-
-        return resolvedParam;
       },
     });
 
@@ -182,7 +179,12 @@ export function resolveSendToAddress(
     return resolveAccountRuntimeValue(to, accounts);
   }
 
-  return resolveAddressLike(to, deploymentState, deploymentParameters);
+  return resolveAddressLike(
+    to,
+    deploymentState,
+    deploymentParameters,
+    accounts
+  );
 }
 
 /**
@@ -196,7 +198,8 @@ export function resolveAddressLike(
     | AddressResolvableFuture
     | ModuleParameterRuntimeValue<string>,
   deploymentState: DeploymentState,
-  deploymentParameters: DeploymentParameters
+  deploymentParameters: DeploymentParameters,
+  accounts: string[]
 ): string {
   if (typeof addressLike === "string") {
     return addressLike;
@@ -205,6 +208,7 @@ export function resolveAddressLike(
   if (isModuleParameterRuntimeValue(addressLike)) {
     const addressFromParam = resolveModuleParameter(addressLike, {
       deploymentParameters,
+      accounts,
     });
 
     assertIgnitionInvariant(
