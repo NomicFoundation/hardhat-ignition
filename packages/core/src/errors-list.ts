@@ -184,6 +184,11 @@ export const ERRORS = {
       message:
         "The configured base fee exceeds the block gas limit. Please reduce the configured base fee or increase the block gas limit.",
     },
+    SIMULATION_ERROR: {
+      number: 407,
+      message:
+        "An error occurred when simulating the transaction on the network: %error%",
+    },
   },
   RECONCILIATION: {
     INVALID_EXECUTION_STATUS: {

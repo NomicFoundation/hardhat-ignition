@@ -1,3 +1,6 @@
+import { IgnitionError } from "../../../../errors";
+import { ERRORS } from "../../../../errors-list";
+import { failedEvmExecutionResultToErrorDescription } from "../../../journal/utils/failedEvmExecutionResultToErrorDescription";
 import { assertIgnitionInvariant } from "../../../utils/assertions";
 import { JsonRpcClient } from "../../jsonrpc-client";
 import { NonceManager } from "../../nonce-management/json-rpc-nonce-manager";
@@ -23,7 +26,6 @@ import {
   TransactionSendMessage,
 } from "../../types/messages";
 import { NetworkInteractionType } from "../../types/network-interaction";
-import { createExecutionStateCompleteMessageForExecutionsWithOnchainInteractions } from "../helpers/messages-helpers";
 import {
   TRANSACTION_SENT_TYPE,
   sendTransactionForOnchainInteraction,
@@ -120,10 +122,12 @@ export async function sendTransaction(
       transaction: result.transaction,
       nonce: result.nonce,
     };
+  } else {
+    throw new IgnitionError(ERRORS.EXECUTION.SIMULATION_ERROR, {
+      error:
+        typeof result.error === "string"
+          ? result.error
+          : failedEvmExecutionResultToErrorDescription(result.error),
+    });
   }
-
-  return createExecutionStateCompleteMessageForExecutionsWithOnchainInteractions(
-    exState,
-    result
-  );
 }
