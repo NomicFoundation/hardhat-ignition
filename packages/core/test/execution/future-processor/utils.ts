@@ -77,6 +77,9 @@ function setupMockNonceManager(): NonceManager {
     getNextNonce: async (_sender: string): Promise<number> => {
       return nonceCount++;
     },
+    revertNonce: (_sender: string): void => {
+      nonceCount--;
+    },
   };
 }
 
