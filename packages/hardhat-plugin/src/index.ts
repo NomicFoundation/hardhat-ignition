@@ -5,7 +5,7 @@ import {
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
-import { readdirSync, rm } from "fs-extra";
+import { readdirSync, rm, pathExists, writeJSON, ensureDir } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import {
   HardhatPluginError,
@@ -134,19 +134,21 @@ ignitionScope
           : path.join(hre.config.paths.ignition, "deployments", deploymentId);
 
       if (chainId !== 31337) {
-        const prompt = await Prompt({
-          type: "confirm",
-          name: "networkConfirmation",
-          message: `Confirm deploy to network ${hre.network.name} (${chainId})?`,
-          initial: false,
-        });
+        if (process.env.HARDHAT_IGNITION_CONFIRM_DEPLOYMENT === undefined) {
+          const prompt = await Prompt({
+            type: "confirm",
+            name: "networkConfirmation",
+            message: `Confirm deploy to network ${hre.network.name} (${chainId})?`,
+            initial: false,
+          });
 
-        if (prompt.networkConfirmation !== true) {
-          console.log("Deploy cancelled");
-          return;
+          if (prompt.networkConfirmation !== true) {
+            console.log("Deploy cancelled");
+            return;
+          }
         }
 
-        if (reset) {
+        if (reset && process.env.HARDHAT_IGNITION_CONFIRM_RESET === undefined) {
           const resetPrompt = await Prompt({
             type: "confirm",
             name: "resetConfirmation",
@@ -159,6 +161,32 @@ ignitionScope
             return;
           }
         }
+      } else if (deploymentDir !== undefined) {
+        // since we're on hardhat-network
+        // check for a previous run of this deploymentId and compare instanceIds
+        // if they're different, wipe deployment state
+        const instanceFilePath = path.join(
+          path.dirname(deploymentDir),
+          ".hardhat-network-instances.json"
+        );
+        const instanceFileExists = await pathExists(instanceFilePath);
+
+        const instanceFile: {
+          [deploymentId: string]: string;
+        } = instanceFileExists ? require(instanceFilePath) : {};
+
+        const metadata = (await hre.network.provider.request({
+          method: "hardhat_metadata",
+        })) as { instanceId: string };
+
+        if (instanceFile[deploymentId] !== metadata.instanceId) {
+          await rm(deploymentDir, { recursive: true, force: true });
+        }
+
+        // save current instanceId to instanceFile for future runs
+        instanceFile[deploymentId] = metadata.instanceId;
+        await ensureDir(path.dirname(instanceFilePath));
+        await writeJSON(instanceFilePath, instanceFile, { spaces: 2 });
       }
 
       if (reset) {
@@ -314,15 +342,21 @@ ignitionScope
   .setAction(async ({ deploymentId }: { deploymentId: string }, hre) => {
     const { status } = await import("@nomicfoundation/ignition-core");
 
+    const { HardhatArtifactResolver } = await import(
+      "./hardhat-artifact-resolver"
+    );
+
     const deploymentDir = path.join(
       hre.config.paths.ignition,
       "deployments",
       deploymentId
     );
 
+    const artifactResolver = new HardhatArtifactResolver(hre);
+
     let statusResult: StatusResult;
     try {
-      statusResult = await status(deploymentDir);
+      statusResult = await status(deploymentDir, artifactResolver);
     } catch (e) {
       if (e instanceof IgnitionError && shouldBeHardhatPluginError(e)) {
         throw new NomicLabsHardhatPluginError("hardhat-ignition", e.message, e);
@@ -332,6 +366,29 @@ ignitionScope
     }
 
     console.log(calculateDeploymentStatusDisplay(deploymentId, statusResult));
+  });
+
+ignitionScope
+  .task("deployments")
+  .setDescription("List all deployment IDs")
+  .setAction(async (_, hre) => {
+    const { listDeployments } = await import("@nomicfoundation/ignition-core");
+
+    const deploymentDir = path.join(hre.config.paths.ignition, "deployments");
+
+    try {
+      const deployments = await listDeployments(deploymentDir);
+
+      for (const deploymentId of deployments) {
+        console.log(deploymentId);
+      }
+    } catch (e) {
+      if (e instanceof IgnitionError && shouldBeHardhatPluginError(e)) {
+        throw new NomicLabsHardhatPluginError("hardhat-ignition", e.message, e);
+      }
+
+      throw e;
+    }
   });
 
 ignitionScope
