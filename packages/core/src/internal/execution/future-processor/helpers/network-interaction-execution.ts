@@ -132,6 +132,9 @@ export async function sendTransactionForOnchainInteraction(
   try {
     gasLimit = await client.estimateGas(estimateGasPrams);
   } catch (error) {
+    // We remove the fees before simulating the transaction since we weren't able to estimate gas
+    const { fees: _fees, ...paramsWithoutFees } = estimateGasPrams;
+
     // If the gas estimation failed, we simulate the transaction to get information
     // about why it failed.
     //
@@ -139,7 +142,7 @@ export async function sendTransactionForOnchainInteraction(
     // too broad and make the assertion below fail. We could try to catch only
     // estimation errors.
     const failedEstimateGasSimulationResult = await client.call(
-      estimateGasPrams,
+      paramsWithoutFees,
       "pending"
     );
 
