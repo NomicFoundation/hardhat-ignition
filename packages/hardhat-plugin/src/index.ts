@@ -5,7 +5,7 @@ import {
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
-import { readdirSync, rm } from "fs-extra";
+import { readdirSync, rm, readFileSync } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import {
   HardhatPluginError,
@@ -15,6 +15,7 @@ import path from "path";
 
 import "./type-extensions";
 import { calculateDeploymentStatusDisplay } from "./ui/helpers/calculate-deployment-status-display";
+import { bigintReviver } from "./utils/bigintReviver";
 import { getApiKeyAndUrls } from "./utils/getApiKeyAndUrls";
 import { resolveDeploymentId } from "./utils/resolve-deployment-id";
 import { shouldBeHardhatPluginError } from "./utils/shouldBeHardhatPluginError";
@@ -476,8 +477,14 @@ function resolveParametersFromFileName(fileName: string): DeploymentParameters {
 
 function resolveConfigPath(filepath: string): DeploymentParameters {
   try {
-    return require(filepath);
-  } catch {
+    const rawFile = readFileSync(filepath).toString();
+
+    return JSON.parse(rawFile, bigintReviver);
+  } catch (e) {
+    if (e instanceof NomicLabsHardhatPluginError) {
+      throw e;
+    }
+
     console.warn(`Could not parse parameters from ${filepath}`);
     process.exit(0);
   }
@@ -485,8 +492,12 @@ function resolveConfigPath(filepath: string): DeploymentParameters {
 
 function resolveParametersString(paramString: string): DeploymentParameters {
   try {
-    return JSON.parse(paramString);
-  } catch {
+    return JSON.parse(paramString, bigintReviver);
+  } catch (e) {
+    if (e instanceof NomicLabsHardhatPluginError) {
+      throw e;
+    }
+
     console.warn(`Could not parse JSON parameters`);
     process.exit(0);
   }
