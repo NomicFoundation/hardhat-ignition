@@ -5,7 +5,7 @@ import {
   IgnitionError,
   StatusResult,
 } from "@nomicfoundation/ignition-core";
-import { readdirSync, rm, readFileSync } from "fs-extra";
+import { readFile, readdirSync, rm } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import {
   HardhatPluginError,
@@ -185,12 +185,12 @@ ignitionScope
 
       let parameters: DeploymentParameters | undefined;
       if (parametersInput === undefined) {
-        parameters = resolveParametersFromModuleName(
+        parameters = await resolveParametersFromModuleName(
           userModule.id,
           hre.config.paths.ignition
         );
       } else if (parametersInput.endsWith(".json")) {
-        parameters = resolveParametersFromFileName(parametersInput);
+        parameters = await resolveParametersFromFileName(parametersInput);
       } else {
         parameters = resolveParametersString(parametersInput);
       }
@@ -457,10 +457,10 @@ ignitionScope
     }
   });
 
-function resolveParametersFromModuleName(
+async function resolveParametersFromModuleName(
   moduleName: string,
   ignitionPath: string
-): DeploymentParameters | undefined {
+): Promise<DeploymentParameters | undefined> {
   const files = readdirSync(ignitionPath);
   const configFilename = `${moduleName}.config.json`;
 
@@ -469,17 +469,21 @@ function resolveParametersFromModuleName(
     : undefined;
 }
 
-function resolveParametersFromFileName(fileName: string): DeploymentParameters {
+async function resolveParametersFromFileName(
+  fileName: string
+): Promise<DeploymentParameters> {
   const filepath = path.resolve(process.cwd(), fileName);
 
   return resolveConfigPath(filepath);
 }
 
-function resolveConfigPath(filepath: string): DeploymentParameters {
+async function resolveConfigPath(
+  filepath: string
+): Promise<DeploymentParameters> {
   try {
-    const rawFile = readFileSync(filepath).toString();
+    const rawFile = await readFile(filepath);
 
-    return JSON.parse(rawFile, bigintReviver);
+    return JSON.parse(rawFile.toString(), bigintReviver);
   } catch (e) {
     if (e instanceof NomicLabsHardhatPluginError) {
       throw e;
