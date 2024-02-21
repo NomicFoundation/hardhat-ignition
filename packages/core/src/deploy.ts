@@ -45,6 +45,7 @@ export async function deploy<
   deploymentParameters,
   accounts,
   defaultSender: givenDefaultSender,
+  maxFeePerGasLimit,
 }: {
   config?: Partial<DeployConfig>;
   artifactResolver: ArtifactResolver;
@@ -59,6 +60,7 @@ export async function deploy<
   deploymentParameters: DeploymentParameters;
   accounts: string[];
   defaultSender?: string;
+  maxFeePerGasLimit?: bigint;
 }): Promise<DeploymentResult> {
   if (executionEventListener !== undefined) {
     executionEventListener.setModuleId({
@@ -96,7 +98,9 @@ export async function deploy<
     deploymentLoader.loadArtifact(artifactId)
   );
 
-  const jsonRpcClient = new EIP1193JsonRpcClient(provider);
+  const jsonRpcClient = new EIP1193JsonRpcClient(provider, {
+    maxFeePerGasLimit,
+  });
 
   const isAutominedNetwork = await checkAutominedNetwork(provider);
 
