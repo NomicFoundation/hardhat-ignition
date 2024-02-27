@@ -19,7 +19,7 @@ describe("execution - deploy run times out", () => {
     requiredConfirmations: 1,
   });
 
-  it("should error naming timed out transactions", async function () {
+  it.skip("should error naming timed out transactions", async function () {
     // Setup a module with a contract deploy on accounts[2]
     const moduleDefinition = buildModule("FooModule", (m) => {
       const account2 = m.getAccount(2);

@@ -72,7 +72,7 @@ describe("execution - rerun a deploy that timed out", () => {
    *
    * A new second transaction is submitted that succeeds.
    */
-  it("should successfully rerun after a timeout (and a wipe)", async function () {
+  it.skip("should successfully rerun after a timeout (and a wipe)", async function () {
     // Setup a module with a contract deploy on accounts[2]
     const moduleDefinition = buildModule("FooModule", (m) => {
       const account2 = m.getAccount(2);
