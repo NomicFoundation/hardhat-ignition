@@ -16,15 +16,15 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: npm
+          cache: pnpm
       - name: Install
-        run: npm install
+        run: pnpm install
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Run tests
-        run: npm run test:coverage
+        run: pnpm run test:coverage
       - name: Run tests in examples
-        run: npm run test:examples
+        run: pnpm run test:examples
 
   test_on_macos:
     name: Test Ignition on MacOS with Node 16
@@ -34,15 +34,15 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: npm
+          cache: pnpm
       - name: Install
-        run: npm install
+        run: pnpm install
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Run tests
-        run: npm run test:coverage
+        run: pnpm run test:coverage
       - name: Run tests in examples
-        run: npm run test:examples
+        run: pnpm run test:examples
 
   test_on_linux:
     name: Test Ignition on Ubuntu with Node ${{ matrix.node }}
@@ -55,15 +55,15 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
+          cache: pnpm
       - name: Install
-        run: npm install
+        run: pnpm install
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Run tests
-        run: npm run test:coverage
+        run: pnpm run test:coverage
       - name: Run tests in examples
-        run: npm run test:examples
+        run: pnpm run test:examples
 
   lint:
     name: Lint the project
@@ -73,10 +73,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: npm
+          cache: pnpm
       - name: Install
-        run: npm install
+        run: pnpm install
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint

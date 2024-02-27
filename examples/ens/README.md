@@ -23,5 +23,5 @@ npx hardhat ignition deploy ./ignition/modules/test-registrar.js --network local
 To run the hardhat tests using Ignition:
 
 ```shell
-npm run test
+npx hardhat test
 ```

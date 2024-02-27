@@ -3,28 +3,19 @@
   "author": "Nomic Foundation",
   "license": "SEE LICENSE IN EACH PACKAGE'S LICENSE FILE",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/core",
-      "packages/ui",
-      "packages/hardhat-plugin",
-      "packages/hardhat-plugin-ethers",
-      "packages/hardhat-plugin-viem",
-      "examples/*"
-    ]
-  },
   "scripts": {
-    "build": "npm run build -w packages",
-    "lint": "npm run lint --workspaces",
+    "prebuild": "cd packages/hardhat-plugin-viem && pnpm prebuild",
+    "build": "tsc --build packages/core packages/hardhat-plugin packages/hardhat-plugin-ethers packages/hardhat-plugin-viem && cd packages/ui && pnpm build",
+    "lint": "pnpm run --recursive lint",
     "postlint": "prettier --check *.{md,json} ./config/**/*.{js,json}",
-    "lint:fix": "npm run lint:fix --workspaces",
+    "lint:fix": "pnpm run --recursive lint:fix",
     "postlint:fix": "prettier --write *.{md,json} ./config/**/*.{js,json}",
-    "test": "npm run test -w packages && npm run test:integrations -w packages/core",
-    "test:coverage": "npm run test:coverage -w packages",
-    "test:examples": "npm run test -w examples --if-present",
+    "test": "pnpm run --recursive test && pnpm run --recursive test:integrations",
+    "test:coverage": "pnpm run --recursive test:coverage",
+    "test:examples": "pnpm run --recursive test:examples",
     "watch": "tsc --build --watch packages/core packages/hardhat-plugin",
-    "fullcheck": "npm run build && npm run lint && npm run test:coverage && npm run test:examples",
-    "clean": "npm run clean --workspaces --if-present"
+    "fullcheck": "pnpm run --recursive build && pnpm run --recursive lint && pnpm run --recursive test:coverage && pnpm run --recursive test:examples",
+    "clean": "pnpm run --recursive clean"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",

@@ -15,5 +15,5 @@ npx hardhat ignition deploy ./ignition/modules/CompleteModule.js
 To run the Hardhat tests using Ignition:
 
 ```shell
-npm run test
+npx hardhat test
 ```
