@@ -16,5 +16,5 @@ npx hardhat ignition deploy ./ignition/modules/LockModule
 To run the hardhat tests using Ignition:
 
 ```shell
-npm run test
+npx hardhat test
 ```

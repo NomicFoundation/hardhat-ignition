@@ -1,3 +1,4 @@
 artifacts/
 cache/
 deployments/
+!default-with-new-chain-id/ignition/deployments

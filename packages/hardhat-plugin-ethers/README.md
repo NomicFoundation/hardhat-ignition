@@ -16,7 +16,7 @@ Join the Hardhat Ignition channel of our [Hardhat Community Discord server](http
 ## Installation
 
 ```bash
-npm install --save-dev @nomicfoundation/hardhat-ignition-ethers
+pnpm install --save-dev @nomicfoundation/hardhat-ignition-ethers
 ```
 
 Import the plugin in your `hardhat.config.js``:
