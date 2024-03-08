@@ -171,7 +171,7 @@ ignitionScope
             "Deploy cancelled: Cannot reset deployment on ephemeral Hardhat network"
           );
 
-          process.exit(1);
+          process.exitCode(1);
         } else {
           await rm(deploymentDir, { recursive: true, force: true });
         }
@@ -191,7 +191,7 @@ ignitionScope
 
       if (userModule === undefined) {
         console.warn("No Ignition modules found");
-        process.exit(1);
+        process.exitCode(1);
       }
 
       let parameters: DeploymentParameters | undefined;
