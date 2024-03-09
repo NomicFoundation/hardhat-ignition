@@ -12,6 +12,7 @@ import {
   IgnitionModuleResult,
   NamedArtifactContractAtFuture,
   NamedArtifactContractDeploymentFuture,
+  StrategyConfig,
   SuccessfulDeploymentResult,
   deploy,
   isContractFuture,
@@ -63,7 +64,8 @@ export class EthersIgnitionHelper {
   public async deploy<
     ModuleIdT extends string,
     ContractNameT extends string,
-    IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
+    IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>,
+    StrategyT extends keyof StrategyConfig = "basic"
   >(
     ignitionModule: IgnitionModule<
       ModuleIdT,
@@ -74,14 +76,20 @@ export class EthersIgnitionHelper {
       parameters = {},
       config: perDeployConfig = {},
       defaultSender = undefined,
+      strategy,
+      strategyConfig,
     }: {
       parameters?: DeploymentParameters;
       config?: Partial<DeployConfig>;
       defaultSender?: string;
+      strategy?: StrategyT;
+      strategyConfig?: StrategyConfig[StrategyT];
     } = {
       parameters: {},
       config: {},
       defaultSender: undefined,
+      strategy: undefined,
+      strategyConfig: undefined,
     }
   ): Promise<
     IgnitionModuleResultsTToEthersContracts<
@@ -100,6 +108,13 @@ export class EthersIgnitionHelper {
       ...perDeployConfig,
     };
 
+    const resolvedStrategyConfig =
+      EthersIgnitionHelper._resolveStrategyConfig<StrategyT>(
+        this._hre,
+        strategy,
+        strategyConfig
+      );
+
     const result = await deploy({
       config: resolvedConfig,
       provider: this._provider,
@@ -109,6 +124,8 @@ export class EthersIgnitionHelper {
       deploymentParameters: parameters,
       accounts,
       defaultSender,
+      strategy,
+      strategyConfig: resolvedStrategyConfig,
     });
 
     if (result.type !== DeploymentResultType.SUCCESSFUL_DEPLOYMENT) {
@@ -183,5 +200,24 @@ export class EthersIgnitionHelper {
       future.contractName,
       deployedContract.address
     );
+  }
+
+  private static _resolveStrategyConfig<StrategyT extends keyof StrategyConfig>(
+    hre: HardhatRuntimeEnvironment,
+    strategyName: StrategyT | undefined,
+    strategyConfig: StrategyConfig[StrategyT] | undefined
+  ): StrategyConfig[StrategyT] | undefined {
+    if (strategyName === undefined) {
+      return undefined;
+    }
+
+    if (strategyConfig === undefined) {
+      const fromHardhatConfig =
+        hre.config.ignition?.strategyConfig?.[strategyName];
+
+      return fromHardhatConfig;
+    }
+
+    return strategyConfig;
   }
 }

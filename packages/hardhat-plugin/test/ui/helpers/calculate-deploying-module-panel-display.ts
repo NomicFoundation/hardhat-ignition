@@ -20,6 +20,7 @@ describe("ui - calculate starting message display", () => {
     isResumed: null,
     maxFeeBumps: 0,
     gasBumps: {},
+    strategy: "basic",
   };
 
   it("should display the deploying module message", () => {
@@ -30,6 +31,21 @@ describe("ui - calculate starting message display", () => {
     `);
 
     const actualText = calculateDeployingModulePanel(exampleState);
+
+    assert.equal(actualText, expectedText);
+  });
+
+  it("should include the strategy if it is something other than basic", () => {
+    const expectedText = testFormat(`
+    Hardhat Ignition 🚀
+
+    ${chalk.bold(`Deploying [ ExampleModule ] with strategy create2`)}
+    `);
+
+    const actualText = calculateDeployingModulePanel({
+      ...exampleState,
+      strategy: "create2",
+    });
 
     assert.equal(actualText, expectedText);
   });

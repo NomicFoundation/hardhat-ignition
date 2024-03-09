@@ -87,6 +87,16 @@ export interface JsonRpcClient {
   ) => Promise<bigint>;
 
   /**
+   * Update the balance of the account. Only relevant for local development
+   * chains.
+   *
+   * @param address The account's address.
+   * @param balance The balance to set the account to.
+   * @returns Whether the update was applied.
+   */
+  setBalance: (address: string, balance: bigint) => Promise<boolean>;
+
+  /**
    * Performs an `eth_call` JSON-RPC request, and returns the result or an error
    * object with the return data and a boolean indicating if the request failed
    * with an error message that telling that the call failed with a custom
@@ -120,6 +130,15 @@ export interface JsonRpcClient {
   sendTransaction: (transactionParams: TransactionParams) => Promise<string>;
 
   /**
+   * Sends a presigned raw transaction to the Ethereum network and returns
+   * its hash, if the transaction is valid and accepted in the node's mempool.
+   *
+   * @param presignedTx the presigned transaction to send
+   * @returns the hash of the transaction.
+   */
+  sendRawTransaction: (presignedTx: string) => Promise<string>;
+
+  /**
    * Returns the transaction count of an account.
    *
    * @param address The account's address.
@@ -149,6 +168,17 @@ export interface JsonRpcClient {
   getTransactionReceipt: (
     txHash: string
   ) => Promise<TransactionReceipt | undefined>;
+
+  /**
+   * Returns the deployed bytecode of the contract at the given address.
+   *
+   * If the address is not a contract or it does not have bytecode the returned
+   * result will be "0x".
+   *
+   * @param address the address of the contract
+   * @returns the deployed bytecode of the contract
+   */
+  getCode: (address: string) => Promise<string>;
 }
 
 /**
@@ -248,6 +278,23 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
     assertResponseType("eth_getBalance", balance, typeof balance === "string");
 
     return jsonRpcQuantityToBigInt(balance);
+  }
+
+  public async setBalance(address: string, balance: bigint): Promise<boolean> {
+    const balanceHex = bigIntToJsonRpcQuantity(balance);
+
+    const returnedBalance = await this._provider.request({
+      method: "hardhat_setBalance",
+      params: [address, balanceHex],
+    });
+
+    assertResponseType(
+      "hardhat_setBalance",
+      returnedBalance,
+      typeof returnedBalance === "boolean"
+    );
+
+    return returnedBalance;
   }
 
   public async call(
@@ -389,6 +436,21 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
 
       throw error;
     }
+  }
+
+  public async sendRawTransaction(presignedTx: string): Promise<string> {
+    const response = await this._provider.request({
+      method: "eth_sendRawTransaction",
+      params: [presignedTx],
+    });
+
+    assertResponseType(
+      "eth_sendRawTransaction",
+      response,
+      typeof response === "string"
+    );
+
+    return response;
   }
 
   public async getTransactionCount(
@@ -552,6 +614,17 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
       status,
       logs: formatReceiptLogs(method, response),
     };
+  }
+
+  public async getCode(address: string): Promise<string> {
+    const result = await this._provider.request({
+      method: "eth_getCode",
+      params: [address],
+    });
+
+    assertResponseType("eth_getCode", result, typeof result === "string");
+
+    return result;
   }
 }
 

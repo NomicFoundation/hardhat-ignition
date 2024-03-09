@@ -1,4 +1,6 @@
 import { Artifact } from "../../../types/artifact";
+import { DeploymentLoader } from "../../deployment-loader/types";
+import { JsonRpcClient } from "../jsonrpc-client";
 
 import {
   CallExecutionResult,
@@ -215,6 +217,16 @@ export interface ExecutionStrategy {
    * The name of the strategy as will be recorded in the journal.
    */
   name: string;
+
+  /**
+   * The configuration options for the strategy.
+   */
+  config: Record<PropertyKey, string | number> | Record<PropertyKey, never>;
+
+  init: (
+    deploymentLoader: DeploymentLoader,
+    jsonRpcClient: JsonRpcClient
+  ) => Promise<void>;
 
   /**
    * Executes a deployment execution state.

@@ -1,3 +1,4 @@
+import { DeploymentLoader } from "../internal/deployment-loader/types";
 import {
   decodeArtifactCustomError,
   decodeArtifactFunctionCallResult,
@@ -6,39 +7,61 @@ import {
   executeOnchainInteractionRequest,
   executeStaticCallRequest,
   getStaticCallExecutionStateResultValue,
-} from "./execution-strategy-helpers";
-import { ExecutionResultType } from "./types/execution-result";
+} from "../internal/execution/execution-strategy-helpers";
+import { JsonRpcClient } from "../internal/execution/jsonrpc-client";
+import { ExecutionResultType } from "../internal/execution/types/execution-result";
 import {
   CallExecutionState,
   DeploymentExecutionState,
   SendDataExecutionState,
   StaticCallExecutionState,
-} from "./types/execution-state";
+} from "../internal/execution/types/execution-state";
 import {
   CallStrategyGenerator,
   DeploymentStrategyGenerator,
   ExecutionStrategy,
-  LoadArtifactFunction,
   OnchainInteractionResponseType,
   SendDataStrategyGenerator,
   StaticCallStrategyGenerator,
-} from "./types/execution-strategy";
-import { NetworkInteractionType } from "./types/network-interaction";
+} from "../internal/execution/types/execution-strategy";
+import { NetworkInteractionType } from "../internal/execution/types/network-interaction";
+import { assertIgnitionInvariant } from "../internal/utils/assertions";
 
 /**
- * The most basic execution strategy, which sends a single transaction
- * for each deployment, call, and send data, and a single static call
- * per static call execution.
+ * The basic execution strategy, which sends a single transaction
+ * for each contract deployment, call, and send data, and a single static call
+ * for each static call execution.
+ *
+ * @private
  */
-export class BasicExecutionStrategy implements ExecutionStrategy {
+export class BasicStrategy implements ExecutionStrategy {
   public readonly name: string = "basic";
+  public readonly config: Record<PropertyKey, never>;
 
-  constructor(private readonly _loadArtifact: LoadArtifactFunction) {}
+  private _deploymentLoader: DeploymentLoader | undefined;
+
+  constructor() {
+    this.config = {};
+  }
+
+  public async init(
+    deploymentLoader: DeploymentLoader,
+    _jsonRpcClient: JsonRpcClient
+  ): Promise<void> {
+    this._deploymentLoader = deploymentLoader;
+  }
 
   public async *executeDeployment(
     executionState: DeploymentExecutionState
   ): DeploymentStrategyGenerator {
-    const artifact = await this._loadArtifact(executionState.artifactId);
+    assertIgnitionInvariant(
+      this._deploymentLoader !== undefined,
+      `Strategy ${this.name} not initialized`
+    );
+
+    const artifact = await this._deploymentLoader.loadArtifact(
+      executionState.artifactId
+    );
 
     const transactionOrResult = yield* executeOnchainInteractionRequest(
       executionState.id,
@@ -83,7 +106,14 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
   public async *executeCall(
     executionState: CallExecutionState
   ): CallStrategyGenerator {
-    const artifact = await this._loadArtifact(executionState.artifactId);
+    assertIgnitionInvariant(
+      this._deploymentLoader !== undefined,
+      `Strategy ${this.name} not initialized`
+    );
+
+    const artifact = await this._deploymentLoader.loadArtifact(
+      executionState.artifactId
+    );
 
     const transactionOrResult = yield* executeOnchainInteractionRequest(
       executionState.id,
@@ -149,7 +179,14 @@ export class BasicExecutionStrategy implements ExecutionStrategy {
   public async *executeStaticCall(
     executionState: StaticCallExecutionState
   ): StaticCallStrategyGenerator {
-    const artifact = await this._loadArtifact(executionState.artifactId);
+    assertIgnitionInvariant(
+      this._deploymentLoader !== undefined,
+      `Strategy ${this.name} not initialized`
+    );
+
+    const artifact = await this._deploymentLoader.loadArtifact(
+      executionState.artifactId
+    );
 
     const decodedResultOrError = yield* executeStaticCallRequest(
       {

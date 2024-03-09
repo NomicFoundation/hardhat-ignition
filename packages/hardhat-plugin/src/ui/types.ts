@@ -64,6 +64,7 @@ export interface UiState {
   isResumed: boolean | null;
   maxFeeBumps: number;
   gasBumps: Record<string, number>;
+  strategy: string | null;
 }
 
 export interface AddressMap {

@@ -2,6 +2,8 @@ import { DeploymentParameters } from "../../../../types/deploy";
 import { Future, FutureType } from "../../../../types/module";
 import { DeploymentLoader } from "../../../deployment-loader/types";
 import { DeploymentState } from "../../types/deployment-state";
+import { ConcreteExecutionConfig } from "../../types/execution-state";
+import { ExecutionStrategy } from "../../types/execution-strategy";
 import {
   CallExecutionStateInitializeMessage,
   ContractAtExecutionStateInitializeMessage,
@@ -27,7 +29,7 @@ import {
 export async function buildInitializeMessageFor(
   future: Future,
   deploymentState: DeploymentState,
-  strategy: { name: string },
+  strategy: ExecutionStrategy,
   deploymentParameters: DeploymentParameters,
   deploymentLoader: DeploymentLoader,
   accounts: string[],
@@ -40,7 +42,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.DEPLOYMENT_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             futureType: future.type,
             artifactId: future.id,
@@ -69,7 +72,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.DEPLOYMENT_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             futureType: future.type,
             artifactId: future.id,
@@ -87,7 +91,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.CALL_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             args: resolveArgs(
               future.args,
@@ -118,7 +123,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.STATIC_CALL_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             args: resolveArgs(
               future.args,
@@ -145,7 +151,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.CONTRACT_AT_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             futureType: future.type,
             contractName: future.contractName,
@@ -177,7 +184,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.READ_EVENT_ARGUMENT_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             artifactId: future.emitter.id,
             eventName: future.eventName,
@@ -196,7 +204,8 @@ export async function buildInitializeMessageFor(
         _extendBaseInitWith(
           JournalMessageType.SEND_DATA_EXECUTION_STATE_INITIALIZE,
           future,
-          strategy,
+          strategy.name,
+          strategy.config,
           {
             to: resolveSendToAddress(
               future.to,
@@ -226,18 +235,21 @@ function _extendBaseInitWith<
 >(
   messageType: MessageT,
   future: FutureT,
-  strategy: { name: string },
+  strategy: string,
+  strategyConfig: ConcreteExecutionConfig,
   extension: ExtensionT
 ): {
   type: MessageT;
   futureId: string;
   strategy: string;
+  strategyConfig: ConcreteExecutionConfig;
   dependencies: string[];
 } & ExtensionT {
   return {
     type: messageType,
     futureId: future.id,
-    strategy: strategy.name,
+    strategy,
+    strategyConfig,
     dependencies: [...future.dependencies].map((f) => f.id),
     ...extension,
   };

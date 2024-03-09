@@ -43,6 +43,12 @@ export enum ExecutionSateType {
 }
 
 /**
+ * The Strategy configuration that the user has provided in the run
+ * the future is started. Used to reconcile the future on subsequent runs.
+ */
+export type ConcreteExecutionConfig = Record<string, number | string>;
+
+/**
  * The base interface for all execution states.
  *
  * Its id must match the id of the future that it belongs to.
@@ -55,6 +61,7 @@ interface BaseExecutionState<
   type: ExecutionStateT;
   futureType: FutureTypeT;
   strategy: string; // For example, "basic" | "create2". This needs to be string if we want custom ones.
+  strategyConfig: ConcreteExecutionConfig;
   status: ExecutionStatus;
   dependencies: Set<string>;
 }

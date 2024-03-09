@@ -18,7 +18,9 @@ export function calculateDeployingModulePanel(state: UiState): string {
   }
 
   deployingMessage += `${chalk.bold(
-    `Deploying [ ${state.moduleName ?? "unknown"} ]`
+    `Deploying [ ${state.moduleName ?? "unknown"} ]${_calculateStrategySuffix(
+      state
+    )}`
   )}
 `;
 
@@ -35,4 +37,12 @@ export function calculateDeployingModulePanel(state: UiState): string {
   }
 
   return deployingMessage;
+}
+
+function _calculateStrategySuffix(state: UiState) {
+  if (state.strategy === "basic") {
+    return "";
+  }
+
+  return ` with strategy ${state.strategy ?? "unknown"}`;
 }

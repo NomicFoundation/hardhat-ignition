@@ -53,6 +53,13 @@ class StubJsonRpcClient implements JsonRpcClient {
     throw new Error("Mock not implemented.");
   }
 
+  public async setBalance(
+    _address: string,
+    _balance: bigint
+  ): Promise<boolean> {
+    throw new Error("Mock not implemented.");
+  }
+
   public async call(
     _callParams: CallParams,
     _blockTag: "latest" | "pending"
@@ -72,6 +79,10 @@ class StubJsonRpcClient implements JsonRpcClient {
     throw new Error("Mock not implemented.");
   }
 
+  public async sendRawTransaction(_presignedTx: string): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+
   public async getTransactionCount(
     _address: string,
     _blockTag: number | "latest" | "pending"
@@ -89,6 +100,10 @@ class StubJsonRpcClient implements JsonRpcClient {
     _txHash: string
   ): Promise<TransactionReceipt | undefined> {
     throw new Error("Mock not implemented.");
+  }
+
+  public async getCode(_address: string): Promise<string> {
+    throw new Error("Method not implemented.");
   }
 }
 
@@ -155,6 +170,7 @@ describe("Network interactions", () => {
       type: ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
       futureType: FutureType.NAMED_ARTIFACT_CONTRACT_DEPLOYMENT,
       strategy: "basic",
+      strategyConfig: {},
       status: ExecutionStatus.STARTED,
       dependencies: new Set<string>(),
       artifactId: "./artifact.json",

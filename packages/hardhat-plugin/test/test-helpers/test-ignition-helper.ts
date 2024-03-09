@@ -1,5 +1,3 @@
-import type { GetContractReturnType } from "@nomicfoundation/hardhat-viem/types";
-
 import {
   deploy,
   DeployConfig,
@@ -10,11 +8,17 @@ import {
   IgnitionModule,
   IgnitionModuleResult,
   isContractFuture,
+  StrategyConfig,
   SuccessfulDeploymentResult,
 } from "@nomicfoundation/ignition-core";
 import { HardhatPluginError } from "hardhat/plugins";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { createPublicClient, custom, getContract } from "viem";
+import {
+  createPublicClient,
+  custom,
+  getContract,
+  GetContractReturnType,
+} from "viem";
 import { hardhat } from "viem/chains";
 
 import { HardhatArtifactResolver } from "../../src/hardhat-artifact-resolver";
@@ -55,7 +59,8 @@ export class TestIgnitionHelper {
   public async deploy<
     ModuleIdT extends string,
     ContractNameT extends string,
-    IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
+    IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>,
+    StrategyT extends keyof StrategyConfig = "basic"
   >(
     ignitionModule: IgnitionModule<
       ModuleIdT,
@@ -65,9 +70,15 @@ export class TestIgnitionHelper {
     {
       parameters = {},
       config: perDeployConfig = {},
+      strategy: strategyName,
+      strategyConfig,
+      defaultSender = undefined,
     }: {
       parameters?: DeploymentParameters;
       config?: Partial<DeployConfig>;
+      strategy?: StrategyT;
+      strategyConfig?: StrategyConfig[StrategyT];
+      defaultSender?: string;
     } = {
       parameters: {},
       config: {},
@@ -94,6 +105,9 @@ export class TestIgnitionHelper {
       ignitionModule,
       deploymentParameters: parameters,
       accounts,
+      defaultSender,
+      strategy: strategyName,
+      strategyConfig,
     });
 
     if (result.type !== DeploymentResultType.SUCCESSFUL_DEPLOYMENT) {

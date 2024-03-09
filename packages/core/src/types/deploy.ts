@@ -208,3 +208,15 @@ export interface SuccessfulDeploymentResult {
 export interface DeploymentParameters {
   [moduleId: string]: ModuleParameters;
 }
+
+/**
+ * The config options for the deployment strategies.
+ *
+ * @beta
+ */
+export interface StrategyConfig {
+  basic: Record<PropertyKey, never>;
+  create2: {
+    salt: string;
+  };
+}

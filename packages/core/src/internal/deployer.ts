@@ -43,8 +43,6 @@ import { findStatus } from "./views/find-status";
 
 /**
  * Run an Igntition deployment.
- *
- * @beta
  */
 export class Deployer {
   constructor(
@@ -115,7 +113,9 @@ export class Deployer {
       accounts,
       this._deploymentLoader,
       this._artifactResolver,
-      defaultSender
+      defaultSender,
+      this._executionStrategy.name,
+      this._executionStrategy.config
     );
 
     if (reconciliationResult.reconciliationFailures.length > 0) {

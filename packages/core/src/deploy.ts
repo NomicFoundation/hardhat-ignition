@@ -6,18 +6,21 @@ import {
 import { Deployer } from "./internal/deployer";
 import { EphemeralDeploymentLoader } from "./internal/deployment-loader/ephemeral-deployment-loader";
 import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployment-loader";
+import { DeploymentLoader } from "./internal/deployment-loader/types";
 import { ERRORS } from "./internal/errors-list";
-import { BasicExecutionStrategy } from "./internal/execution/basic-execution-strategy";
 import { EIP1193JsonRpcClient } from "./internal/execution/jsonrpc-client";
+import { ExecutionStrategy } from "./internal/execution/types/execution-strategy";
 import { equalAddresses } from "./internal/execution/utils/address";
 import { getDefaultSender } from "./internal/execution/utils/get-default-sender";
 import { checkAutominedNetwork } from "./internal/utils/check-automined-network";
 import { validate } from "./internal/validation/validate";
+import { resolveStrategy } from "./strategies/resolve-strategy";
 import { ArtifactResolver } from "./types/artifact";
 import {
   DeployConfig,
   DeploymentParameters,
   DeploymentResult,
+  StrategyConfig,
 } from "./types/deploy";
 import {
   ExecutionEventListener,
@@ -34,7 +37,8 @@ import { EIP1193Provider } from "./types/provider";
 export async function deploy<
   ModuleIdT extends string,
   ContractNameT extends string,
-  IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>
+  IgnitionModuleResultsT extends IgnitionModuleResult<ContractNameT>,
+  StrategyT extends keyof StrategyConfig = "basic"
 >({
   config = {},
   artifactResolver,
@@ -45,6 +49,8 @@ export async function deploy<
   deploymentParameters,
   accounts,
   defaultSender: givenDefaultSender,
+  strategy,
+  strategyConfig,
 }: {
   config?: Partial<DeployConfig>;
   artifactResolver: ArtifactResolver;
@@ -59,11 +65,23 @@ export async function deploy<
   deploymentParameters: DeploymentParameters;
   accounts: string[];
   defaultSender?: string;
+  strategy?: StrategyT;
+  strategyConfig?: StrategyConfig[StrategyT];
 }): Promise<DeploymentResult> {
+  const executionStrategy: ExecutionStrategy = resolveStrategy(
+    strategy,
+    strategyConfig
+  );
+
   if (executionEventListener !== undefined) {
     executionEventListener.setModuleId({
       type: ExecutionEventType.SET_MODULE_ID,
       moduleName: ignitionModule.id,
+    });
+
+    executionEventListener.setStrategy({
+      type: ExecutionEventType.SET_STRATEGY,
+      strategy: executionStrategy.name,
     });
   }
 
@@ -87,14 +105,10 @@ export async function deploy<
 
   const defaultSender = _resolveDefaultSender(givenDefaultSender, accounts);
 
-  const deploymentLoader =
+  const deploymentLoader: DeploymentLoader =
     deploymentDir === undefined
       ? new EphemeralDeploymentLoader(artifactResolver, executionEventListener)
       : new FileDeploymentLoader(deploymentDir, executionEventListener);
-
-  const executionStrategy = new BasicExecutionStrategy((artifactId) =>
-    deploymentLoader.loadArtifact(artifactId)
-  );
 
   const jsonRpcClient = new EIP1193JsonRpcClient(provider);
 

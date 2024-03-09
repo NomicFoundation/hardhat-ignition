@@ -6,6 +6,7 @@ import { DeploymentLoader } from "../deployment-loader/types";
 import { ERRORS } from "../errors-list";
 import { DeploymentState } from "../execution/types/deployment-state";
 import {
+  ConcreteExecutionConfig,
   ExecutionState,
   ExecutionStatus,
 } from "../execution/types/execution-state";
@@ -32,7 +33,9 @@ export class Reconciler {
     accounts: string[],
     deploymentLoader: DeploymentLoader,
     artifactResolver: ArtifactResolver,
-    defaultSender: string
+    defaultSender: string,
+    strategy: string,
+    strategyConfig: ConcreteExecutionConfig
   ): Promise<ReconciliationResult> {
     const reconciliationFailures = await this._reconcileEachFutureInModule(
       module,
@@ -43,6 +46,8 @@ export class Reconciler {
         deploymentLoader,
         artifactResolver,
         defaultSender,
+        strategy,
+        strategyConfig,
       },
       [
         reconcileCurrentAndPreviousTypeMatch,

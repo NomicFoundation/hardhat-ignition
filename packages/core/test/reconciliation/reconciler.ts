@@ -27,6 +27,7 @@ describe("Reconciliation", () => {
     type: ExecutionSateType.DEPLOYMENT_EXECUTION_STATE,
     futureType: FutureType.NAMED_ARTIFACT_CONTRACT_DEPLOYMENT,
     strategy: "basic",
+    strategyConfig: {},
     status: ExecutionStatus.STARTED,
     dependencies: new Set<string>(),
     networkInteractions: [],
@@ -602,6 +603,201 @@ describe("Reconciliation", () => {
       );
 
       assertNoWarningsOrErrors(reconciliationResult);
+    });
+  });
+
+  describe("strategies", () => {
+    it("should reconcile changes to strategy config if the future is already complete", async () => {
+      const moduleDefinition = buildModule("Module", (m) => {
+        const contract1 = m.contract("Contract", [], {
+          id: "Example",
+        });
+
+        return { contract1 };
+      });
+
+      const deploymentState = createDeploymentState({
+        ...exampleDeploymentState,
+        id: "Module#Example",
+        status: ExecutionStatus.SUCCESS,
+        contractName: "Contract",
+        strategy: "create2",
+        strategyConfig: { salt: "value" },
+      });
+
+      await assertSuccessReconciliation(moduleDefinition, deploymentState);
+    });
+
+    it("should fail reconciliation on changes to the strategy (name) if the future is started but uncompleted", async () => {
+      const moduleDefinition = buildModule("Module", (m) => {
+        const contract1 = m.contract("Contract", [], {
+          id: "Example1",
+        });
+
+        const contract2 = m.contract("Contract", [], {
+          id: "Example2",
+        });
+
+        return { contract1, contract2 };
+      });
+
+      // Future Example1 is fine as it has completed, but running
+      // with the basic strategy against the started but
+      // unfinished Example2 should fail
+      const reconiliationResult = await reconcile(
+        moduleDefinition,
+        createDeploymentState(
+          {
+            ...exampleDeploymentState,
+            id: "Module#Example1",
+            status: ExecutionStatus.SUCCESS,
+            contractName: "Contract",
+            strategy: "create2",
+            strategyConfig: {},
+          },
+          {
+            ...exampleDeploymentState,
+            id: "Module#Example2",
+            status: ExecutionStatus.STARTED,
+            contractName: "Contract",
+            strategy: "create2",
+            strategyConfig: {},
+          }
+        )
+      );
+
+      assert.deepStrictEqual(reconiliationResult.reconciliationFailures, [
+        {
+          futureId: "Module#Example2",
+          failure: 'Strategy changed from "create2" to "basic"',
+        },
+      ]);
+    });
+
+    it("should fail reconciliation on changes to strategy config if the future is started but uncompleted", async () => {
+      const moduleDefinition = buildModule("Module", (m) => {
+        const contract1 = m.contract("Contract", [], {
+          id: "Example1",
+        });
+
+        const contract2 = m.contract("Contract", [], {
+          id: "Example2",
+        });
+
+        return { contract1, contract2 };
+      });
+
+      // Future Example1 is fine as it has completed, but running
+      // with the basic strategy against the started but
+      // unfinished Example2 should fail
+      const reconiliationResult = await reconcile(
+        moduleDefinition,
+        createDeploymentState(
+          {
+            ...exampleDeploymentState,
+            id: "Module#Example1",
+            status: ExecutionStatus.SUCCESS,
+            contractName: "Contract",
+            strategy: "create2",
+            strategyConfig: { salt: "value" },
+          },
+          {
+            ...exampleDeploymentState,
+            id: "Module#Example2",
+            status: ExecutionStatus.STARTED,
+            contractName: "Contract",
+            strategy: "create2",
+            strategyConfig: { salt: "value" },
+          }
+        ),
+        undefined,
+        undefined,
+        {},
+        "create2",
+        { salt: "another-value" }
+      );
+
+      assert.deepStrictEqual(reconiliationResult.reconciliationFailures, [
+        {
+          futureId: "Module#Example2",
+          failure:
+            'Strategy config changed from {"salt":"value"} to {"salt":"another-value"}',
+        },
+      ]);
+    });
+
+    it("should pass reconciliation if the previous version did not support strategies, and the new run uses basic", async () => {
+      const moduleDefinition = buildModule("Module", (m) => {
+        const contract = m.contract("Contract", [], {
+          id: "Example",
+        });
+
+        return { contract };
+      });
+
+      // Future Example1 is fine as it has completed, but running
+      // with the basic strategy against the started but
+      // unfinished Example2 should fail
+      const reconiliationResult = await reconcile(
+        moduleDefinition,
+        createDeploymentState({
+          ...exampleDeploymentState,
+          id: "Module#Example",
+          status: ExecutionStatus.STARTED,
+          contractName: "Contract",
+          strategy: "basic",
+          strategyConfig: undefined as any, // This will be the case for the previous version of Ignition
+        }),
+        undefined,
+        undefined,
+        {},
+        "basic",
+        {}
+      );
+
+      assert.deepStrictEqual(reconiliationResult, {
+        reconciliationFailures: [],
+        missingExecutedFutures: [],
+      });
+    });
+
+    it("should fail reconciliation if the previous version did not support strategies, and the new run uses basic", async () => {
+      const moduleDefinition = buildModule("Module", (m) => {
+        const contract = m.contract("Contract", [], {
+          id: "Example",
+        });
+
+        return { contract };
+      });
+
+      // Future Example1 is fine as it has completed, but running
+      // with the basic strategy against the started but
+      // unfinished Example2 should fail
+      const reconiliationResult = await reconcile(
+        moduleDefinition,
+        createDeploymentState({
+          ...exampleDeploymentState,
+          id: "Module#Example",
+          status: ExecutionStatus.STARTED,
+          contractName: "Contract",
+          strategy: "basic",
+          strategyConfig: undefined as any, // This will be the case for the previous version of Ignition
+        }),
+        undefined,
+        undefined,
+        {},
+        "create2",
+        {
+          salt: "my-salt",
+        }
+      );
+
+      assert.deepStrictEqual(reconiliationResult.reconciliationFailures, [
+        {
+          failure: 'Strategy changed from "basic" to "create2"',
+          futureId: "Module#Example",
+        },
+      ]);
     });
   });
 });

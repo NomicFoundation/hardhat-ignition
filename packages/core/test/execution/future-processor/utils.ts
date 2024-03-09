@@ -1,4 +1,3 @@
-import { BasicExecutionStrategy } from "../../../src/internal/execution/basic-execution-strategy";
 import { FutureProcessor } from "../../../src/internal/execution/future-processor/future-processor";
 import {
   Block,
@@ -18,19 +17,20 @@ import {
 import { getDefaultSender } from "../../../src/internal/execution/utils/get-default-sender";
 import { MemoryJournal } from "../../../src/internal/journal/memory-journal";
 import { assertIgnitionInvariant } from "../../../src/internal/utils/assertions";
+import { BasicStrategy } from "../../../src/strategies/basic-strategy";
 import {
   exampleAccounts,
   setupMockArtifactResolver,
   setupMockDeploymentLoader,
 } from "../../helpers";
 
-export function setupFutureProcessor(
+export async function setupFutureProcessor(
   sendTransaction: (transactionParams: TransactionParams) => Promise<string>,
   transactions: { [key: string]: TransactionReceipt }
-): {
+): Promise<{
   processor: FutureProcessor;
   storedDeployedAddresses: { [key: string]: string };
-} {
+}> {
   const storedDeployedAddresses: { [key: string]: string } = {};
 
   const mockDeploymentLoader = setupMockDeploymentLoader(
@@ -40,14 +40,13 @@ export function setupFutureProcessor(
 
   const mockArtifactResolver = setupMockArtifactResolver();
 
-  const basicExecutionStrategy = new BasicExecutionStrategy(
-    mockDeploymentLoader.loadArtifact
-  );
-
   const mockJsonRpcClient = setupMockJsonRpcClient(
     sendTransaction,
     transactions
   );
+
+  const basicExecutionStrategy = new BasicStrategy();
+  await basicExecutionStrategy.init(mockDeploymentLoader, mockJsonRpcClient);
 
   const transactionTrackingTimer = new TransactionTrackingTimer();
 
@@ -125,6 +124,10 @@ class MockJsonRpcClient implements JsonRpcClient {
     throw new Error("Method not implemented.");
   }
 
+  public setBalance(_address: string, _balance: bigint): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+
   public async call(
     _callParams: CallParams,
     _blockTag: "latest" | "pending"
@@ -146,6 +149,10 @@ class MockJsonRpcClient implements JsonRpcClient {
     transactionParams: TransactionParams
   ): Promise<string> {
     return this._sendTransaction(transactionParams);
+  }
+
+  public async sendRawTransaction(_presignedTx: string): Promise<string> {
+    throw new Error("Method not implemented.");
   }
 
   public getTransactionCount(
@@ -175,5 +182,9 @@ class MockJsonRpcClient implements JsonRpcClient {
     );
 
     return this._transactions[txHash];
+  }
+
+  public async getCode(_address: string): Promise<string> {
+    throw new Error("Method not implemented.");
   }
 }
