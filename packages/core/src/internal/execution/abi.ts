@@ -611,7 +611,7 @@ function ethersResultIntoEvmTuple(
  * @param iface The interface to search in.
  * @param functionName The function name to search for. MUST be validated first.
  */
-function getFunctionFragment(
+export function getFunctionFragment(
   iface: Interface,
   functionName: string
 ): FunctionFragment {
@@ -639,7 +639,10 @@ function getFunctionFragment(
  * @param iface The interface to search in.
  * @param eventName The event name to search for. MUST be validated first.
  */
-function getEventFragment(iface: Interface, eventName: string): EventFragment {
+export function getEventFragment(
+  iface: Interface,
+  eventName: string
+): EventFragment {
   const { ethers } = require("ethers") as typeof import("ethers");
 
   // TODO: Add support for event overloading
