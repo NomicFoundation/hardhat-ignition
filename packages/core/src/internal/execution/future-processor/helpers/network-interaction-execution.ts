@@ -133,6 +133,13 @@ export async function sendTransactionForOnchainInteraction(
   try {
     gasLimit = await client.estimateGas(estimateGasPrams);
   } catch (error) {
+    const maxGasLimit = await getMaxGasLimit(
+      client,
+      sender,
+      onchainInteraction,
+      fees
+    );
+
     // If the gas estimation failed, we simulate the transaction to get information
     // about why it failed.
     //
@@ -140,7 +147,7 @@ export async function sendTransactionForOnchainInteraction(
     // too broad and make the assertion below fail. We could try to catch only
     // estimation errors.
     const failedEstimateGasSimulationResult = await client.call(
-      estimateGasPrams, // TODO: we need to set a gas limit here, or the simulation could fail due to a lack of funds
+      { ...estimateGasPrams, gasLimit: maxGasLimit },
       "pending"
     );
 
@@ -254,4 +261,18 @@ async function getNextTransactionFees(
       : bumpedGasPrice;
 
   return { gasPrice: maxGasPrice };
+}
+
+async function getMaxGasLimit(
+  client: JsonRpcClient,
+  sender: string,
+  onchainInteraction: OnchainInteraction,
+  fees: NetworkFees
+) {
+  const balance = await client.getBalance(sender, "latest");
+  const spareBalance = balance - onchainInteraction.value;
+  const maxEffectiveGasPrice =
+    "gasPrice" in fees ? fees.gasPrice : fees.maxFeePerGas;
+
+  return spareBalance / maxEffectiveGasPrice;
 }
