@@ -1,3 +1,6 @@
+import { analyze } from "@nomicfoundation/solidity-analyzer";
+import path from "path";
+
 import { IgnitionError } from "./errors";
 import { builtinChains } from "./internal/chain-config";
 import { FileDeploymentLoader } from "./internal/deployment-loader/file-deployment-loader";
@@ -13,7 +16,7 @@ import {
 } from "./internal/execution/types/execution-state";
 import { assertIgnitionInvariant } from "./internal/utils/assertions";
 import { findExecutionStatesByType } from "./internal/views/find-execution-states-by-type";
-import { Artifact, BuildInfo } from "./types/artifact";
+import { Artifact, BuildInfo, CompilerInput } from "./types/artifact";
 import {
   ChainConfig,
   SourceToLibraryToAddress,
@@ -30,7 +33,8 @@ import {
  */
 export async function* getVerificationInformation(
   deploymentDir: string,
-  customChains: ChainConfig[] = []
+  customChains: ChainConfig[] = [],
+  includeUnrelatedContracts = false
 ): AsyncGenerator<VerifyResult> {
   const deploymentLoader = new FileDeploymentLoader(deploymentDir);
 
@@ -58,7 +62,8 @@ export async function* getVerificationInformation(
   for (const exState of deploymentExStates) {
     const verifyInfo = await convertExStateToVerifyInfo(
       exState,
-      deploymentLoader
+      deploymentLoader,
+      includeUnrelatedContracts
     );
 
     const verifyResult: VerifyResult = [chainConfig, verifyInfo];
@@ -87,9 +92,31 @@ function resolveChainConfig(
   return chainConfig;
 }
 
+function getImportSourceNames(
+  sourceName: string,
+  buildInfo: BuildInfo
+): string[] {
+  const contractSource = buildInfo.input.sources[sourceName].content;
+  const { imports } = analyze(contractSource);
+
+  const importSources = imports.map((i) => {
+    if (/^\.\.?[\/|\\]/.test(i)) {
+      return path.join(path.dirname(sourceName), i).replaceAll("\\", "/");
+    }
+
+    return i;
+  });
+
+  return [
+    ...importSources,
+    ...importSources.flatMap((i) => getImportSourceNames(i, buildInfo)),
+  ];
+}
+
 async function convertExStateToVerifyInfo(
   exState: DeploymentExecutionState,
-  deploymentLoader: FileDeploymentLoader
+  deploymentLoader: FileDeploymentLoader,
+  includeUnrelatedContracts: boolean = false
 ) {
   const [buildInfo, artifact] = await Promise.all([
     deploymentLoader.readBuildInfo(exState.artifactId),
@@ -104,12 +131,27 @@ async function convertExStateToVerifyInfo(
     `Deployment execution state ${exState.id} should have a successful result to retrieve address`
   );
 
+  const sourceCode = prepareInputBasedOn(buildInfo, artifact, libraries);
+
+  if (!includeUnrelatedContracts) {
+    const sourceNames = [
+      artifact.sourceName,
+      ...getImportSourceNames(artifact.sourceName, buildInfo),
+    ];
+
+    for (const source of Object.keys(sourceCode.sources)) {
+      if (!sourceNames.includes(source)) {
+        delete sourceCode.sources[source];
+      }
+    }
+  }
+
   const verifyInfo = {
     address: exState.result.address,
     compilerVersion: buildInfo.solcLongVersion.startsWith("v")
       ? buildInfo.solcLongVersion
       : `v${buildInfo.solcLongVersion}`,
-    sourceCode: prepareInputBasedOn(buildInfo, artifact, libraries),
+    sourceCode: JSON.stringify(sourceCode),
     name: `${artifact.sourceName}:${contractName}`,
     args: encodeDeploymentArguments(artifact, constructorArgs),
   };
@@ -121,20 +163,20 @@ function prepareInputBasedOn(
   buildInfo: BuildInfo,
   artifact: Artifact,
   libraries: Record<string, string>
-): string {
+): CompilerInput {
   const sourceToLibraryAddresses = resolveLibraryInfoForArtifact(
     artifact,
     libraries
   );
 
   if (sourceToLibraryAddresses === null) {
-    return JSON.stringify(buildInfo.input);
+    return buildInfo.input;
   }
 
   const { input } = buildInfo;
   input.settings.libraries = sourceToLibraryAddresses;
 
-  return JSON.stringify(input);
+  return input;
 }
 
 function resolveLibraryInfoForArtifact(
