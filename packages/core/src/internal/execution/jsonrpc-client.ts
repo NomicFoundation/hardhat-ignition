@@ -632,7 +632,11 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
     // We prioritize EIP-1559 fees over legacy gasPrice fees
     if (latestBlock.baseFeePerGas !== undefined) {
       // Logic copied from ethers v6
-      const maxPriorityFeePerGas = 1_000_000_000n; // 1gwei
+      let maxPriorityFeePerGas = 1_000_000_000n; // 1gwei
+      if (latestBlock.baseFeePerGas === 0n) {
+        // support zero gas fee chains
+        maxPriorityFeePerGas = 0n;
+      }
       const maxFeePerGas =
         latestBlock.baseFeePerGas * 2n + maxPriorityFeePerGas;
 
