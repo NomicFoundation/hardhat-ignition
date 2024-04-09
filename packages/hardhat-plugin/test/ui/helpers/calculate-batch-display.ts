@@ -182,16 +182,44 @@ describe("ui - calculate batch display", () => {
       expectedText
     );
   });
+
+  it("should render a batch when using a ledger device", () => {
+    const expectedText = testFormat(`
+      Batch #1
+        Executing ExampleModule#Token...
+
+        Ledger: Waiting for confirmation on device
+    `);
+
+    assertBatchText(
+      [
+        {
+          status: {
+            type: UiFutureStatusType.UNSTARTED,
+          },
+          futureId: "ExampleModule#Token",
+        },
+      ],
+      3,
+      expectedText,
+      {
+        ledger: true,
+        ledgerMessage: "Waiting for confirmation on device",
+      }
+    );
+  });
 });
 
 function assertBatchText(
   batch: UiFuture[],
   expectedHeight: number,
-  expectedText: string
+  expectedText: string,
+  extraState?: Partial<UiState>
 ) {
   const { text: actualText, height } = calculateBatchDisplay({
     ...exampleState,
     batches: [batch],
+    ...extraState,
   });
 
   assert.equal(height, expectedHeight);
