@@ -23,6 +23,9 @@ const exampleState: UiState = {
   maxFeeBumps: 0,
   gasBumps: {},
   strategy: null,
+  ledger: false,
+  ledgerMessage: "",
+  ledgerMessageIsDisplayed: false,
 };
 
 describe("ui - calculate batch display", () => {
