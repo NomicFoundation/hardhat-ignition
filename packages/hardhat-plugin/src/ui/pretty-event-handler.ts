@@ -72,7 +72,10 @@ export class PrettyEventHandler implements ExecutionEventListener {
     ledgerMessageIsDisplayed: false,
   };
 
-  constructor(private _deploymentParams: DeploymentParameters = {}) {}
+  constructor(
+    private _deploymentParams: DeploymentParameters = {},
+    private _disableOutput = false
+  ) {}
 
   public get state(): UiState {
     return this._uiState;
@@ -533,11 +536,13 @@ export class PrettyEventHandler implements ExecutionEventListener {
   }
 
   private _redisplayCurrentBatch() {
-    const { height, text: batch } = calculateBatchDisplay(this.state);
+    if (!this._disableOutput) {
+      const { height, text: batch } = calculateBatchDisplay(this.state);
 
-    this._clearUpToHeight(height);
+      this._clearUpToHeight(height);
 
-    console.log(batch);
+      console.log(batch);
+    }
   }
 
   private _clearCurrentLine(): void {
