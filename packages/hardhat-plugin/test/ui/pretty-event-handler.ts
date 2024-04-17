@@ -1,30 +1,6 @@
 import { assert } from "chai";
 
 import { PrettyEventHandler } from "../../src/ui/pretty-event-handler";
-import {
-  UiFuture,
-  UiFutureStatusType,
-  UiState,
-  UiStateDeploymentStatus,
-} from "../../src/ui/types";
-
-const exampleState: UiState = {
-  status: UiStateDeploymentStatus.DEPLOYING,
-  chainId: 31337,
-  moduleName: "ExampleModule",
-  deploymentDir: "/users/example",
-  batches: [],
-  currentBatch: 1,
-  result: null,
-  warnings: [],
-  isResumed: false,
-  maxFeeBumps: 0,
-  gasBumps: {},
-  strategy: null,
-  ledger: false,
-  ledgerMessage: "",
-  ledgerMessageIsDisplayed: false,
-};
 
 describe("ui - pretty event handler", () => {
   describe("ledger", () => {
