@@ -15,10 +15,10 @@ Join the Hardhat Ignition channel of our [Hardhat Community Discord server](http
 
 ```bash
 # ethers users
-npm install --save-dev @nomicfoundation/hardhat-ignition-ethers
+pnpm install --save-dev @nomicfoundation/hardhat-ignition-ethers
 
 # viem users
-npm install --save-dev @nomicfoundation/hardhat-ignition-viem
+pnpm install --save-dev @nomicfoundation/hardhat-ignition-viem
 ```
 
 Import the plugin in your `hardhat.config.js``:
