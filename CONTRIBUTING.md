@@ -110,12 +110,13 @@ Update the packages versions and changelogs for the `X.X.X -
 yyyy-mm-dd` release.
 ```
 
-14. Push the release branch and open a pull request on `main`, the PR description should match the changelogs
-15. On a successful check, `rebase merge` the release branch into `main`
-16. Switch to main branch and pull the latest changes
-17. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
-18. Publish `@nomicfoundation/ignition-core`, `@nomicfoundation/ignition-ui`, `@nomicfoundation/hardhat-ignition` and `@nomicfoundation/hardhat-ignition-viem` : `pnpm publish -w @nomicfoundation/ignition-core -w @nomicfoundation/ignition-ui -w @nomicfoundation/hardhat-ignition -w @nomicfoundation/hardhat-ignition-ethers -w @nomicfoundation/hardhat-ignition-viem`
-19. Create a release on github off of the pushed tag, the release notes should match the changelogs followed by a hiring entry:
+14. Deploy to a local verdaccio instance and test each of the `./examples` based on the new version.
+15. Push the release branch and open a pull request on `main`, the PR description should match the changelogs
+16. On a successful check, `rebase merge` the release branch into `main`
+17. Switch to main branch and pull the latest changes
+18. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
+19. Publish `@nomicfoundation/ignition-core`, `@nomicfoundation/ignition-ui`, `@nomicfoundation/hardhat-ignition` and `@nomicfoundation/hardhat-ignition-viem` : `pnpm publish -w @nomicfoundation/ignition-core -w @nomicfoundation/ignition-ui -w @nomicfoundation/hardhat-ignition -w @nomicfoundation/hardhat-ignition-ethers -w @nomicfoundation/hardhat-ignition-viem`
+20. Create a release on github off of the pushed tag, the release notes should match the changelogs followed by a hiring entry:
 
 ```markdown
 ---
