@@ -262,39 +262,49 @@ ignitionScope
             false,
           ]);
 
-          hre.network.provider.once("connection_start", () =>
-            executionEventListener.ledgerConnectionStart()
+          hre.network.provider.once(
+            "connection_start",
+            executionEventListener.ledgerConnectionStart
           );
-          hre.network.provider.once("connection_success", () =>
-            executionEventListener.ledgerConnectionSuccess()
+          hre.network.provider.once(
+            "connection_success",
+            executionEventListener.ledgerConnectionSuccess
           );
-          hre.network.provider.once("connection_failure", () =>
-            executionEventListener.ledgerConnectionFailure()
+          hre.network.provider.once(
+            "connection_failure",
+            executionEventListener.ledgerConnectionFailure
           );
-          hre.network.provider.on("confirmation_start", () =>
-            executionEventListener.ledgerConfirmationStart()
+          hre.network.provider.on(
+            "confirmation_start",
+            executionEventListener.ledgerConfirmationStart
           );
-          hre.network.provider.on("confirmation_success", () =>
-            executionEventListener.ledgerConfirmationSuccess()
+          hre.network.provider.on(
+            "confirmation_success",
+            executionEventListener.ledgerConfirmationSuccess
           );
-          hre.network.provider.on("confirmation_failure", () =>
-            executionEventListener.ledgerConfirmationFailure()
+          hre.network.provider.on(
+            "confirmation_failure",
+            executionEventListener.ledgerConfirmationFailure
           );
 
           // these events aren't currently used by our UI,
           // but i'm leaving them here for future reference
 
-          // hre.network.provider.once("derivation_start", () =>
-          //   executionEventListener.ledgerDerivationStart()
+          // hre.network.provider.once(
+          //   "derivation_start",
+          //   executionEventListener.ledgerDerivationStart
           // );
-          // hre.network.provider.once("derivation_progress", () =>
-          //   executionEventListener.ledgerDerivationProgress()
+          // hre.network.provider.once(
+          //   "derivation_progress",
+          //   executionEventListener.ledgerDerivationProgress
           // );
-          // hre.network.provider.once("derivation_success", () =>
-          //   executionEventListener.ledgerDerivationSuccess()
+          // hre.network.provider.once(
+          //   "derivation_success",
+          //   executionEventListener.ledgerDerivationSuccess
           // );
-          // hre.network.provider.once("derivation_failure", () =>
-          //   executionEventListener.ledgerDerivationFailure()
+          // hre.network.provider.once(
+          //   "derivation_failure",
+          //   executionEventListener.ledgerDerivationFailure
           // );
         } catch {}
 
@@ -319,23 +329,29 @@ ignitionScope
             true,
           ]);
 
-          hre.network.provider.off("connection_start", () =>
-            executionEventListener.ledgerConnectionStart()
+          hre.network.provider.off(
+            "connection_start",
+            executionEventListener.ledgerConnectionStart
           );
-          hre.network.provider.off("connection_success", () =>
-            executionEventListener.ledgerConnectionSuccess()
+          hre.network.provider.off(
+            "connection_success",
+            executionEventListener.ledgerConnectionSuccess
           );
-          hre.network.provider.off("connection_failure", () =>
-            executionEventListener.ledgerConnectionFailure()
+          hre.network.provider.off(
+            "connection_failure",
+            executionEventListener.ledgerConnectionFailure
           );
-          hre.network.provider.off("confirmation_start", () =>
-            executionEventListener.ledgerConfirmationStart()
+          hre.network.provider.off(
+            "confirmation_start",
+            executionEventListener.ledgerConfirmationStart
           );
-          hre.network.provider.off("confirmation_success", () =>
-            executionEventListener.ledgerConfirmationSuccess()
+          hre.network.provider.off(
+            "confirmation_success",
+            executionEventListener.ledgerConfirmationSuccess
           );
-          hre.network.provider.off("confirmation_failure", () =>
-            executionEventListener.ledgerConfirmationFailure()
+          hre.network.provider.off(
+            "confirmation_failure",
+            executionEventListener.ledgerConfirmationFailure
           );
         } catch {}
 
