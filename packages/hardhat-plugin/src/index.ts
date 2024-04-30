@@ -6,12 +6,12 @@ import {
   StatusResult,
 } from "@nomicfoundation/ignition-core";
 import {
+  ensureDir,
+  pathExists,
+  readFile,
   readdirSync,
   rm,
-  pathExists,
   writeJSON,
-  ensureDir,
-  readFile,
 } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
@@ -286,26 +286,6 @@ ignitionScope
             "confirmation_failure",
             executionEventListener.ledgerConfirmationFailure
           );
-
-          // these events aren't currently used by our UI,
-          // but i'm leaving them here for future reference
-
-          // hre.network.provider.once(
-          //   "derivation_start",
-          //   executionEventListener.ledgerDerivationStart
-          // );
-          // hre.network.provider.once(
-          //   "derivation_progress",
-          //   executionEventListener.ledgerDerivationProgress
-          // );
-          // hre.network.provider.once(
-          //   "derivation_success",
-          //   executionEventListener.ledgerDerivationSuccess
-          // );
-          // hre.network.provider.once(
-          //   "derivation_failure",
-          //   executionEventListener.ledgerDerivationFailure
-          // );
         } catch {}
 
         const result = await deploy({
