@@ -6,12 +6,12 @@ import {
   StatusResult,
 } from "@nomicfoundation/ignition-core";
 import {
+  ensureDir,
+  pathExists,
+  readFile,
   readdirSync,
   rm,
-  pathExists,
   writeJSON,
-  ensureDir,
-  readFile,
 } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
@@ -257,6 +257,37 @@ ignitionScope
       const strategyConfig = hre.config.ignition.strategyConfig?.[strategyName];
 
       try {
+        try {
+          await hre.network.provider.send("hardhat_setLedgerOutputEnabled", [
+            false,
+          ]);
+
+          hre.network.provider.once(
+            "connection_start",
+            executionEventListener.ledgerConnectionStart
+          );
+          hre.network.provider.once(
+            "connection_success",
+            executionEventListener.ledgerConnectionSuccess
+          );
+          hre.network.provider.once(
+            "connection_failure",
+            executionEventListener.ledgerConnectionFailure
+          );
+          hre.network.provider.on(
+            "confirmation_start",
+            executionEventListener.ledgerConfirmationStart
+          );
+          hre.network.provider.on(
+            "confirmation_success",
+            executionEventListener.ledgerConfirmationSuccess
+          );
+          hre.network.provider.on(
+            "confirmation_failure",
+            executionEventListener.ledgerConfirmationFailure
+          );
+        } catch {}
+
         const result = await deploy({
           config: hre.config.ignition,
           provider: hre.network.provider,
@@ -272,6 +303,37 @@ ignitionScope
           maxFeePerGasLimit:
             hre.config.networks[hre.network.name]?.ignition.maxFeePerGasLimit,
         });
+
+        try {
+          await hre.network.provider.send("hardhat_setLedgerOutputEnabled", [
+            true,
+          ]);
+
+          hre.network.provider.off(
+            "connection_start",
+            executionEventListener.ledgerConnectionStart
+          );
+          hre.network.provider.off(
+            "connection_success",
+            executionEventListener.ledgerConnectionSuccess
+          );
+          hre.network.provider.off(
+            "connection_failure",
+            executionEventListener.ledgerConnectionFailure
+          );
+          hre.network.provider.off(
+            "confirmation_start",
+            executionEventListener.ledgerConfirmationStart
+          );
+          hre.network.provider.off(
+            "confirmation_success",
+            executionEventListener.ledgerConfirmationSuccess
+          );
+          hre.network.provider.off(
+            "confirmation_failure",
+            executionEventListener.ledgerConfirmationFailure
+          );
+        } catch {}
 
         if (result.type === "SUCCESSFUL_DEPLOYMENT" && verify) {
           console.log("");
