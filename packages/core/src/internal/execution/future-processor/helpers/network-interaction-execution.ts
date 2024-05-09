@@ -158,7 +158,10 @@ export async function sendTransactionForOnchainInteraction(
     }
 
     // this is just for type inference
-    assertIgnitionInvariant(error instanceof Error, "Unexpected error type");
+    assertIgnitionInvariant(
+      error instanceof Error,
+      "Unexpected error type while resolving failed gas estimation"
+    );
 
     // If the user has tried to transfer funds (i.e. m.send(...)) and they have insufficient funds
     if (/insufficient funds for transfer/.test(error.message)) {
