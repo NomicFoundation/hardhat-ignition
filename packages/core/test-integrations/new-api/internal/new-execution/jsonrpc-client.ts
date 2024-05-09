@@ -189,7 +189,7 @@ describe("JSON-RPC client", function () {
           const bnbClient = new EIP1193JsonRpcClient({
             request: async (req) => {
               if (req.method === "eth_chainId") {
-                return "0x38";  // BNB Chain ID
+                return "0x38"; // BNB Chain ID
               }
 
               if (req.method === "eth_getBlockByNumber") {
@@ -210,10 +210,14 @@ describe("JSON-RPC client", function () {
 
           const fees = await bnbClient.getNetworkFees();
 
-          assert.notDeepEqual(fees, {
-            maxFeePerGas: 0n,
-            maxPriorityFeePerGas: 0n,
-          }, "Fees should not be zero due to the specific handling for BNB Chain.");
+          assert.notDeepEqual(
+            fees,
+            {
+              maxFeePerGas: 0n,
+              maxPriorityFeePerGas: 0n,
+            },
+            "Fees should not be zero due to the specific handling for BNB Chain."
+          );
         });
 
         it("Should use the `maxPriorityFeePerGas` from the node if `eth_maxPriorityFeePerGas` is present (and there is no config)", async function () {
