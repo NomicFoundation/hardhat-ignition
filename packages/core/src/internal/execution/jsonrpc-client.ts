@@ -645,7 +645,7 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
       // of blockchains using Besu. We explicitly exclude BNB
       // Smartchain (chainId 56) from this logic as it is EIP-1559
       // compliant but only sets a maxPriorityFeePerGas.
-      if (latestBlock.baseFeePerGas === 0n && chainId !== 56) {
+      if (latestBlock.baseFeePerGas === 0n && chainId !== 56 && chainId !== 97) {
         return {
           maxFeePerGas: 0n,
           maxPriorityFeePerGas: 0n,
