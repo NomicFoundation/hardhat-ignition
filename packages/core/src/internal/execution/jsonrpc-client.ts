@@ -643,8 +643,9 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
     if (latestBlock.baseFeePerGas !== undefined && chainId !== 137) {
       // Support zero gas fee chains, such as a private instances
       // of blockchains using Besu. We explicitly exclude BNB
-      // Smartchain (chainId 56) from this logic as it is EIP-1559
-      // compliant but only sets a maxPriorityFeePerGas.
+      // Smartchain (chainId 56) and its testnet (chainId 97)
+      // from this logic as it is EIP-1559 compliant but
+      // only sets a maxPriorityFeePerGas.
       if (
         latestBlock.baseFeePerGas === 0n &&
         chainId !== 56 &&
