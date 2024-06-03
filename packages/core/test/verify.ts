@@ -1,7 +1,8 @@
 import { assert } from "chai";
 import path from "path";
 
-import { VerifyResult, getVerificationInformation } from "../src";
+import { BuildInfo, VerifyResult, getVerificationInformation } from "../src";
+import { getImportSourceNames } from "../src/verify";
 
 describe("verify", () => {
   it("should not verify an unitialized deployment", async () => {
@@ -200,5 +201,75 @@ describe("verify", () => {
 
       assert.deepEqual(actualSources, expectedSources);
     }
+  });
+
+  describe("getImportSourceNames", () => {
+    const exampleBuildInfo: BuildInfo = {
+      _format: "hh-sol-artifact-1",
+      id: "example",
+      solcVersion: "0.8.19",
+      solcLongVersion: "0.8.19+commit.7dd6d404",
+      input: {
+        language: "Solidity",
+        settings: {
+          optimizer: {},
+          outputSelection: {},
+        },
+        sources: {},
+      },
+      output: {
+        contracts: {},
+        sources: {},
+      },
+    };
+
+    it("should handle circular imports", () => {
+      const buildInfo: BuildInfo = {
+        ...exampleBuildInfo,
+        input: {
+          ...exampleBuildInfo.input,
+          sources: {
+            "contracts/A.sol": {
+              content: 'import "./B.sol";',
+            },
+            "contracts/B.sol": {
+              content: 'import "./A.sol";',
+            },
+          },
+        },
+      };
+
+      const result = getImportSourceNames("contracts/A.sol", buildInfo);
+
+      assert.deepEqual(result, ["contracts/B.sol", "contracts/A.sol"]);
+    });
+
+    it("should handle indirect circular imports", () => {
+      const buildInfo: BuildInfo = {
+        ...exampleBuildInfo,
+        input: {
+          ...exampleBuildInfo.input,
+          sources: {
+            "contracts/A.sol": {
+              content: 'import "./B.sol";',
+            },
+            "contracts/B.sol": {
+              content: 'import "./C.sol";',
+            },
+            "contracts/C.sol": {
+              content: 'import "./A.sol";',
+            },
+          },
+        },
+      };
+
+      const result = getImportSourceNames("contracts/A.sol", buildInfo);
+
+      assert.deepEqual(result, [
+        "contracts/B.sol",
+        "contracts/C.sol",
+        "contracts/A.sol",
+      ]);
+    });
   });
 });
