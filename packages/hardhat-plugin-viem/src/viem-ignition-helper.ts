@@ -1,4 +1,5 @@
 import type { GetContractReturnType } from "@nomicfoundation/hardhat-viem/types";
+import type { Chain } from "viem";
 
 import {
   HardhatArtifactResolver,
@@ -71,6 +72,7 @@ export class ViemIgnitionHelper {
       strategy,
       strategyConfig,
       deploymentId: givenDeploymentId = undefined,
+      chain,
     }: {
       parameters?: DeploymentParameters;
       config?: Partial<DeployConfig>;
@@ -78,6 +80,7 @@ export class ViemIgnitionHelper {
       strategy?: StrategyT;
       strategyConfig?: StrategyConfig[StrategyT];
       deploymentId?: string;
+      chain?: Chain;
     } = {
       parameters: {},
       config: {},
@@ -85,6 +88,7 @@ export class ViemIgnitionHelper {
       strategy: undefined,
       strategyConfig: undefined,
       deploymentId: undefined,
+      chain: undefined,
     }
   ): Promise<
     IgnitionModuleResultsToViemContracts<ContractNameT, IgnitionModuleResultsT>
@@ -152,7 +156,8 @@ export class ViemIgnitionHelper {
     return ViemIgnitionHelper._toViemContracts(
       this._hre,
       ignitionModule,
-      result
+      result,
+      chain
     );
   }
 
@@ -167,7 +172,8 @@ export class ViemIgnitionHelper {
       ContractNameT,
       IgnitionModuleResultsT
     >,
-    result: SuccessfulDeploymentResult
+    result: SuccessfulDeploymentResult,
+    chain?: Chain
   ): Promise<
     IgnitionModuleResultsToViemContracts<ContractNameT, IgnitionModuleResultsT>
   > {
@@ -179,7 +185,8 @@ export class ViemIgnitionHelper {
             await ViemIgnitionHelper._getContract(
               hre,
               contractFuture,
-              result.contracts[contractFuture.id]
+              result.contracts[contractFuture.id],
+              chain
             ),
           ]
         )
@@ -190,7 +197,8 @@ export class ViemIgnitionHelper {
   private static async _getContract(
     hre: HardhatRuntimeEnvironment,
     future: Future,
-    deployedContract: { address: string }
+    deployedContract: { address: string },
+    chain?: Chain
   ): Promise<GetContractReturnType> {
     if (!isContractFuture(future)) {
       throw new HardhatPluginError(
@@ -202,14 +210,16 @@ export class ViemIgnitionHelper {
     return ViemIgnitionHelper._convertContractFutureToViemContract(
       hre,
       future,
-      deployedContract
+      deployedContract,
+      chain
     );
   }
 
   private static async _convertContractFutureToViemContract(
     hre: HardhatRuntimeEnvironment,
     future: ContractFuture<string>,
-    deployedContract: { address: string }
+    deployedContract: { address: string },
+    chain?: Chain
   ) {
     switch (future.type) {
       case FutureType.NAMED_ARTIFACT_CONTRACT_DEPLOYMENT:
@@ -218,7 +228,8 @@ export class ViemIgnitionHelper {
         return ViemIgnitionHelper._convertHardhatContractToViemContract(
           hre,
           future,
-          deployedContract
+          deployedContract,
+          chain
         );
       case FutureType.CONTRACT_DEPLOYMENT:
       case FutureType.LIBRARY_DEPLOYMENT:
@@ -226,22 +237,35 @@ export class ViemIgnitionHelper {
         return ViemIgnitionHelper._convertArtifactToViemContract(
           hre,
           future,
-          deployedContract
+          deployedContract,
+          chain
         );
     }
   }
 
-  private static _convertHardhatContractToViemContract(
+  private static async _convertHardhatContractToViemContract(
     hre: HardhatRuntimeEnvironment,
     future:
       | NamedArtifactContractDeploymentFuture<string>
       | NamedArtifactLibraryDeploymentFuture<string>
       | NamedArtifactContractAtFuture<string>,
-    deployedContract: { address: string }
+    deployedContract: { address: string },
+    chain?: Chain
   ): Promise<GetContractReturnType> {
+    const publicClient = await hre.viem.getPublicClient({ chain });
+    const [walletClient] = await hre.viem.getWalletClients({ chain });
+
+    if (walletClient === undefined) {
+      throw new HardhatPluginError(
+        "hardhat-ignition-viem",
+        "No default wallet client found"
+      );
+    }
+
     return hre.viem.getContractAt(
       future.contractName,
-      ViemIgnitionHelper._ensureAddressFormat(deployedContract.address)
+      this._ensureAddressFormat(deployedContract.address),
+      { client: { public: publicClient, wallet: walletClient } }
     );
   }
 
@@ -251,10 +275,11 @@ export class ViemIgnitionHelper {
       | ContractDeploymentFuture
       | LibraryDeploymentFuture
       | ContractAtFuture,
-    deployedContract: { address: string }
+    deployedContract: { address: string },
+    chain?: Chain
   ): Promise<GetContractReturnType> {
-    const publicClient = await hre.viem.getPublicClient();
-    const [walletClient] = await hre.viem.getWalletClients();
+    const publicClient = await hre.viem.getPublicClient({ chain });
+    const [walletClient] = await hre.viem.getWalletClients({ chain });
 
     if (walletClient === undefined) {
       throw new HardhatPluginError(
