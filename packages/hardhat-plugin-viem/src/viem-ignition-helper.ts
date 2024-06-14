@@ -253,10 +253,10 @@ export class ViemIgnitionHelper {
     chain?: Chain
   ): Promise<GetContractReturnType> {
     const publicClient = await hre.viem.getPublicClient(
-      chain ? { chain } : undefined
+      typeof chain !== "undefined" ? { chain } : undefined
     );
     const [walletClient] = await hre.viem.getWalletClients(
-      chain ? { chain } : undefined
+      typeof chain !== "undefined" ? { chain } : undefined
     );
 
     if (walletClient === undefined) {
@@ -283,10 +283,10 @@ export class ViemIgnitionHelper {
     chain?: Chain
   ): Promise<GetContractReturnType> {
     const publicClient = await hre.viem.getPublicClient(
-      chain ? { chain } : undefined
+      typeof chain !== "undefined" ? { chain } : undefined
     );
     const [walletClient] = await hre.viem.getWalletClients(
-      chain ? { chain } : undefined
+      typeof chain !== "undefined" ? { chain } : undefined
     );
 
     if (walletClient === undefined) {
