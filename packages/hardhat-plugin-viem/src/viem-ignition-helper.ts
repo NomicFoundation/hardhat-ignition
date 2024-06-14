@@ -252,8 +252,12 @@ export class ViemIgnitionHelper {
     deployedContract: { address: string },
     chain?: Chain
   ): Promise<GetContractReturnType> {
-    const publicClient = await hre.viem.getPublicClient({ chain });
-    const [walletClient] = await hre.viem.getWalletClients({ chain });
+    const publicClient = await hre.viem.getPublicClient(
+      chain ? { chain } : undefined
+    );
+    const [walletClient] = await hre.viem.getWalletClients(
+      chain ? { chain } : undefined
+    );
 
     if (walletClient === undefined) {
       throw new HardhatPluginError(
@@ -278,8 +282,12 @@ export class ViemIgnitionHelper {
     deployedContract: { address: string },
     chain?: Chain
   ): Promise<GetContractReturnType> {
-    const publicClient = await hre.viem.getPublicClient({ chain });
-    const [walletClient] = await hre.viem.getWalletClients({ chain });
+    const publicClient = await hre.viem.getPublicClient(
+      chain ? { chain } : undefined
+    );
+    const [walletClient] = await hre.viem.getWalletClients(
+      chain ? { chain } : undefined
+    );
 
     if (walletClient === undefined) {
       throw new HardhatPluginError(
