@@ -36,7 +36,10 @@ export interface VerifyInfo {
   sourceCode: string;
   name: string;
   args: string;
+  metadata?: any;
 }
+
+export type VerifyStatus = { type: "success"; contractURL: string };
 
 /**
  * The result of requesting the verification info for a deployment.

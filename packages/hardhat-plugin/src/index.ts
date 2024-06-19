@@ -1,5 +1,4 @@
 import "@nomicfoundation/hardhat-verify";
-import { Etherscan } from "@nomicfoundation/hardhat-verify/etherscan";
 import {
   DeploymentParameters,
   IgnitionError,
@@ -20,10 +19,10 @@ import path from "path";
 import "./type-extensions";
 import { calculateDeploymentStatusDisplay } from "./ui/helpers/calculate-deployment-status-display";
 import { bigintReviver } from "./utils/bigintReviver";
-import { getApiKeyAndUrls } from "./utils/getApiKeyAndUrls";
 import { resolveDeploymentId } from "./utils/resolve-deployment-id";
 import { shouldBeHardhatPluginError } from "./utils/shouldBeHardhatPluginError";
-import { verifyEtherscanContract } from "./utils/verifyEtherscanContract";
+import { verifyContract } from "./utils/verifyContract";
+import chalk from "chalk";
 
 /* ignition config defaults */
 const IGNITION_DIR = "ignition";
@@ -92,6 +91,8 @@ ignitionScope
   .addOptionalParam("strategy", "Set the deployment strategy to use", "basic")
   .addFlag("reset", "Wipes the existing deployment state before deploying")
   .addFlag("verify", "Verify the deployment on Etherscan")
+  .addFlag("sourcify", "Verify the deployment on Sourcify")
+  .addFlag("etherscan", "Verify the deployment on Etherscan")
   .setDescription("Deploy a module to the specified network")
   .setAction(
     async (
@@ -103,6 +104,8 @@ ignitionScope
         reset,
         verify,
         strategy: strategyName,
+        sourcify,
+        etherscan,
       }: {
         modulePath: string;
         parameters?: string;
@@ -111,6 +114,8 @@ ignitionScope
         reset: boolean;
         verify: boolean;
         strategy: string;
+        sourcify: boolean;
+        etherscan: boolean;
       },
       hre
     ) => {
@@ -124,18 +129,12 @@ ignitionScope
       const { loadModule } = await import("./utils/load-module");
       const { PrettyEventHandler } = await import("./ui/pretty-event-handler");
 
+      // Backward compatible --verfify defaults to both etherscan & sourcify
       if (verify) {
-        if (
-          hre.config.etherscan === undefined ||
-          hre.config.etherscan.apiKey === undefined ||
-          hre.config.etherscan.apiKey === ""
-        ) {
-          throw new NomicLabsHardhatPluginError(
-            "@nomicfoundation/hardhat-ignition",
-            "No etherscan API key configured"
-          );
-        }
+        etherscan = true;
+        sourcify = true;
       }
+      verify = etherscan || sourcify;
 
       const chainId = Number(
         await hre.network.provider.request({
@@ -347,13 +346,9 @@ ignitionScope
         } catch {}
 
         if (result.type === "SUCCESSFUL_DEPLOYMENT" && verify) {
-          console.log("");
-          console.log(chalk.bold("Verifying deployed contracts"));
-          console.log("");
-
           await hre.run(
             { scope: "ignition", task: "verify" },
-            { deploymentId }
+            { deploymentId, sourcify, etherscan }
           );
         }
 
@@ -549,6 +544,13 @@ ignitionScope
     "includeUnrelatedContracts",
     "Include all compiled contracts in the verification"
   )
+  .addOptionalParam(
+    "service",
+    "Service to use: etherscan, sourcify",
+    "etherscan"
+  )
+  .addFlag("sourcify", "Use the Sourcify contract verification service")
+  .addFlag("etherscan", "Use the Etherscan contract verification service")
   .addPositionalParam("deploymentId", "The id of the deployment to verify")
   .setDescription(
     "Verify contracts from a deployment against the configured block explorers"
@@ -558,9 +560,23 @@ ignitionScope
       {
         deploymentId,
         includeUnrelatedContracts = false,
-      }: { deploymentId: string; includeUnrelatedContracts: boolean },
+        sourcify,
+        etherscan,
+      }: {
+        deploymentId: string;
+        includeUnrelatedContracts: boolean;
+        sourcify: boolean;
+        etherscan: boolean;
+      },
       hre
     ) => {
+      if (!etherscan && !sourcify) {
+        throw new NomicLabsHardhatPluginError(
+          "hardhat-ignition",
+          `No verification service selected. Supported services are: etherscan, sourcify`
+        );
+      }
+
       const { getVerificationInformation } = await import(
         "@nomicfoundation/ignition-core"
       );
@@ -571,16 +587,9 @@ ignitionScope
         deploymentId
       );
 
-      if (
-        hre.config.etherscan === undefined ||
-        hre.config.etherscan.apiKey === undefined ||
-        hre.config.etherscan.apiKey === ""
-      ) {
-        throw new NomicLabsHardhatPluginError(
-          "@nomicfoundation/hardhat-ignition",
-          "No etherscan API key configured"
-        );
-      }
+      console.log("");
+      console.log(chalk.bold("Verifying deployed contracts..."));
+      console.log("");
 
       try {
         for await (const [
@@ -591,45 +600,21 @@ ignitionScope
           hre.config.etherscan.customChains,
           includeUnrelatedContracts
         )) {
-          const apiKeyAndUrls = getApiKeyAndUrls(
-            hre.config.etherscan.apiKey,
-            chainConfig
+          const result = await verifyContract(
+            hre,
+            chainConfig,
+            { sourcify, etherscan },
+            contractInfo
           );
 
-          const instance = new Etherscan(...apiKeyAndUrls);
-
-          console.log(
-            `Verifying contract "${contractInfo.name}" for network ${chainConfig.network}...`
-          );
-
-          const result = await verifyEtherscanContract(instance, contractInfo);
-
-          if (result.type === "success") {
-            console.log(
-              `Successfully verified contract "${contractInfo.name}" for network ${chainConfig.network}:\n  - ${result.contractURL}`
-            );
+          if (result.etherscan !== undefined) {
+            console.log(` ${result.etherscan.contractURL}`);
             console.log("");
-          } else {
-            if (/already verified/gi.test(result.reason.message)) {
-              const contractURL = instance.getContractUrl(contractInfo.address);
-              console.log(
-                `Contract ${contractInfo.name} already verified on network ${chainConfig.network}:\n  - ${contractURL}`
-              );
-              console.log("");
-              continue;
-            } else {
-              if (!includeUnrelatedContracts) {
-                throw new NomicLabsHardhatPluginError(
-                  "hardhat-ignition",
-                  `Verification failed. Please run \`hardhat ignition verify ${deploymentId} --include-unrelated-contracts\` to attempt verifying all contracts.`
-                );
-              } else {
-                throw new NomicLabsHardhatPluginError(
-                  "hardhat-ignition",
-                  result.reason.message
-                );
-              }
-            }
+          }
+
+          if (result.sourcify !== undefined) {
+            console.log(` ${result.sourcify.contractURL}`);
+            console.log("");
           }
         }
       } catch (e) {

@@ -163,6 +163,7 @@ async function convertExStateToVerifyInfo(
     sourceCode: JSON.stringify(sourceCode),
     name: `${artifact.sourceName}:${contractName}`,
     args: encodeDeploymentArguments(artifact, constructorArgs),
+    metadata: buildInfo
   };
 
   return verifyInfo;
