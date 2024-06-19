@@ -21,8 +21,10 @@ import { calculateDeploymentStatusDisplay } from "./ui/helpers/calculate-deploym
 import { bigintReviver } from "./utils/bigintReviver";
 import { resolveDeploymentId } from "./utils/resolve-deployment-id";
 import { shouldBeHardhatPluginError } from "./utils/shouldBeHardhatPluginError";
-import { verifyContract } from "./utils/verifyContract";
-import chalk from "chalk";
+import {
+  verifyContract,
+  checkVerifierHardhatConfig,
+} from "./utils/verifyContract";
 
 /* ignition config defaults */
 const IGNITION_DIR = "ignition";
@@ -119,7 +121,6 @@ ignitionScope
       },
       hre
     ) => {
-      const { default: chalk } = await import("chalk");
       const { default: Prompt } = await import("prompts");
       const { deploy } = await import("@nomicfoundation/ignition-core");
 
@@ -135,6 +136,8 @@ ignitionScope
         sourcify = true;
       }
       verify = etherscan || sourcify;
+
+      checkVerifierHardhatConfig(hre, { sourcify, etherscan });
 
       const chainId = Number(
         await hre.network.provider.request({
@@ -580,6 +583,9 @@ ignitionScope
       const { getVerificationInformation } = await import(
         "@nomicfoundation/ignition-core"
       );
+      const { default: chalk } = await import("chalk");
+
+      checkVerifierHardhatConfig(hre, { sourcify, etherscan });
 
       const deploymentDir = path.join(
         hre.config.paths.ignition,

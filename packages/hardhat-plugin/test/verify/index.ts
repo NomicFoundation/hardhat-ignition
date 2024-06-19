@@ -13,6 +13,7 @@ describe("verify", function () {
           { scope: "ignition", task: "verify" },
           {
             deploymentId: "test",
+            etherscan: true,
           }
         ),
         /No etherscan API key configured/
@@ -25,7 +26,7 @@ describe("verify", function () {
           { scope: "ignition", task: "deploy" },
           {
             modulePath: "any",
-            verify: true,
+            etherscan: true,
           }
         ),
         /No etherscan API key configured/

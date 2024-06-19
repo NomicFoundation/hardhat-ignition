@@ -11,12 +11,17 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { getEtherscanApiKeyAndUrls } from "./getEtherscanApiKeyAndUrls";
 
-export const DEFAULT_SOURCIFY_API_URL = "https://sourcify.dev/server";
-export const DEFAULT_SOURCIFY_BROWSER_URL = "https://repo.sourcify.dev";
+const DEFAULT_SOURCIFY_API_URL = "https://sourcify.dev/server";
+const DEFAULT_SOURCIFY_BROWSER_URL = "https://repo.sourcify.dev";
 
 export class VerificationError extends Error {}
 
-export function verifySourcifyHardhatConfig(hre: HardhatRuntimeEnvironment) {
+interface Verifiers {
+  sourcify: boolean;
+  etherscan: boolean;
+}
+
+function verifySourcifyHardhatConfig(hre: HardhatRuntimeEnvironment) {
   if (
     hre.config.sourcify !== undefined &&
     (hre.config.sourcify.apiUrl === "" || hre.config.sourcify.browserUrl === "")
@@ -28,7 +33,7 @@ export function verifySourcifyHardhatConfig(hre: HardhatRuntimeEnvironment) {
   }
 }
 
-export async function verifySourcifyContract(
+async function verifySourcifyContract(
   instance: Sourcify,
   info: VerifyInfo
 ): Promise<VerifyStatus> {
@@ -52,7 +57,7 @@ export async function verifySourcifyContract(
   }
 }
 
-export function verifyEtherscanHardhatConfig(hre: HardhatRuntimeEnvironment) {
+function verifyEtherscanHardhatConfig(hre: HardhatRuntimeEnvironment) {
   if (
     hre.config.etherscan === undefined ||
     hre.config.etherscan.apiKey === undefined ||
@@ -63,6 +68,14 @@ export function verifyEtherscanHardhatConfig(hre: HardhatRuntimeEnvironment) {
       "No etherscan API key configured"
     );
   }
+}
+
+export function checkVerifierHardhatConfig(
+  hre: HardhatRuntimeEnvironment,
+  verifiers: Verifiers
+) {
+  if (verifiers.etherscan) verifyEtherscanHardhatConfig(hre);
+  if (verifiers.sourcify) verifySourcifyHardhatConfig(hre);
 }
 
 export async function verifyEtherscanContract(
@@ -88,6 +101,7 @@ export async function verifyEtherscanContract(
       throw new VerificationError(verificationStatus.message);
     }
   } catch (e) {
+    // Let this pass through as equivalent to a successful verification
     if (e instanceof Error && /already verified/gi.test(e.message)) {
       return { type: "success", contractURL };
     } else {
@@ -123,10 +137,7 @@ function etherscanInstance(
 export async function verifyContract(
   hre: HardhatRuntimeEnvironment,
   chainConfig: ChainConfig,
-  verifiers: {
-    sourcify: boolean;
-    etherscan: boolean;
-  },
+  verifiers: Verifiers,
   info: VerifyInfo
 ) {
   return {

@@ -45,6 +45,9 @@ describe("verifyEtherscanContract", function () {
       message,
     });
 
-    assert.isRejected(verifyEtherscanContract(etherscanInstance as Etherscan, contractInfo));
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    assert.isRejected(
+      verifyEtherscanContract(etherscanInstance as Etherscan, contractInfo)
+    );
   });
 });
