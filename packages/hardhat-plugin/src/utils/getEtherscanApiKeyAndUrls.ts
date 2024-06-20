@@ -2,7 +2,7 @@ import type { ChainConfig } from "@nomicfoundation/hardhat-verify/types";
 
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
-export function getApiKeyAndUrls(
+export function getEtherscanApiKeyAndUrls(
   etherscanApiKey: string | Record<string, string>,
   chainConfig: ChainConfig
 ): [apiKey: string, apiUrl: string, webUrl: string] {

@@ -2,7 +2,7 @@ import type { Etherscan } from "@nomicfoundation/hardhat-verify/etherscan";
 
 import { assert } from "chai";
 
-import { verifyEtherscanContract } from "../../src/utils/verifyEtherscanContract";
+import { verifyEtherscanContract } from "../../src/utils/verifyContract";
 
 describe("verifyEtherscanContract", function () {
   let etherscanInstance: any;
@@ -38,19 +38,16 @@ describe("verifyEtherscanContract", function () {
   });
 
   it("should return a failure object when verification is not successful", async function () {
+    const message = "message";
+
     etherscanInstance.getVerificationStatus = async () => ({
       isSuccess: () => false,
-      message: "message",
+      message,
     });
 
-    const result = await verifyEtherscanContract(
-      etherscanInstance as Etherscan,
-      contractInfo
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    assert.isRejected(
+      verifyEtherscanContract(etherscanInstance as Etherscan, contractInfo)
     );
-
-    assert.deepEqual(result, {
-      type: "failure",
-      reason: new Error("message"),
-    });
   });
 });

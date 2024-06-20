@@ -1,10 +1,10 @@
 import { assert } from "chai";
 
-import { getApiKeyAndUrls } from "../../src/utils/getApiKeyAndUrls";
+import { getEtherscanApiKeyAndUrls } from "../../src/utils/getEtherscanApiKeyAndUrls";
 
 describe("getApiKeyAndUrls", function () {
   it("should return the correct API URLs when given a string", function () {
-    const apiKeyList = getApiKeyAndUrls("testApiKey", {
+    const apiKeyList = getEtherscanApiKeyAndUrls("testApiKey", {
       network: "mainnet",
       chainId: 1,
       urls: {
@@ -21,7 +21,7 @@ describe("getApiKeyAndUrls", function () {
   });
 
   it("should return the correct API URLs when given an apiKey object", function () {
-    const apiKeyList = getApiKeyAndUrls(
+    const apiKeyList = getEtherscanApiKeyAndUrls(
       {
         goerli: "goerliApiKey",
         sepolia: "sepoliaApiKey",
@@ -44,7 +44,7 @@ describe("getApiKeyAndUrls", function () {
   });
 
   it("should return the correct API URLs when given a string and the network is not mainnet", function () {
-    const apiKeyList = getApiKeyAndUrls("goerliApiKey", {
+    const apiKeyList = getEtherscanApiKeyAndUrls("goerliApiKey", {
       network: "goerli",
       chainId: 5,
       urls: {
@@ -63,7 +63,7 @@ describe("getApiKeyAndUrls", function () {
   it("should throw when given an object and a nonexistent network name", function () {
     assert.throws(
       () =>
-        getApiKeyAndUrls(
+        getEtherscanApiKeyAndUrls(
           {
             goerli: "goerliApiKey",
             sepolia: "sepoliaApiKey",
