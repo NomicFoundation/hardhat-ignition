@@ -24,10 +24,8 @@ describe("future processor", () => {
           exampleAddress
         );
 
-      const { processor, storedDeployedAddresses } = await setupFutureProcessor(
-        (() => {}) as any,
-        {}
-      );
+      const { processor, storedDeployedAddresses, storedDeploymentStamps } =
+        await setupFutureProcessor((() => {}) as any, {});
 
       // Act
       await processor.processFuture(deploymentFuture, initialDeploymentState);
@@ -37,6 +35,7 @@ describe("future processor", () => {
         storedDeployedAddresses["MyModule:TestContract"],
         exampleAddress
       );
+      assert.deepEqual(storedDeploymentStamps, {});
     });
   });
 });

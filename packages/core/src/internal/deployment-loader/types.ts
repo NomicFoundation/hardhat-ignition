@@ -1,3 +1,5 @@
+import type { DeploymentStamp } from "../journal/types/deployment-stamp";
+
 import { Artifact, BuildInfo } from "../../types/artifact";
 import { JournalMessage } from "../execution/types/messages";
 
@@ -22,6 +24,7 @@ export interface DeploymentLoader {
   storeBuildInfo(futureId: string, buildInfo: BuildInfo): Promise<void>;
   recordDeployedAddress(
     futureId: string,
-    contractAddress: string
+    contractAddress: string,
+    deploymentStamp?: DeploymentStamp
   ): Promise<void>;
 }

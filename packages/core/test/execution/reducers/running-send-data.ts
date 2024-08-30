@@ -29,6 +29,8 @@ describe("DeploymentStateReducer", () => {
   describe("running a named library deploy", () => {
     const senderAddress = "0x0011223344556677889900112233445566778899";
     const exampleAddress = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
+    const successfulTxHash =
+      "0x0011223344556677889900112233445566778899001122334455667788990000";
     const revertedTxHash =
       "0x0011223344556677889900112233445566778899001122334455667788990011";
 
@@ -99,6 +101,7 @@ describe("DeploymentStateReducer", () => {
         contractAddress: exampleAddress,
         status: TransactionReceiptStatus.SUCCESS,
         logs: [],
+        transactionHash: successfulTxHash,
       },
     };
 
@@ -113,6 +116,7 @@ describe("DeploymentStateReducer", () => {
         contractAddress: undefined,
         status: TransactionReceiptStatus.FAILURE,
         logs: [],
+        transactionHash: revertedTxHash,
       },
     };
 

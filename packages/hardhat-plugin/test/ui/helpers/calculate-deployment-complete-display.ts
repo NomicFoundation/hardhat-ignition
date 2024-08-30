@@ -9,6 +9,7 @@ import {
 } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 import chalk from "chalk";
+import { zeroHash } from "viem";
 
 import { calculateDeploymentCompleteDisplay } from "../../../src/ui/helpers/calculate-deployment-complete-display";
 import { UiBatches, UiFutureStatusType } from "../../../src/ui/types";
@@ -52,11 +53,15 @@ describe("ui - calculate deployment complete display", () => {
               id: "MyModule#Token",
               address: exampleAddress,
               contractName: "Token",
+              transactionHash: zeroHash,
+              blockNumber: 0,
             },
             "MyModule#AnotherToken": {
               id: "MyModule#AnotherToken",
               address: differentAddress,
               contractName: "AnotherToken",
+              transactionHash: zeroHash,
+              blockNumber: 0,
             },
           },
         },

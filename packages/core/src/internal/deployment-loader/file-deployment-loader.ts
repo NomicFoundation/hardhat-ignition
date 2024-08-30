@@ -1,3 +1,5 @@
+import type { DeploymentStamp } from "../journal/types/deployment-stamp";
+
 import { ensureDir, pathExists, readFile, writeFile } from "fs-extra";
 import path from "path";
 
@@ -9,6 +11,27 @@ import { Journal } from "../journal/types";
 
 import { DeploymentLoader } from "./types";
 
+const updateJsonFile = async <T>(
+  pathToFile: string,
+  updater: (j: Record<string, T>) => Record<string, T>
+) => {
+  let fileContents: { [key: string]: T };
+  if (await pathExists(pathToFile)) {
+    const json = (await readFile(pathToFile)).toString();
+
+    fileContents = JSON.parse(json);
+  } else {
+    fileContents = {};
+  }
+
+  fileContents = updater(fileContents);
+
+  await writeFile(
+    pathToFile,
+    `${JSON.stringify(fileContents, undefined, 2)}\n`
+  );
+};
+
 export class FileDeploymentLoader implements DeploymentLoader {
   private _journal: Journal;
   private _deploymentDirsEnsured: boolean;
@@ -19,6 +42,7 @@ export class FileDeploymentLoader implements DeploymentLoader {
     buildInfoDir: string;
     journalPath: string;
     deployedAddressesPath: string;
+    deployedDeploymentStampPath: string;
   };
 
   constructor(
@@ -32,6 +56,10 @@ export class FileDeploymentLoader implements DeploymentLoader {
       this._deploymentDirPath,
       "deployed_addresses.json"
     );
+    const deployedDeploymentStampPath = path.join(
+      this._deploymentDirPath,
+      "deployment_stamps.json"
+    );
 
     this._journal = new FileJournal(journalPath, this._executionEventListener);
 
@@ -41,6 +69,7 @@ export class FileDeploymentLoader implements DeploymentLoader {
       buildInfoDir,
       journalPath,
       deployedAddressesPath,
+      deployedDeploymentStampPath,
     };
 
     this._deploymentDirsEnsured = false;
@@ -151,27 +180,27 @@ export class FileDeploymentLoader implements DeploymentLoader {
 
   public async recordDeployedAddress(
     futureId: string,
-    contractAddress: string
+    address: string,
+    deploymentStamp?: DeploymentStamp
   ): Promise<void> {
     await this._initialize();
 
-    let deployedAddresses: { [key: string]: string };
-    if (await pathExists(this._paths.deployedAddressesPath)) {
-      const json = (
-        await readFile(this._paths.deployedAddressesPath)
-      ).toString();
-
-      deployedAddresses = JSON.parse(json);
-    } else {
-      deployedAddresses = {};
-    }
-
-    deployedAddresses[futureId] = contractAddress;
-
-    await writeFile(
+    await updateJsonFile<string>(
       this._paths.deployedAddressesPath,
-      `${JSON.stringify(deployedAddresses, undefined, 2)}\n`
+      (contents) => ({
+        ...contents,
+        [futureId]: address,
+      })
     );
+    if (deploymentStamp !== undefined) {
+      await updateJsonFile<DeploymentStamp>(
+        this._paths.deployedDeploymentStampPath,
+        (contents) => ({
+          ...contents,
+          [futureId]: { ...deploymentStamp },
+        })
+      );
+    }
   }
 
   private async _initialize(): Promise<void> {

@@ -14,6 +14,7 @@ import {
 } from "../../src/internal/execution/types/execution-state";
 import { JournalMessage } from "../../src/internal/execution/types/messages";
 import { getDefaultSender } from "../../src/internal/execution/utils/get-default-sender";
+import { DeploymentStamp } from "../../src/internal/journal/types/deployment-stamp";
 import { Reconciler } from "../../src/internal/reconciliation/reconciler";
 import { ReconciliationResult } from "../../src/internal/reconciliation/types";
 import { IgnitionModule } from "../../src/types/module";
@@ -69,7 +70,8 @@ class MockDeploymentLoader implements DeploymentLoader {
 
   public recordDeployedAddress(
     _futureId: string,
-    _contractAddress: string
+    _address: string,
+    _deploymentStamp: DeploymentStamp
   ): Promise<void> {
     throw new Error("Method not implemented.");
   }

@@ -1,3 +1,5 @@
+import type { DeploymentStamp } from "../journal/types/deployment-stamp";
+
 import { Artifact, ArtifactResolver, BuildInfo } from "../../types/artifact";
 import { ExecutionEventListener } from "../../types/execution-events";
 import { JournalMessage } from "../execution/types/messages";
@@ -16,6 +18,10 @@ export class EphemeralDeploymentLoader implements DeploymentLoader {
   private _journal: Journal;
 
   private _deployedAddresses: { [key: string]: string };
+
+  private _deploymentStamps: {
+    [key: string]: DeploymentStamp;
+  };
   private _savedArtifacts: {
     [key: string]:
       | { _kind: "artifact"; artifact: Artifact }
@@ -28,6 +34,7 @@ export class EphemeralDeploymentLoader implements DeploymentLoader {
   ) {
     this._journal = new MemoryJournal(this._executionEventListener);
     this._deployedAddresses = {};
+    this._deploymentStamps = {};
     this._savedArtifacts = {};
   }
 
@@ -41,9 +48,13 @@ export class EphemeralDeploymentLoader implements DeploymentLoader {
 
   public async recordDeployedAddress(
     futureId: string,
-    contractAddress: string
+    address: string,
+    deploymentStamp?: DeploymentStamp
   ): Promise<void> {
-    this._deployedAddresses[futureId] = contractAddress;
+    this._deployedAddresses[futureId] = address;
+    if (deploymentStamp !== undefined) {
+      this._deploymentStamps[futureId] = { ...deploymentStamp };
+    }
   }
 
   public async storeBuildInfo(

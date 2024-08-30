@@ -1,4 +1,5 @@
 import { SolidityParameterType } from "../../../types/module";
+import { DeploymentStamp } from "../../journal/types/deployment-stamp";
 
 import { FailedEvmExecutionResult } from "./evm-execution";
 
@@ -76,6 +77,7 @@ export interface StrategyHeldExecutionResult {
 export interface SuccessfulDeploymentExecutionResult {
   type: ExecutionResultType.SUCCESS;
   address: string;
+  deploymentStamp?: DeploymentStamp;
 }
 
 /**

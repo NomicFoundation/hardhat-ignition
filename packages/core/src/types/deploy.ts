@@ -181,6 +181,8 @@ export interface DeployedContract {
   id: string;
   contractName: string;
   address: string;
+  transactionHash: string;
+  blockNumber: number;
 }
 
 /**

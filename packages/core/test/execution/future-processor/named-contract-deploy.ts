@@ -38,20 +38,22 @@ describe("future processor", () => {
           exampleAccounts[0]
         );
 
-      const { processor, storedDeployedAddresses } = await setupFutureProcessor(
-        async (_transactionParams: TransactionParams) => {
-          return exampleTxHash;
-        },
-        {
-          [exampleTxHash]: {
-            blockHash: `0xblockhash-5`,
-            blockNumber: 1,
-            contractAddress: exampleAddress,
-            status: TransactionReceiptStatus.SUCCESS,
-            logs: [],
+      const { processor, storedDeployedAddresses, storedDeploymentStamps } =
+        await setupFutureProcessor(
+          async (_transactionParams: TransactionParams) => {
+            return exampleTxHash;
           },
-        }
-      );
+          {
+            [exampleTxHash]: {
+              blockHash: `0xblockhash-5`,
+              blockNumber: 1,
+              contractAddress: exampleAddress,
+              status: TransactionReceiptStatus.SUCCESS,
+              logs: [],
+              transactionHash: exampleTxHash,
+            },
+          }
+        );
 
       // Act
       const result = await processor.processFuture(
@@ -64,6 +66,13 @@ describe("future processor", () => {
         storedDeployedAddresses["MyModule:TestContract"],
         exampleAddress
       );
+      assert.deepEqual(storedDeploymentStamps, {
+        ["MyModule:TestContract"]: {
+          address: exampleAddress,
+          blockNumber: 1,
+          transactionHash: exampleTxHash,
+        },
+      });
 
       const updatedExState =
         result.newState.executionStates["MyModule:TestContract"];

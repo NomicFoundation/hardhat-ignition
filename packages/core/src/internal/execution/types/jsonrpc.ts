@@ -46,6 +46,7 @@ export interface TransactionReceipt {
   contractAddress?: string;
   status: TransactionReceiptStatus;
   logs: TransactionLog[];
+  transactionHash: string;
 }
 
 /**
