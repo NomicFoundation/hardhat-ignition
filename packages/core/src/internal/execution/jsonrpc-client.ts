@@ -566,10 +566,10 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
   ): Promise<TransactionReceipt | undefined> {
     const method = "eth_getTransactionReceipt";
 
-    const response = await this._provider.request({
+    const response = (await this._provider.request({
       method,
       params: [txHash],
-    });
+    })) as TransactionReceipt | null;
 
     if (response === null) {
       return undefined;
@@ -622,6 +622,7 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
           : toChecksumFormat(contractAddress),
       status,
       logs: formatReceiptLogs(method, response),
+      transactionHash: response.transactionHash,
     };
   }
 

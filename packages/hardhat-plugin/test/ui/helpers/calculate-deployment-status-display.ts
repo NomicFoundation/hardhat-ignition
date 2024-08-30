@@ -1,6 +1,7 @@
 import { StatusResult } from "@nomicfoundation/ignition-core";
 import { assert } from "chai";
 import chalk from "chalk";
+import { zeroHash } from "viem";
 
 import { calculateDeploymentStatusDisplay } from "../../../src/ui/helpers/calculate-deployment-status-display";
 
@@ -9,6 +10,12 @@ import { testFormat } from "./test-format";
 describe("ui - calculate deployment status display", () => {
   const exampleAddress = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
   const differentAddress = "0x0011223344556677889900112233445566778899";
+
+  const baselineContract = {
+    abi: [],
+    transactionHash: zeroHash,
+    blockNumber: 0,
+  };
 
   const exampleStatusResult = {
     chainId: 1,
@@ -39,14 +46,14 @@ describe("ui - calculate deployment status display", () => {
             address: exampleAddress,
             contractName: "Token",
             sourceName: "contracts/Token.sol",
-            abi: [],
+            ...baselineContract,
           },
           "MyModule#AnotherToken": {
             id: "MyModule#AnotherToken",
             address: differentAddress,
             contractName: "AnotherToken",
             sourceName: "contracts/AnotherToken.sol",
-            abi: [],
+            ...baselineContract,
           },
         },
       };
@@ -137,14 +144,14 @@ describe("ui - calculate deployment status display", () => {
             address: exampleAddress,
             contractName: "Token",
             sourceName: "contracts/Token.sol",
-            abi: [],
+            ...baselineContract,
           },
           "MyModule#AnotherToken": {
             id: "MyModule#AnotherToken",
             address: differentAddress,
             contractName: "AnotherToken",
             sourceName: "contracts/AnotherToken.sol",
-            abi: [],
+            ...baselineContract,
           },
         },
       };

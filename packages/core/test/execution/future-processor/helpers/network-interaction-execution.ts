@@ -762,7 +762,7 @@ class MockGetTransactionJsonRpcClient extends StubJsonRpcClient {
   }
 
   public async getTransactionReceipt(
-    _txHash: string
+    transactionHash: string
   ): Promise<TransactionReceipt | undefined> {
     return {
       blockHash: "0xblockhash",
@@ -770,6 +770,7 @@ class MockGetTransactionJsonRpcClient extends StubJsonRpcClient {
       contractAddress: "0xcontractaddress",
       logs: [],
       status: TransactionReceiptStatus.SUCCESS,
+      transactionHash,
     };
   }
 }

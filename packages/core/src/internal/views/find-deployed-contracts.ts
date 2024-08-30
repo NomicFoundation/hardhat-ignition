@@ -1,12 +1,16 @@
 import { DeployedContract } from "../../types/deploy";
 import { DeploymentState } from "../execution/types/deployment-state";
-import { ExecutionResultType } from "../execution/types/execution-result";
+import {
+  ExecutionResultType,
+  SuccessfulDeploymentExecutionResult,
+} from "../execution/types/execution-result";
 import {
   ContractAtExecutionState,
   DeploymentExecutionState,
   ExecutionSateType,
   ExecutionStatus,
 } from "../execution/types/execution-state";
+import { zeroHash } from "../journal/types/deployment-stamp";
 import { assertIgnitionInvariant } from "../utils/assertions";
 
 export function findDeployedContracts(deploymentState: DeploymentState): {
@@ -39,10 +43,16 @@ function _toDeployedContract(
         `Deployment execution state ${des.id} should have a successful result to retrieve address`
       );
 
+      const res = des.result as SuccessfulDeploymentExecutionResult;
       return {
         id: des.id,
         contractName: des.contractName,
-        address: des.result.address,
+        address: res.address,
+        transactionHash: zeroHash,
+        blockNumber: 0,
+        ...(res.deploymentStamp !== null && res.deploymentStamp !== undefined
+          ? res.deploymentStamp
+          : {}),
       };
     }
     case ExecutionSateType.CONTRACT_AT_EXECUTION_STATE: {
@@ -50,6 +60,8 @@ function _toDeployedContract(
         id: des.id,
         contractName: des.contractName,
         address: des.contractAddress,
+        transactionHash: zeroHash,
+        blockNumber: 0,
       };
     }
   }

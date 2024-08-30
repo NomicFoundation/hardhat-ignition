@@ -1,3 +1,5 @@
+import type { DeploymentStamp } from "../src/internal/journal/types/deployment-stamp";
+
 import { assert } from "chai";
 
 import { Artifact, ArtifactResolver } from "../src";
@@ -64,11 +66,14 @@ export function setupMockArtifactResolver(artifacts?: {
 
 export function setupMockDeploymentLoader(
   journal: Journal,
-  deployedAddresses?: { [key: string]: string }
+  deployedAddresses?: { [key: string]: string },
+  deploymentStamps?: { [key: string]: DeploymentStamp }
 ): DeploymentLoader {
   const storedArtifacts: { [key: string]: Artifact } = {};
   const storedDeployedAddresses: { [key: string]: string } =
     deployedAddresses ?? {};
+  const storedDeploymentStamps: { [key: string]: DeploymentStamp } =
+    deploymentStamps ?? {};
 
   return {
     recordToJournal: async (message) => {
@@ -77,8 +82,15 @@ export function setupMockDeploymentLoader(
     readFromJournal: () => {
       return journal.read();
     },
-    recordDeployedAddress: async (futureId, contractAddress) => {
+    recordDeployedAddress: async (
+      futureId,
+      contractAddress,
+      deploymentStamp
+    ) => {
       storedDeployedAddresses[futureId] = contractAddress;
+      if (deploymentStamp !== undefined) {
+        storedDeploymentStamps[futureId] = { ...deploymentStamp };
+      }
     },
     storeUserProvidedArtifact: async (artifactId, artifact) => {
       storedArtifacts[artifactId] = artifact;

@@ -2,6 +2,7 @@ import { assert } from "chai";
 import path from "path";
 
 import { Artifact, status } from "../src";
+import { zeroHash } from "../src/internal/journal/types/deployment-stamp";
 
 import { setupMockArtifactResolver } from "./helpers";
 
@@ -16,11 +17,13 @@ describe("status", () => {
       chainId: 1,
       contracts: {
         "LockModule#Lock": {
-          id: "LockModule#Lock",
-          contractName: "ArtifactLock",
-          address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-          sourceName: "contracts/ArtifactLock.sol",
           abi: ["test"],
+          address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          blockNumber: 0,
+          contractName: "ArtifactLock",
+          id: "LockModule#Lock",
+          sourceName: "contracts/ArtifactLock.sol",
+          transactionHash: zeroHash,
         },
       },
     };
