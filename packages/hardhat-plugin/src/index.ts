@@ -15,7 +15,7 @@ import {
 } from "fs-extra";
 import { extendConfig, extendEnvironment, scope } from "hardhat/config";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
-import { parse as json5parse } from "json5";
+import { parse as json5Parse } from "json5";
 import path from "path";
 
 import "./type-extensions";
@@ -676,7 +676,7 @@ async function resolveConfigPath(
   try {
     const rawFile = await readFile(filepath);
 
-    return await json5parse(rawFile.toString(), bigintReviver);
+    return await json5Parse(rawFile.toString(), bigintReviver);
   } catch (e) {
     if (e instanceof NomicLabsHardhatPluginError) {
       throw e;
@@ -696,7 +696,7 @@ async function resolveConfigPath(
 
 function resolveParametersString(paramString: string): DeploymentParameters {
   try {
-    return JSON.parse(paramString, bigintReviver);
+    return json5Parse(paramString, bigintReviver);
   } catch (e) {
     if (e instanceof NomicLabsHardhatPluginError) {
       throw e;
