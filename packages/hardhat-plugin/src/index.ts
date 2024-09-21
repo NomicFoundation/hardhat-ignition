@@ -147,7 +147,8 @@ ignitionScope
       const deploymentId = resolveDeploymentId(givenDeploymentId, chainId);
 
       const deploymentDir =
-        hre.network.name === "hardhat"
+        // allow overriding givenDeploymentId to force writing to disk in in-memory mode
+        hre.network.name === "hardhat" && givenDeploymentId === undefined
           ? undefined
           : path.join(hre.config.paths.ignition, "deployments", deploymentId);
 
