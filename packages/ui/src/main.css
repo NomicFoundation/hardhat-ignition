@@ -45,9 +45,23 @@ body {
 
 /* mermaid styles */
 
+.mermaid {
+  background: #fbfbfb;
+  height: 500px;
+}
+
 .mermaid * {
   font-family: "Roboto", sans-serif;
   font-size: 30px;
+}
+
+.mermaid svg {
+  height: 100%;
+  vertical-align: middle;
+}
+
+.mermaid span {
+  cursor: default;
 }
 
 .mermaid rect {
