@@ -18,6 +18,7 @@ import {
   StaticCallExecutionState,
 } from "../types/execution-state";
 import { ExecutionStrategy } from "../types/execution-strategy";
+import { TransactionReceiptStatus } from "../types/jsonrpc";
 import { JournalMessage, JournalMessageType } from "../types/messages";
 
 import { monitorOnchainInteraction } from "./handlers/monitor-onchain-interaction";
@@ -145,13 +146,31 @@ export class FutureProcessor {
     lastAppliedMessage: JournalMessage
   ) {
     if (
+      lastAppliedMessage.type === JournalMessageType.TRANSACTION_CONFIRM &&
+      lastAppliedMessage.receipt.status === TransactionReceiptStatus.SUCCESS
+    ) {
+      const { receipt, futureId } = lastAppliedMessage;
+      const { contractAddress, blockNumber, transactionHash } = receipt;
+      if (contractAddress !== null && contractAddress !== undefined) {
+        await this._deploymentLoader.recordDeployedAddress(
+          futureId,
+          contractAddress,
+          {
+            address: contractAddress,
+            blockNumber: Number(blockNumber),
+            transactionHash,
+          }
+        );
+      }
+    } else if (
       lastAppliedMessage.type ===
         JournalMessageType.DEPLOYMENT_EXECUTION_STATE_COMPLETE &&
       lastAppliedMessage.result.type === ExecutionResultType.SUCCESS
     ) {
       await this._deploymentLoader.recordDeployedAddress(
         lastAppliedMessage.futureId,
-        lastAppliedMessage.result.address
+        lastAppliedMessage.result.address,
+        lastAppliedMessage.result.deploymentStamp
       );
     } else if (
       lastAppliedMessage.type ===

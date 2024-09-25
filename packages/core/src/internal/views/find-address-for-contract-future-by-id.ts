@@ -1,5 +1,8 @@
 import { DeploymentState } from "../execution/types/deployment-state";
-import { ExecutionResultType } from "../execution/types/execution-result";
+import {
+  ExecutionResultType,
+  SuccessfulDeploymentExecutionResult,
+} from "../execution/types/execution-result";
 import { ExecutionSateType } from "../execution/types/execution-state";
 import { assertIgnitionInvariant } from "../utils/assertions";
 
@@ -45,5 +48,6 @@ export function findAddressForContractFuture(
     `Cannot access the result of ${futureId}, it was not a deployment success`
   );
 
-  return exState.result.address;
+  const result = exState.result as SuccessfulDeploymentExecutionResult;
+  return result.address;
 }

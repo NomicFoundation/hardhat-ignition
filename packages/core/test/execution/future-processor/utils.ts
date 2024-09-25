@@ -1,3 +1,5 @@
+import type { DeploymentStamp } from "../../../src/internal/journal/types/deployment-stamp";
+
 import { FutureProcessor } from "../../../src/internal/execution/future-processor/future-processor";
 import {
   Block,
@@ -30,12 +32,15 @@ export async function setupFutureProcessor(
 ): Promise<{
   processor: FutureProcessor;
   storedDeployedAddresses: { [key: string]: string };
+  storedDeploymentStamps: { [key: string]: DeploymentStamp };
 }> {
   const storedDeployedAddresses: { [key: string]: string } = {};
+  const storedDeploymentStamps: { [key: string]: DeploymentStamp } = {};
 
   const mockDeploymentLoader = setupMockDeploymentLoader(
     new MemoryJournal(),
-    storedDeployedAddresses
+    storedDeployedAddresses,
+    storedDeploymentStamps
   );
 
   const mockArtifactResolver = setupMockArtifactResolver();
@@ -68,7 +73,11 @@ export async function setupFutureProcessor(
     false // disableFeeBumping
   );
 
-  return { processor, storedDeployedAddresses };
+  return {
+    processor,
+    storedDeployedAddresses,
+    storedDeploymentStamps,
+  };
 }
 
 function setupMockNonceManager(): NonceManager {

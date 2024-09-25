@@ -12,6 +12,7 @@ import {
   ExecutionResultType,
   SendDataExecutionResult,
   StaticCallExecutionResult,
+  SuccessfulDeploymentExecutionResult,
 } from "../../execution/types/execution-result";
 import {
   JournalMessage,
@@ -203,9 +204,10 @@ function convertExecutionResultToEventResult(
 ): ExecutionEventResult {
   switch (result.type) {
     case ExecutionResultType.SUCCESS: {
+      const res = result as SuccessfulDeploymentExecutionResult;
       return {
         type: ExecutionEventResultType.SUCCESS,
-        result: "address" in result ? result.address : undefined,
+        result: res.address,
       };
     }
     case ExecutionResultType.STATIC_CALL_ERROR:
