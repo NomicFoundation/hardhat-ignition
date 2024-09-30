@@ -14,6 +14,7 @@ import {
   filterToAccountRuntimeValues,
   retrieveNestedRuntimeValues,
   validateAccountRuntimeValue,
+  validateArgs,
 } from "../utils";
 
 export async function validateNamedContractDeployment(
@@ -74,6 +75,10 @@ export async function validateNamedContractDeployment(
       new IgnitionError(ERRORS.VALIDATION.MISSING_MODULE_PARAMETER, {
         name: missingParams[0].name,
       })
+    );
+  } else {
+    errors.push(
+      ...validateArgs(artifact, future.constructorArgs, deploymentParameters)
     );
   }
 
