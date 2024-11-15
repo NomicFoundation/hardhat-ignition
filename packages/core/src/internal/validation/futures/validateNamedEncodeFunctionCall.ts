@@ -62,6 +62,7 @@ export async function validateNamedEncodeFunctionCall(
   const missingParams = moduleParams.filter(
     (param) =>
       deploymentParameters[param.moduleId]?.[param.name] === undefined &&
+      deploymentParameters.$global?.[param.name] === undefined &&
       param.defaultValue === undefined
   );
 

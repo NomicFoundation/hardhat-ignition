@@ -94,9 +94,25 @@ describe("module parameters", () => {
       );
     });
 
-    it("should use a global parameter", async function () {
+    it("should use a global parameter instead of the default value", async function () {
       const ignitionModule = buildModule("Test", (m) => {
         const unlockTime = m.getParameter("unlockTime", 100);
+
+        const lock = m.contract("Lock", [unlockTime]);
+
+        return { lock };
+      });
+
+      const result = await this.hre.ignition.deploy(ignitionModule, {
+        parameters: { $global: { unlockTime: 1893499200000 } },
+      });
+
+      assert.equal(await result.lock.read.unlockTime(), 1893499200000);
+    });
+
+    it("should use a global parameter if available", async function () {
+      const ignitionModule = buildModule("Test", (m) => {
+        const unlockTime = m.getParameter("unlockTime");
 
         const lock = m.contract("Lock", [unlockTime]);
 

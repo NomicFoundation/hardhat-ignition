@@ -55,6 +55,7 @@ export async function validateArtifactContractDeployment(
   const missingParams = moduleParams.filter(
     (param) =>
       deploymentParameters[param.moduleId]?.[param.name] === undefined &&
+      deploymentParameters.$global?.[param.name] === undefined &&
       param.defaultValue === undefined
   );
 
@@ -69,7 +70,9 @@ export async function validateArtifactContractDeployment(
   if (isModuleParameterRuntimeValue(future.value)) {
     const param =
       deploymentParameters[future.value.moduleId]?.[future.value.name] ??
+      deploymentParameters.$global?.[future.value.name] ??
       future.value.defaultValue;
+
     if (param === undefined) {
       errors.push(
         new IgnitionError(ERRORS.VALIDATION.MISSING_MODULE_PARAMETER, {

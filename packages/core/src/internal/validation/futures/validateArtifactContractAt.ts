@@ -18,7 +18,9 @@ export async function validateArtifactContractAt(
   if (isModuleParameterRuntimeValue(future.address)) {
     const param =
       deploymentParameters[future.address.moduleId]?.[future.address.name] ??
+      deploymentParameters.$global?.[future.address.name] ??
       future.address.defaultValue;
+
     if (param === undefined) {
       errors.push(
         new IgnitionError(ERRORS.VALIDATION.MISSING_MODULE_PARAMETER, {

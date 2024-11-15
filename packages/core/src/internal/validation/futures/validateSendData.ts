@@ -33,7 +33,9 @@ export async function validateSendData(
   if (isModuleParameterRuntimeValue(future.to)) {
     const param =
       deploymentParameters[future.to.moduleId]?.[future.to.name] ??
+      deploymentParameters.$global?.[future.to.name] ??
       future.to.defaultValue;
+
     if (param === undefined) {
       errors.push(
         new IgnitionError(ERRORS.VALIDATION.MISSING_MODULE_PARAMETER, {
@@ -54,7 +56,9 @@ export async function validateSendData(
   if (isModuleParameterRuntimeValue(future.value)) {
     const param =
       deploymentParameters[future.value.moduleId]?.[future.value.name] ??
+      deploymentParameters.$global?.[future.value.name] ??
       future.value.defaultValue;
+
     if (param === undefined) {
       errors.push(
         new IgnitionError(ERRORS.VALIDATION.MISSING_MODULE_PARAMETER, {

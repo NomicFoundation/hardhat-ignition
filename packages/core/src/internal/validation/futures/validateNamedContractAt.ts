@@ -33,6 +33,7 @@ export async function validateNamedContractAt(
   if (isModuleParameterRuntimeValue(future.address)) {
     const param =
       deploymentParameters[future.address.moduleId]?.[future.address.name] ??
+      deploymentParameters.$global?.[future.address.name] ??
       future.address.defaultValue;
     if (param === undefined) {
       errors.push(
