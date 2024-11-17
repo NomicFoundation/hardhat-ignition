@@ -174,7 +174,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/unified-signatures": "error",
-    "@typescript-eslint/return-await": "error",
+    "@typescript-eslint/return-await": "error", // keeping this line only
     "constructor-super": "error",
     eqeqeq: ["error", "always"],
     "guard-for-in": "error",
@@ -216,8 +216,6 @@ module.exports = {
     "no-new-func": "error",
     "no-new-wrappers": "error",
     "no-only-tests/no-only-tests": "error",
-    "no-return-await": "off",
-    "@typescript-eslint/return-await": "error",
     "no-sequences": "error",
     "no-sparse-arrays": "error",
     "no-template-curly-in-string": "error",
