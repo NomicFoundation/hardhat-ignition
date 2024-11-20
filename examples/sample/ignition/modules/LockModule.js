@@ -8,7 +8,7 @@ const TEN_YEARS_IN_FUTURE = currentTimestampInSeconds + TEN_YEAR_IN_SECS;
 const ONE_GWEI = BigInt(hre.ethers.parseUnits("1", "gwei"));
 
 module.exports = buildModule("LockModule", (m) => {
-  const unlockTime = m.getParameter("unlockTime", TEN_YEARS_IN_FUTURE);
+  const unlockTime = m.getParameter("unlockTime");
   const lockedAmount = m.getParameter("lockedAmount", ONE_GWEI);
 
   const lock = m.contract("Lock", [unlockTime], {
