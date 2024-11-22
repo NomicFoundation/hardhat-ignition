@@ -12,9 +12,9 @@ export function getFutureById(
   ignitionModule: IgnitionModule<string, string, IgnitionModuleResult<string>>,
   futureId: string | undefined
 ): Future | undefined {
-  if (futureId === undefined) {
-    return undefined;
-  }
+  if (!futureId) {
+  return undefined;
+}
 
   const f = getAllFuturesForModule(ignitionModule).find(
     (f) => f.id === futureId
