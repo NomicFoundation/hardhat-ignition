@@ -4,7 +4,7 @@ export function calculateBatchDisplay(state: UiState): {
   text: string;
   height: number;
 } {
-  const batch = state.batches[state.currentBatch - 1];
+  const batch = state.batches[state.currentBatch - 1] || [];
   const height = batch.length + (state.ledgerMessageIsDisplayed ? 4 : 2);
 
   let text = `Batch #${state.currentBatch}\n`;
