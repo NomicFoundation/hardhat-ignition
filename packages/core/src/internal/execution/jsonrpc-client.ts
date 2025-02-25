@@ -472,10 +472,17 @@ export class EIP1193JsonRpcClient implements JsonRpcClient {
         ? numberToJsonRpcQuantity(blockTag)
         : blockTag;
 
-    const response = await this._provider.request({
-      method: "eth_getTransactionCount",
-      params: [address, encodedBlockTag],
-    });
+    try {
+      const response = await this._provider.request({
+        method: "eth_getTransactionCount",
+        params: [address, encodedBlockTag],
+      });
+    } catch (err) {
+      // In Geth (for a private network)
+      // Error: missing trie node ...  (path ) <nil>
+      // real error or transaction count is 0 (0x0).
+      return jsonRpcQuantityToNumber("0x0");
+    }
 
     assertResponseType(
       "eth_getTransactionCount",
